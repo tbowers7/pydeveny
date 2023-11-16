@@ -31,6 +31,9 @@ import sys
 import warnings
 
 # 3rd-Party Libraries
+import astropy.modeling
+import astropy.nddata
+import ccdproc
 import darkdetect
 import matplotlib.pyplot as plt
 import numpy as np
@@ -460,6 +463,63 @@ def sinusoid(
         + cube * x**3
         + quar * x**4
     )
+
+
+def trim_oscan(
+    ccd: astropy.nddata.CCDData, biassec: str, trimsec: str, oscan_order: int = 1
+) -> astropy.nddata.CCDData:
+    """Subtract the overscan region and trim image to desired size
+
+    The CCDPROC function :func:`~ccdproc.subtract_overscan` expects the
+    ``TRIMSEC`` of the image (the part you want to keep) to span the entirety
+    of one dimension, with the ``BIASSEC`` (overscan section) being at the end
+    of the other dimension.
+
+    The various Lowell Observatory imagers have edge effects on all sides of
+    their respective chips, and so the ``TRIMSEC`` and ``BIASSEC`` do not meet
+    the expectations of :func:`~ccdproc.subtract_overscan`.  Therefore, this
+    function is a wrapper to first remove the undesired `ROWS` from top and
+    bottom if the image, then perform the :func:`~ccdproc.subtract_overscan`
+    fitting and subtraction, followed by trimming off the now-spent overscan
+    region.
+
+    Parameters
+    ----------
+    ccd : :obj:`~astropy.nddata.CCDData`
+        The CCDData object on which to operate
+    biassec : :obj:`str`
+        The IRAF-style overscan region to be subtracted from each frame.
+    trimsec : :obj:`str`
+        The IRAF-style image region to be retained in each frame.
+    oscan_order : :obj:`int`, optional
+        Order of the 1D Chebyshev polynomial to fit to the overscan region
+        (Default: 1)
+
+    Returns
+    -------
+    :obj:`~astropy.nddata.CCDData`
+        The trimmed CCDData object, with history of the operations added to the
+        FITS header.
+    """
+
+    # Convert the FITS bias & trim sections into slice classes for use
+    _, x_b = ccdproc.utils.slices.slice_from_string(biassec, fits_convention=True)
+    y_t, x_t = ccdproc.utils.slices.slice_from_string(trimsec, fits_convention=True)
+
+    # First trim off the top & bottom rows
+    ccd = ccdproc.trim_image(ccd[y_t.start : y_t.stop, :])
+
+    # Model & Subtract the overscan
+    # TODO: Consider options other than Chebyshev Polynomial for the overscan fitting
+    ccd = ccdproc.subtract_overscan(
+        ccd,
+        overscan=ccd[:, x_b.start : x_b.stop],
+        median=True,
+        model=astropy.modeling.models.Chebyshev1D(oscan_order),
+    )
+
+    # Trim the overscan & return
+    return ccdproc.trim_image(ccd[:, x_t.start : x_t.stop])
 
 
 def warn_and_return_zeros(return_full: bool, x, xx, yy, order, raise_warn=False):
