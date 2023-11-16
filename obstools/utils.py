@@ -261,7 +261,9 @@ def gaussian_function(
     return a0 * np.exp(-(z**2) / 2.0) + a3 + a4 * x + a5 * x**2
 
 
-def good_poly(x, y, order, thresh, return_full=False):
+def good_poly(
+    x: np.ndarray, y: np.ndarray, order: int, thresh: float, return_full: bool = False
+) -> np.polynomial.Polynomial:
     """Robust fitting of a polynomial to data
 
     This is a python port of an IDL routine written years ago by M. Buie.
@@ -293,8 +295,8 @@ def good_poly(x, y, order, thresh, return_full=False):
 
     Returns
     -------
-    :obj:`~numpy.ndarray`
-        Array of fit parameters, as in :func:`numpy.polyfit`.
+    :obj:`~numpy.polynomial.Polynomial`
+        The final :obj:`~numpy.polynomial.Polynomial` object
     Also, optionally, the ``return_full`` bits
     """
     # Make copies to not mess up the inputs
@@ -326,46 +328,46 @@ def good_poly(x, y, order, thresh, return_full=False):
         return coeff
 
     # Initial fit with all the data.
-    coeff = np.polyfit(xx, yy, order)
-    yfit = np.polyval(coeff, xx)
+    polyfit = np.polynomial.Polynomial.fit(xx, yy, order)
+    yfit = polyfit(xx)
     flat = (yy - yfit) + np.sum(yfit) / array_length
     mean, sigma = np.mean(flat), np.std(flat)
 
     # Remove all points beyond threshold sigma
-    good = np.where(np.abs(flat - mean) < thresh * sigma)
-    nbad = array_length - len(good)
+    good = np.abs(flat - mean) < thresh * sigma
+    nbad = array_length - np.sum(good)
     xx, yy = xx[good], yy[good]
     if (array_length := len(xx)) == 0:
         return warn_and_return_zeros(return_full, x, xx, yy, order)
 
     # Do a second pass if there were any bad points removed
     if nbad != 0:
-        coeff = np.polyfit(xx, yy, order)
-        yfit = np.polyval(coeff, xx)
+        polyfit = np.polynomial.Polynomial.fit(xx, yy, order)
+        yfit = polyfit(xx)
         flat = (yy - yfit) + np.sum(yfit) / array_length
         mean, sigma = np.mean(flat), np.std(flat)
 
         # Remove all points beyond threshold sigma
-        good = np.where(np.abs(flat - mean) < thresh * sigma)
-        nbad = array_length - len(good)
+        good = np.abs(flat - mean) < thresh * sigma
+        nbad = array_length - np.sum(good)
         xx, yy = xx[good], yy[good]
         if (array_length := len(xx)) == 0:
             return warn_and_return_zeros(return_full, x, xx, yy, order)
 
     # Do a third pass if there were any more bad points removed
     if nbad != 0:
-        coeff = np.polyfit(xx, yy, order)
-        yfit = np.polyval(coeff, xx)
+        polyfit = np.polynomial.Polynomial.fit(xx, yy, order)
+        yfit = polyfit(xx)
         flat = (yy - yfit) + np.sum(yfit) / array_length
         mean, sigma = np.mean(flat), np.std(flat)
 
     # Check that the fit coefficients are finite:
-    if not np.all(np.isfinite(coeff)):
+    if not np.all(np.isfinite(polyfit.coef)):
         return warn_and_return_zeros(return_full, x, xx, yy, order)
 
     if return_full:
-        return coeff, yfit, xx, yy
-    return coeff
+        return polyfit, yfit, xx, yy
+    return polyfit
 
 
 def nearest_odd(x: float) -> int:
@@ -522,7 +524,9 @@ def trim_oscan(
     return ccdproc.trim_image(ccd[:, x_t.start : x_t.stop])
 
 
-def warn_and_return_zeros(return_full: bool, x, xx, yy, order, raise_warn=False):
+def warn_and_return_zeros(
+    return_full: bool, x, xx, yy, order: int, raise_warn: bool = False
+) -> np.polynomial.Polynomial:
     """Set warning and return zeroes from :func:`good_poly`
 
     This function is a DRY.  Since this block is used several times in
@@ -545,15 +549,15 @@ def warn_and_return_zeros(return_full: bool, x, xx, yy, order, raise_warn=False)
 
     Returns
     -------
-    :obj:`~numpy.ndarray`
-        An array of zeros of the proper length
+    :obj:`~numpy.polynomial.Polynomial`
+        An zero-initialized :obj:`~numpy.polynomial.Polynomial` object.
     """
     if raise_warn:
         warnings.warn("No good values to fit, return zeros.", UserWarning)
     if return_full:
         yfit = [0] * len(x)
         return [0] * (order + 1), yfit, xx, yy
-    return [0] * (order + 1)
+    return np.polynomial.Polynomial([0] * (order + 1))
 
 
 """
