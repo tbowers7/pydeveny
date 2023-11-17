@@ -139,7 +139,7 @@ class DevenyFocus:
             specimg = utils.trim_oscan(
                 ccd, ccd.header["BIASSEC"], ccd.header["TRIMSEC"]
             )
-            spec1d = extract_spectrum(specimg.data, trace, win=11)
+            spec1d = self.extract_spectrum(specimg.data, trace, win=11)
 
             # Find FWHM of lines:
             these_centers, fwhm = self.find_lines(
@@ -179,7 +179,7 @@ class DevenyFocus:
             optimal_focus_values,
             min_lw,
             fit_polynomials,
-        ) = fit_focus_curves(
+        ) = self.fit_focus_curves(
             self.focus_dict["focus_positions"],
             line_width_array,
             fnom=self.focus_dict["nominal"],
@@ -365,7 +365,7 @@ class DevenyFocus:
         # Build the trace for spectrum extraction -- right down the middle
         n_y, n_x = specimg.shape
         trace = np.full(n_x, n_y / 2, dtype=float).reshape((1, n_x))
-        middle_spectrum = extract_spectrum(specimg.data, trace, win=11)
+        middle_spectrum = self.extract_spectrum(specimg.data, trace, win=11)
         if self.debug:
             print(f"Traces: {trace}")
             print(f"Middle Spectrum: {middle_spectrum}")
@@ -665,149 +665,160 @@ class DevenyFocus:
 
         plt.close()
 
+    # Static Methods ===============================================#
+    @staticmethod
+    def fit_focus_curves(
+        focus_positions: np.ndarray,
+        fwhm: np.ndarray,
+        fnom: float = 2.7,
+        norder: int = 2,
+        debug: bool = False,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Fit line / star focus curves
 
-# Non-Class Functions ========================================================#
-def fit_focus_curves(
-    focus_positions: np.ndarray,
-    fwhm: np.ndarray,
-    fnom: float = 2.7,
-    norder: int = 2,
-    debug: bool = False,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Fit line / star focus curves
+        [extended_summary]
 
-    [extended_summary]
+        Parameters
+        ----------
+        focus_positions : :obj:`~numpy.ndarray`
+            Array of the focus position values
+        fwhm : :obj:`~numpy.ndarray`
+            2D array of FWHM for all lines as a function of COLLFOC
+        fnom : :obj:`float`, optional
+            Nominal FHWM of an in-focus line. (Default: 2.7)
+        norder : :obj:`int`, optional
+            Polynomial order of the focus fit (Default: 2 = Quadratic)
+        debug : :obj:`bool`, optional
+            Print debug statements  (Default: False)
 
-    Parameters
-    ----------
-    focus_positions : :obj:`~numpy.ndarray`
-        Array of the focus position values
-    fwhm : :obj:`~numpy.ndarray`
-        2D array of FWHM for all lines as a function of COLLFOC
-    fnom : :obj:`float`, optional
-        Nominal FHWM of an in-focus line. (Default: 2.7)
-    norder : :obj:`int`, optional
-        Polynomial order of the focus fit (Default: 2 = Quadratic)
-    debug : :obj:`bool`, optional
-        Print debug statements  (Default: False)
+        Returns
+        -------
+        min_cf_value : :obj:`~numpy.ndarray`
+            Array of minimum focus values per line
+        optimal_cf_value : :obj:`~numpy.ndarray`
+            Array of optimal focus values per line
+        min_linewidth : :obj:`~numpy.ndarray`
+            Array of minimum linewidths per line
+        foc_fits : :obj:`~numpy.ndarray`
+            Array of :obj:`~numpy.polynomial.Polynomial` objects per line
+        """
+        # Warning Filter -- Polyfit RankWarning, don't wanna hear about it
+        warnings.simplefilter("ignore", np.RankWarning)
 
-    Returns
-    -------
-    min_cf_value : :obj:`~numpy.ndarray`
-        Array of minimum focus values per line
-    optimal_cf_value : :obj:`~numpy.ndarray`
-        Array of optimal focus values per line
-    min_linewidth : :obj:`~numpy.ndarray`
-        Array of minimum linewidths per line
-    foc_fits : :obj:`~numpy.ndarray`
-        Array of :obj:`~numpy.polynomial.Polynomial` objects per line
-    """
-    # Warning Filter -- Polyfit RankWarning, don't wanna hear about it
-    warnings.simplefilter("ignore", np.RankWarning)
+        # Create the various arrays (filled with NaN)
+        _, n_lines = fwhm.shape
+        min_linewidth = np.full(n_lines, np.nan, dtype=float)
+        min_cf_value = np.full(n_lines, np.nan, dtype=float)
+        optimal_cf_value = np.full(n_lines, np.nan, dtype=float)
+        foc_fits = np.full(n_lines, np.nan, dtype=np.polynomial.Polynomial)
 
-    # Create the various arrays (filled with NaN)
-    _, n_lines = fwhm.shape
-    min_linewidth = np.full(n_lines, np.nan, dtype=float)
-    min_cf_value = np.full(n_lines, np.nan, dtype=float)
-    optimal_cf_value = np.full(n_lines, np.nan, dtype=float)
-    foc_fits = np.full(n_lines, np.nan, dtype=np.polynomial.Polynomial)
-
-    # Fitting arrays (these are indices for collimator focus)
-    d_f = np.diff(focus_positions).mean()
-    cf_grid_fine = np.arange(
-        np.min(focus_positions),
-        np.max(focus_positions) + d_f / 10,
-        d_f / 10,
-        dtype=float,
-    )
-
-    # Loop through lines to find the best focus for each one
-    for i in range(n_lines):
-        # Data are the FWHM for this line at different COLLFOC
-        fwhms_of_this_line = fwhm[:, i]
-
-        # Find unphysically large or small FWHM (or NaN) -- set to np.nan
-        bad_idx = (
-            (fwhms_of_this_line < 1.0)
-            | (fwhms_of_this_line > 15.0)
-            | np.isnan(fwhms_of_this_line)
+        # Fitting arrays (these are indices for collimator focus)
+        d_f = np.diff(focus_positions).mean()
+        cf_grid_fine = np.arange(
+            np.min(focus_positions),
+            np.max(focus_positions) + d_f / 10,
+            d_f / 10,
+            dtype=float,
         )
-        fwhms_of_this_line[bad_idx] = np.nan
 
-        # If no more than 3 of the FHWM are good for this line, skip and go on
-        if np.sum(np.logical_not(bad_idx)) < 3:
-            # NOTE: This leaves a NaN in this position of all arrays.
-            continue
+        # Loop through lines to find the best focus for each one
+        for i in range(n_lines):
+            # Data are the FWHM for this line at different COLLFOC
+            fwhms_of_this_line = fwhm[:, i]
 
-        # Do a polynomial fit (norder) to the FWHM vs COLLFOC index
-        # fit = np.polyfit(cf_idx_coarse, fwhms_of_this_line, norder)
-        fit = utils.good_poly(focus_positions, fwhms_of_this_line, norder, thresh=2.0)
-        foc_fits[i] = fit
-        if debug:
-            print(f"In fit_focus_curves(): fit = {fit.convert().coef}")
-
-        # If good_poly() returns zeros, move along (leaving NaN in the arrays)
-        if all(value == 0 for value in fit.coef):
-            continue
-
-        # Use the fine grid to evaluate the curve miniumum
-        focus_curve = fit(cf_grid_fine)
-        min_cf_value[i] = cf_grid_fine[np.argmin(focus_curve)]
-        min_linewidth[i] = np.min(focus_curve)
-
-        # Compute the nominal focus position as the larger of the two points
-        #   where the polymonial function crosses fnom
-        # Convert the `fit` to the unscaled data domain and subtract `fnom`
-        #   from the order=0 coefficient
-        roots = np.polynomial.Polynomial(fit.convert().coef + [-fnom, 0, 0]).roots()
-        if debug:
-            print(f"Roots: {roots}")
-        optimal_cf_value[i] = np.max(np.real(roots))
-
-    # After looping, return the items as a series of numpy arrays
-    return min_cf_value, optimal_cf_value, min_linewidth, foc_fits
-
-
-def extract_spectrum(spectrum: np.ndarray, traces: np.ndarray, win: int) -> np.ndarray:
-    """Object spectral extraction routine
-
-    Extract spectra by averaging over the specified window
-
-    Parameters
-    ----------
-    spectrum : :obj:`~numpy.ndarray`
-        The trimmed spectral image
-    traces : :obj:`~numpy.ndarray`
-        The trace(s) along which to extract spectra
-    win : :obj:`int`
-        Window over which to average the spectrum
-
-    Returns
-    -------
-    :obj:`~numpy.ndarray`
-        2D or 3D array of spectra of individual orders
-    """
-    # Spec out the shape, and create an empty array to hold the output spectra
-    norders, n_x = traces.shape
-    spectra = np.empty((norders, n_x), dtype=float)
-    speca = np.empty(n_x, dtype=float)
-
-    # Set extraction window size
-    half_window = int(win) // 2
-
-    for order in range(norders):
-        # Because of python indexing, we need to "+1" the upper limit in order
-        #   to get the full wsize elements for the average
-        trace = traces[order, :].astype(int)
-        for i in range(n_x):
-            speca[i] = np.average(
-                spectrum[trace[i] - half_window : trace[i] + half_window + 1, i]
+            # Find unphysically large or small FWHM (or NaN) -- set to np.nan
+            bad_idx = (
+                (fwhms_of_this_line < 1.0)
+                | (fwhms_of_this_line > 15.0)
+                | np.isnan(fwhms_of_this_line)
             )
-        spectra[order, :] = speca.reshape((1, n_x))
+            fwhms_of_this_line[bad_idx] = np.nan
 
-    return spectra
+            # If no more than 3 of the FHWM are good for this line, skip and go on
+            if np.sum(np.logical_not(bad_idx)) < 3:
+                # NOTE: This leaves a NaN in this position of all arrays.
+                continue
+
+            # Do a polynomial fit (norder) to the FWHM vs COLLFOC index
+            # fit = np.polyfit(cf_idx_coarse, fwhms_of_this_line, norder)
+            fit = utils.good_poly(
+                focus_positions, fwhms_of_this_line, norder, thresh=2.0
+            )
+            foc_fits[i] = fit
+            if debug:
+                print(f"In fit_focus_curves(): fit = {fit.convert().coef}")
+
+            # If good_poly() returns zeros, move along (leaving NaN in the arrays)
+            if all(value == 0 for value in fit.coef):
+                continue
+
+            # Use the fine grid to evaluate the curve miniumum
+            focus_curve = fit(cf_grid_fine)
+            min_cf_value[i] = cf_grid_fine[np.argmin(focus_curve)]
+            min_linewidth[i] = np.min(focus_curve)
+
+            # Compute the nominal focus position as the larger of the two points
+            #   where the polymonial function crosses fnom
+            # Convert the `fit` to the unscaled data domain and subtract `fnom`
+            #   from the order=0 coefficient
+            roots = np.polynomial.Polynomial(fit.convert().coef + [-fnom, 0, 0]).roots()
+            if debug:
+                print(f"Roots: {roots}")
+            optimal_cf_value[i] = np.max(np.real(roots))
+
+        # After looping, return the items as a series of numpy arrays
+        return min_cf_value, optimal_cf_value, min_linewidth, foc_fits
+
+    @staticmethod
+    def extract_spectrum(
+        spectrum: np.ndarray, traces: np.ndarray, win: int
+    ) -> np.ndarray:
+        """Object spectral extraction routine
+
+        Extract spectra by averaging over the specified window
+
+        Parameters
+        ----------
+        spectrum : :obj:`~numpy.ndarray`
+            The trimmed spectral image
+        traces : :obj:`~numpy.ndarray`
+            The trace(s) along which to extract spectra
+        win : :obj:`int`
+            Window over which to average the spectrum
+
+        Returns
+        -------
+        :obj:`~numpy.ndarray`
+            2D or 3D array of spectra of individual orders
+        """
+        # Spec out the shape, and create an empty array to hold the output spectra
+        norders, n_x = traces.shape
+        spectra = np.empty((norders, n_x), dtype=float)
+        speca = np.empty(n_x, dtype=float)
+
+        # Set extraction window size
+        half_window = int(win) // 2
+
+        # TODO: This function is left over from IDL code designed to be very
+        #       flexible.  Its use here, however, does not need all this
+        #       flexibility.  Rework all this to allow the extraction of a
+        #       spectrum along "trace" which is simply the middle row of the
+        #       2D spectral image.
+
+        for order in range(norders):
+            # Because of python indexing, we need to "+1" the upper limit in order
+            #   to get the full wsize elements for the average
+            trace = traces[order, :].astype(int)
+            for i in range(n_x):
+                speca[i] = np.average(
+                    spectrum[trace[i] - half_window : trace[i] + half_window + 1, i]
+                )
+            spectra[order, :] = speca.reshape((1, n_x))
+
+        return spectra
 
 
+# Externally Accessible Functions ============================================#
 def find_lines_in_spectrum(
     filename: str | pathlib.Path, thresh: float = 100.0
 ) -> np.ndarray:
@@ -838,7 +849,7 @@ def find_lines_in_spectrum(
     # Build the trace for spectrum extraction
     n_y, n_x = specimg.shape
     traces = np.full(n_x, n_y / 2, dtype=float).reshape((1, n_x))
-    spec1d = extract_spectrum(specimg.data, traces, win=11)
+    spec1d = DevenyFocus.extract_spectrum(specimg.data, traces, win=11)
 
     # Find the lines!
     centers, _ = DevenyFocus.find_lines_wrap(spec1d, thresh=thresh)
