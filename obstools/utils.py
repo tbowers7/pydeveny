@@ -25,7 +25,7 @@ package.
 import argparse
 from functools import reduce
 from importlib import resources
-import os
+import pathlib
 import textwrap
 import sys
 import warnings
@@ -117,6 +117,24 @@ def first_moment_1d(line):
 
     # Return the first moment
     return np.sum(yy * line) / np.sum(line)
+
+
+def flatten_comprehension(nested_list: list) -> list:
+    """Flatten a single-depth nested list via list comprehension
+
+    https://realpython.com/python-flatten-list/
+
+    Parameters
+    ----------
+    nested_list : :obj:`list`
+        The single-depth nested list to flatten
+
+    Returns
+    -------
+    :obj:`list`
+        The flattened list
+    """
+    return [item for row in nested_list for item in row]
 
 
 def gaussfit(x, y, nterms: int = 3, estimates=None, bounds=None, debug: bool = False):
@@ -560,13 +578,117 @@ def warn_and_return_zeros(
     return np.polynomial.Polynomial([0] * (order + 1))
 
 
-"""
-Implements base classes for use with ``PypeIt`` scripts.
+class ScriptBase:
+    """
+    Provides a base class for all scripts.
 
-.. include common links, assuming primary doc root is up one directory
-.. include:: ../include/links.rst
+    Implements base classes for use with ``PypeIt`` scripts.
 
-"""
+    .. include common links, assuming primary doc root is up one directory
+    .. include:: ../include/links.rst
+
+    """
+
+    @classmethod
+    def entry_point(cls):
+        """
+        Defines the main script entry point.
+        """
+        args = cls.parse_args()
+        if args.version:
+            print(f"  LDT Observer Tools (obstools) version {__version__}")
+        else:
+            sys.exit(cls.main(args))
+
+    @classmethod
+    @property
+    def name(cls):
+        """
+        Provide the name of the script.  By default, this is the name of the
+        module.
+        """
+        return f"{cls.__module__.rsplit('.', maxsplit=1)[-1]}"
+
+    @classmethod
+    def parse_args(cls, options=None):
+        """
+        Parse the command-line arguments.
+        """
+        parser = cls.get_parser()
+        ScriptBase._fill_parser_cwd(parser)
+        # Add "--version" to bottom of all scripts
+        parser.add_argument(
+            "--version", action="store_true", help="Print version and exit"
+        )
+        return parser.parse_args() if options is None else parser.parse_args(options)
+
+    @staticmethod
+    def _fill_parser_cwd(parser):
+        """
+        Replace the default of any action that is exactly ``'current working
+        directory'`` with the value of ``os.getcwd()``.
+
+        The ``parser`` is edited *in place*.
+
+        Args:
+            parser (:obj:`~argparse.ArgumentParser`):
+                The argument parsing object to edit.
+        """
+        for action in parser._actions:
+            if action.default == "current working directory":
+                action.default = pathlib.Path.cwd()
+
+    # Base classes should override this
+    @staticmethod
+    def main(args):
+        """
+        Execute the script.
+        """
+
+    @classmethod
+    def get_parser(
+        cls,
+        description=None,
+        width=None,
+        formatter=argparse.ArgumentDefaultsHelpFormatter,
+    ):
+        """
+        Construct the command-line argument parser.
+
+        Derived classes should override this.  Ideally they should use this
+        base-class method to instantiate the ArgumentParser object and then fill
+        in the relevant parser arguments
+
+        .. warning::
+
+            *Any* argument that defaults to the
+            string ``'current working directory'`` will be replaced by the
+            result of ``os.getcwd()`` when the script is executed.  This means
+            help dialogs will include this replacement, and parsing of the
+            command line will use ``os.getcwd()`` as the default.  This
+            functionality is largely to allow for PypeIt's automated
+            documentation of script help dialogs without the "current working"
+            directory being that of the developer that most recently compiled
+            the docs.
+
+        Args:
+            description (:obj:`str`, optional):
+                A short description of the purpose of the script.
+            width (:obj:`int`, optional):
+                Restrict the width of the formatted help output to be no longer
+                than this number of characters, if possible given the help
+                formatter.  If None, the width is the same as the terminal
+                width.
+            formatter (:obj:`~argparse.HelpFormatter`):
+                Class used to format the help output.
+
+        Returns:
+            :obj:`~argparse.ArgumentParser`: Command-line interpreter.
+        """
+        return argparse.ArgumentParser(
+            description=description,
+            formatter_class=lambda prog: formatter(prog, width=width),
+        )
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -648,120 +770,12 @@ class SmartFormatter(argparse.HelpFormatter):
         """
         if text.startswith("R|"):
             lines = text[2:].splitlines()
-            for i in range(len(lines)):
-                if lines[i].startswith("F|"):
-                    lines[i] = [lines[i][2:]]
-                elif len(lines[i]) == 0:
+            for i, line in enumerate(lines):
+                if line.startswith("F|"):
+                    lines[i] = [line[2:]]
+                elif len(line) == 0:
                     lines[i] = [" "]
                 else:
-                    lines[i] = textwrap.wrap(lines[i], width)
+                    lines[i] = textwrap.wrap(line, width)
             return reduce(list.__add__, lines)
         return super()._split_lines(text, width)
-
-
-class ScriptBase:
-    """
-    Provides a base class for all scripts.
-    """
-
-    @classmethod
-    def entry_point(cls):
-        """
-        Defines the main script entry point.
-        """
-        args = cls.parse_args()
-        if args.version:
-            print(f"  LDT Observer Tools (obstools) version {__version__}")
-        else:
-            sys.exit(cls.main(args))
-
-    @classmethod
-    @property
-    def name(cls):
-        """
-        Provide the name of the script.  By default, this is the name of the
-        module.
-        """
-        return f"{cls.__module__.rsplit('.', maxsplit=1)[-1]}"
-
-    @classmethod
-    def parse_args(cls, options=None):
-        """
-        Parse the command-line arguments.
-        """
-        parser = cls.get_parser()
-        ScriptBase._fill_parser_cwd(parser)
-        # Add "--version" to bottom of all scripts
-        parser.add_argument(
-            "--version", action="store_true", help="Print version and exit"
-        )
-        return parser.parse_args() if options is None else parser.parse_args(options)
-
-    @staticmethod
-    def _fill_parser_cwd(parser):
-        """
-        Replace the default of any action that is exactly ``'current working
-        directory'`` with the value of ``os.getcwd()``.
-
-        The ``parser`` is edited *in place*.
-
-        Args:
-            parser (:obj:`~argparse.ArgumentParser`):
-                The argument parsing object to edit.
-        """
-        for action in parser._actions:
-            if action.default == "current working directory":
-                action.default = os.getcwd()
-
-    # Base classes should override this
-    @staticmethod
-    def main(args):
-        """
-        Execute the script.
-        """
-        pass
-
-    @classmethod
-    def get_parser(
-        cls,
-        description=None,
-        width=None,
-        formatter=argparse.ArgumentDefaultsHelpFormatter,
-    ):
-        """
-        Construct the command-line argument parser.
-
-        Derived classes should override this.  Ideally they should use this
-        base-class method to instantiate the ArgumentParser object and then fill
-        in the relevant parser arguments
-
-        .. warning::
-
-            *Any* argument that defaults to the
-            string ``'current working directory'`` will be replaced by the
-            result of ``os.getcwd()`` when the script is executed.  This means
-            help dialogs will include this replacement, and parsing of the
-            command line will use ``os.getcwd()`` as the default.  This
-            functionality is largely to allow for PypeIt's automated
-            documentation of script help dialogs without the "current working"
-            directory being that of the developer that most recently compiled
-            the docs.
-
-        Args:
-            description (:obj:`str`, optional):
-                A short description of the purpose of the script.
-            width (:obj:`int`, optional):
-                Restrict the width of the formatted help output to be no longer
-                than this number of characters, if possible given the help
-                formatter.  If None, the width is the same as the terminal
-                width.
-            formatter (:obj:`~argparse.HelpFormatter`):
-                Class used to format the help output.
-
-        Returns:
-            :obj:`~argparse.ArgumentParser`: Command-line interpreter.
-        """
-        return argparse.ArgumentParser(
-            description=description,
-            formatter_class=lambda prog: formatter(prog, width=width),
-        )

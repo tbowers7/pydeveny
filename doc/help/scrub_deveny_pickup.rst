@@ -12,8 +12,11 @@
     
     options:
       -h, --help           show this help message and exit
-      --proc_dir PROC_DIR  Path to the directory containing the .pypeit file used to
-                           process `file` (ldt_deveny_?) (default: None)
+      --proc_dir PROC_DIR  Path to the directory above that which contains the
+                           .pypeit file used to process `file` (i.e., the directory
+                           above ldt_deveny_?) -- use only if `-r` was used in the
+                           call to `pypeit_setup`. (default: current working
+                           directory)
       --overwrite_raw      Overwrite the raw file rather than create a new file with
                            the '_scrub' suffix (default: False)
       -d, --diagnostics    Output additional information and plots during the

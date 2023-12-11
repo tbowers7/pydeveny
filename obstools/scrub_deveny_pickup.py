@@ -123,17 +123,16 @@ def iterative_pypeit_clean(
     #   comprehension searches in each possible 'instrument setup' directory
     #   Check that the `spec2d` file actually exists and print a helpful
     #   message if it doesn't.
-    pyp_dir = (
-        [proc_dir]
-        if proc_dir is not None
-        else sorted(filename.parent.glob("ldt_deveny_?"))
-    )
+    pyp_dir = sorted(proc_dir.resolve().glob("ldt_deveny_?"))
+
     try:
         # Look for the spec2d file
-        spec2d_file = [
-            next(d.joinpath("Science").glob(f"spec2d_{filename.stem}-*.fits"))
-            for d in pyp_dir
-        ][0]
+        spec2d_file = utils.flatten_comprehension(
+            [
+                sorted(d.joinpath("Science").glob(f"spec2d_{filename.stem}-*.fits"))
+                for d in pyp_dir
+            ]
+        )[0]
     except (StopIteration, IndexError):
         # And... fail.
         msgs.warn(
@@ -1643,9 +1642,11 @@ class ScrubDevenyPickup(utils.ScriptBase):
         parser.add_argument(
             "--proc_dir",
             type=str,
-            default=None,
-            help="Path to the directory containing the .pypeit file used to "
-            "process `file` (ldt_deveny_?)",
+            default="current working directory",
+            help="Path to the directory above that which contains the .pypeit "
+            "file used to process `file` (i.e., the directory above "
+            "ldt_deveny_?) -- use only if `-r` was used in the call to "
+            "`pypeit_setup`.",
         )
         parser.add_argument(
             "--overwrite_raw",
@@ -1682,7 +1683,7 @@ class ScrubDevenyPickup(utils.ScriptBase):
         for file in args.file:
             iterative_pypeit_clean(
                 pathlib.Path(file).resolve(),
-                proc_dir=args.proc_dir,
+                proc_dir=pathlib.Path(args.proc_dir),
                 overwrite_raw=args.overwrite_raw,
                 diagnostics=args.diagnostics,
                 no_refit=args.no_refit,
