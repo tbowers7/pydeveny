@@ -82,7 +82,7 @@ warnings.simplefilter("ignore", astropy.io.fits.verify.VerifyWarning)
 # Narrative Functions ========================================================#
 def iterative_pypeit_clean(
     filename: pathlib.Path,
-    proc_dir: str | pathlib.Path = None,
+    proc_dir: pathlib.Path = None,
     overwrite_raw: bool = False,
     diagnostics: bool = False,
     no_refit: bool = False,
@@ -100,7 +100,7 @@ def iterative_pypeit_clean(
     ----------
     filename : :obj:`~pathlib.Path`
         The name of the file to clean
-    proc_dir : :obj:`str` or :obj:`~pathlib.Path`, optional
+    proc_dir : :obj:`~pathlib.Path`, optional
         The location of the PypeIt-processed images, if not ``./ldt_deveny_?/``
         (Default: None)
     overwrite_raw : :obj:`bool`, optional
