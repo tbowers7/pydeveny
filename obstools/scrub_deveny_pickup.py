@@ -635,6 +635,10 @@ def fit_lines(
                 f"Total elements: {nrow}  Good RMS:  {len(ind_goodrms)}  "
                 f"Refit lines: {np.sum(refit_lines)}"
             )
+        # If there are no "good" RMS values, cannot refit.  Return
+        if len(ind_goodrms) == 0:
+            print("No good fit values to use for start of refitting.  Skip.")
+            return orig_fitc
 
     # Checking the object model for sinusoidal pattern noise
     if objmodel_check:
@@ -780,7 +784,7 @@ def fit_lines(
                 popt = p0
                 popt[0] = 0
                 pcov = np.diag(np.ones(len(popt)))
-                rms = 0
+                infodict, mesg, ier = {"fvec": 0}, "Identically Zero", 0
             else:
                 # The optimization method is the "Trust Region Reflective" algorithm
                 # The parameters are scaled iteratively from the Jacobian matrix
@@ -794,13 +798,14 @@ def fit_lines(
                     method="trf",
                     x_scale="jac",
                 )
-                rms = np.sqrt(np.mean(infodict["fvec"] ** 2))
+            rms = np.sqrt(np.mean(infodict["fvec"] ** 2))
         except RuntimeError:
             # Reached max function evaluations; set popt and pcov
             popt = p0
             popt[0] = 0
             pcov = np.diag(np.ones(len(popt)))
             rms = np.inf
+            infodict, mesg, ier = {"fvec": 0}, "Runtime Error", 0
 
         # Diagnositc Plot showing particular rows ==========>
         if show_diagnostic and img_row in [76, 193, 285, 412]:
