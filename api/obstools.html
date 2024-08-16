@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools package &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="obstools.broker_listener module" href="obstools.broker_listener.html" />
+    <link rel="prev" title="obstools" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">LDTObserverTools API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">obstools package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="obstools.broker_listener.html">obstools.broker_listener module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.celestial_time.html">obstools.celestial_time module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_collfocus.html">obstools.deveny_collfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_grangle.html">obstools.deveny_grangle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.dfocus.html">obstools.dfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.fix_ldt_header.html">obstools.fix_ldt_header module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.lmi_etc.html">obstools.lmi_etc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.neocp_ephem.html">obstools.neocp_ephem module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.scrub_deveny_pickup.html">obstools.scrub_deveny_pickup module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.utils.html">obstools.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-obstools">Module contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#obstools.script_classes"><code class="docutils literal notranslate"><span class="pre">script_classes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#obstools.short_warning"><code class="docutils literal notranslate"><span class="pre">short_warning()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">obstools</a></li>
+      <li class="breadcrumb-item active">obstools package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/obstools.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="obstools-package">
+<h1>obstools package<a class="headerlink" href="#obstools-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="obstools.broker_listener.html">obstools.broker_listener module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener"><code class="docutils literal notranslate"><span class="pre">ActiveMQ_Listener</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener.MyListener"><code class="docutils literal notranslate"><span class="pre">ActiveMQ_Listener.MyListener</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener.MyListener.on_error"><code class="docutils literal notranslate"><span class="pre">ActiveMQ_Listener.MyListener.on_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener.MyListener.on_message"><code class="docutils literal notranslate"><span class="pre">ActiveMQ_Listener.MyListener.on_message()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener.parse_deveny"><code class="docutils literal notranslate"><span class="pre">ActiveMQ_Listener.parse_deveny()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.celestial_time.html">obstools.celestial_time module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.celestial_time.html#obstools.celestial_time.lst_midnight"><code class="docutils literal notranslate"><span class="pre">lst_midnight()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.deveny_collfocus.html">obstools.deveny_collfocus module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_collfocus.html#obstools.deveny_collfocus.DevenyCollfocus"><code class="docutils literal notranslate"><span class="pre">DevenyCollfocus</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.deveny_collfocus.html#obstools.deveny_collfocus.DevenyCollfocus.get_parser"><code class="docutils literal notranslate"><span class="pre">DevenyCollfocus.get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.deveny_collfocus.html#obstools.deveny_collfocus.DevenyCollfocus.main"><code class="docutils literal notranslate"><span class="pre">DevenyCollfocus.main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_collfocus.html#obstools.deveny_collfocus.calculate_collimator_focus"><code class="docutils literal notranslate"><span class="pre">calculate_collimator_focus()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_collfocus.html#obstools.deveny_collfocus.calculate_focus_sequence"><code class="docutils literal notranslate"><span class="pre">calculate_focus_sequence()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_collfocus.html#obstools.deveny_collfocus.deveny_collfocus"><code class="docutils literal notranslate"><span class="pre">deveny_collfocus()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_collfocus.html#obstools.deveny_collfocus.extract_broker_values"><code class="docutils literal notranslate"><span class="pre">extract_broker_values()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.deveny_grangle.html">obstools.deveny_grangle module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.DevenyGrangle"><code class="docutils literal notranslate"><span class="pre">DevenyGrangle</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.DevenyGrangle.get_parser"><code class="docutils literal notranslate"><span class="pre">DevenyGrangle.get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.DevenyGrangle.main"><code class="docutils literal notranslate"><span class="pre">DevenyGrangle.main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.compute_grangle"><code class="docutils literal notranslate"><span class="pre">compute_grangle()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.deveny_amag"><code class="docutils literal notranslate"><span class="pre">deveny_amag()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.deveny_grangle_cli"><code class="docutils literal notranslate"><span class="pre">deveny_grangle_cli()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.deveny_grangle_gui"><code class="docutils literal notranslate"><span class="pre">deveny_grangle_gui()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.grangle_eqn"><code class="docutils literal notranslate"><span class="pre">grangle_eqn()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.deveny_grangle.html#obstools.deveny_grangle.lambda_at_angle"><code class="docutils literal notranslate"><span class="pre">lambda_at_angle()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.dfocus.html">obstools.dfocus module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.DFocus"><code class="docutils literal notranslate"><span class="pre">DFocus</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.DFocus.get_parser"><code class="docutils literal notranslate"><span class="pre">DFocus.get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.DFocus.main"><code class="docutils literal notranslate"><span class="pre">DFocus.main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.dfocus"><code class="docutils literal notranslate"><span class="pre">dfocus()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.extract_spectrum"><code class="docutils literal notranslate"><span class="pre">extract_spectrum()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.find_lines"><code class="docutils literal notranslate"><span class="pre">find_lines()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.find_lines_in_spectrum"><code class="docutils literal notranslate"><span class="pre">find_lines_in_spectrum()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.fit_focus_curves"><code class="docutils literal notranslate"><span class="pre">fit_focus_curves()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.initialize_focus_values"><code class="docutils literal notranslate"><span class="pre">initialize_focus_values()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.parse_focus_log"><code class="docutils literal notranslate"><span class="pre">parse_focus_log()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.plot_focus_curves"><code class="docutils literal notranslate"><span class="pre">plot_focus_curves()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.plot_optimal_focus"><code class="docutils literal notranslate"><span class="pre">plot_optimal_focus()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.process_middle_image"><code class="docutils literal notranslate"><span class="pre">process_middle_image()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.dfocus.html#obstools.dfocus.trim_deveny_image"><code class="docutils literal notranslate"><span class="pre">trim_deveny_image()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.fix_ldt_header.html">obstools.fix_ldt_header module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.fix_ldt_header.html#obstools.fix_ldt_header.FixLdtHeader"><code class="docutils literal notranslate"><span class="pre">FixLdtHeader</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.fix_ldt_header.html#obstools.fix_ldt_header.FixLdtHeader.get_parser"><code class="docutils literal notranslate"><span class="pre">FixLdtHeader.get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.fix_ldt_header.html#obstools.fix_ldt_header.FixLdtHeader.main"><code class="docutils literal notranslate"><span class="pre">FixLdtHeader.main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.fix_ldt_header.html#obstools.fix_ldt_header.fix_ldt_header"><code class="docutils literal notranslate"><span class="pre">fix_ldt_header()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.lmi_etc.html">obstools.lmi_etc module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.LmiEtc"><code class="docutils literal notranslate"><span class="pre">LmiEtc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.LmiEtc.get_parser"><code class="docutils literal notranslate"><span class="pre">LmiEtc.get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.LmiEtc.main"><code class="docutils literal notranslate"><span class="pre">LmiEtc.main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.check_etc_inputs"><code class="docutils literal notranslate"><span class="pre">check_etc_inputs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.counts_from_star_per_sec"><code class="docutils literal notranslate"><span class="pre">counts_from_star_per_sec()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.exptime_given_peak_mag"><code class="docutils literal notranslate"><span class="pre">exptime_given_peak_mag()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.exptime_given_snr_mag"><code class="docutils literal notranslate"><span class="pre">exptime_given_snr_mag()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.get_band_specific_values"><code class="docutils literal notranslate"><span class="pre">get_band_specific_values()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.mag_given_snr_exptime"><code class="docutils literal notranslate"><span class="pre">mag_given_snr_exptime()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.number_pixels"><code class="docutils literal notranslate"><span class="pre">number_pixels()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.peak_counts"><code class="docutils literal notranslate"><span class="pre">peak_counts()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.read_noise_contribution"><code class="docutils literal notranslate"><span class="pre">read_noise_contribution()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.sky_count_per_sec_per_ap"><code class="docutils literal notranslate"><span class="pre">sky_count_per_sec_per_ap()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.lmi_etc.html#obstools.lmi_etc.snr_given_exptime_mag"><code class="docutils literal notranslate"><span class="pre">snr_given_exptime_mag()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.neocp_ephem.html">obstools.neocp_ephem module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.neocp_ephem.html#obstools.neocp_ephem.NeocpEphem"><code class="docutils literal notranslate"><span class="pre">NeocpEphem</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.neocp_ephem.html#obstools.neocp_ephem.NeocpEphem.get_parser"><code class="docutils literal notranslate"><span class="pre">NeocpEphem.get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.neocp_ephem.html#obstools.neocp_ephem.NeocpEphem.main"><code class="docutils literal notranslate"><span class="pre">NeocpEphem.main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.neocp_ephem.html#obstools.neocp_ephem.neocp_ephem"><code class="docutils literal notranslate"><span class="pre">neocp_ephem()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.scrub_deveny_pickup.html">obstools.scrub_deveny_pickup module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.ScrubDevenyPickup"><code class="docutils literal notranslate"><span class="pre">ScrubDevenyPickup</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.ScrubDevenyPickup.get_parser"><code class="docutils literal notranslate"><span class="pre">ScrubDevenyPickup.get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.ScrubDevenyPickup.main"><code class="docutils literal notranslate"><span class="pre">ScrubDevenyPickup.main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.clean_pickup"><code class="docutils literal notranslate"><span class="pre">clean_pickup()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.create_and_apply_pattern"><code class="docutils literal notranslate"><span class="pre">create_and_apply_pattern()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.create_fft_plot"><code class="docutils literal notranslate"><span class="pre">create_fft_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.fit_lines"><code class="docutils literal notranslate"><span class="pre">fit_lines()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.flatten_clean_fft"><code class="docutils literal notranslate"><span class="pre">flatten_clean_fft()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.iterative_pypeit_clean"><code class="docutils literal notranslate"><span class="pre">iterative_pypeit_clean()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.make_image_comparison_plots"><code class="docutils literal notranslate"><span class="pre">make_image_comparison_plots()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.make_sine_label"><code class="docutils literal notranslate"><span class="pre">make_sine_label()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.make_sinusoid_fit_plots"><code class="docutils literal notranslate"><span class="pre">make_sinusoid_fit_plots()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.package_into_fits"><code class="docutils literal notranslate"><span class="pre">package_into_fits()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.pixper_tofrom_hz"><code class="docutils literal notranslate"><span class="pre">pixper_tofrom_hz()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.scrub_deveny_pickup.html#obstools.scrub_deveny_pickup.smooth_array"><code class="docutils literal notranslate"><span class="pre">smooth_array()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obstools.utils.html">obstools.utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase"><code class="docutils literal notranslate"><span class="pre">ScriptBase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase._fill_parser_cwd"><code class="docutils literal notranslate"><span class="pre">ScriptBase._fill_parser_cwd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase.entry_point"><code class="docutils literal notranslate"><span class="pre">ScriptBase.entry_point()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase.get_parser"><code class="docutils literal notranslate"><span class="pre">ScriptBase.get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase.main"><code class="docutils literal notranslate"><span class="pre">ScriptBase.main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase.name"><code class="docutils literal notranslate"><span class="pre">ScriptBase.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase.parse_args"><code class="docutils literal notranslate"><span class="pre">ScriptBase.parse_args()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.SmartFormatter"><code class="docutils literal notranslate"><span class="pre">SmartFormatter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obstools.utils.html#obstools.utils.SmartFormatter._split_lines"><code class="docutils literal notranslate"><span class="pre">SmartFormatter._split_lines()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.all_subclasses"><code class="docutils literal notranslate"><span class="pre">all_subclasses()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.check_float"><code class="docutils literal notranslate"><span class="pre">check_float()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.first_moment_1d"><code class="docutils literal notranslate"><span class="pre">first_moment_1d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.flatten_comprehension"><code class="docutils literal notranslate"><span class="pre">flatten_comprehension()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.gaussfit"><code class="docutils literal notranslate"><span class="pre">gaussfit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.gaussian_function"><code class="docutils literal notranslate"><span class="pre">gaussian_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.good_poly"><code class="docutils literal notranslate"><span class="pre">good_poly()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.nearest_odd"><code class="docutils literal notranslate"><span class="pre">nearest_odd()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.set_std_tickparams"><code class="docutils literal notranslate"><span class="pre">set_std_tickparams()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.sinusoid"><code class="docutils literal notranslate"><span class="pre">sinusoid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="obstools.utils.html#obstools.utils.warn_and_return_zeros"><code class="docutils literal notranslate"><span class="pre">warn_and_return_zeros()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="module-obstools">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-obstools" title="Permalink to this heading"></a></h2>
+<p>Init File</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.script_classes">
+<span class="sig-prename descclassname"><span class="pre">obstools.</span></span><span class="sig-name descname"><span class="pre">script_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/obstools.html#script_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.script_classes" title="Permalink to this definition"></a></dt>
+<dd><p>Build the list of script classes in the package</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> – Dictionary of {name:class} for all script classes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.short_warning">
+<span class="sig-prename descclassname"><span class="pre">obstools.</span></span><span class="sig-name descname"><span class="pre">short_warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools.html#short_warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.short_warning" title="Permalink to this definition"></a></dt>
+<dd><p>Return the format for a short warning message.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

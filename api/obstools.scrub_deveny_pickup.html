@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.scrub_deveny_pickup module &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="obstools.utils module" href="obstools.utils.html" />
+    <link rel="prev" title="obstools.neocp_ephem module" href="obstools.neocp_ephem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">LDTObserverTools API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="obstools.html">obstools package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="obstools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="obstools.broker_listener.html">obstools.broker_listener module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.celestial_time.html">obstools.celestial_time module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_collfocus.html">obstools.deveny_collfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_grangle.html">obstools.deveny_grangle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.dfocus.html">obstools.dfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.fix_ldt_header.html">obstools.fix_ldt_header module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.lmi_etc.html">obstools.lmi_etc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.neocp_ephem.html">obstools.neocp_ephem module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">obstools.scrub_deveny_pickup module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.utils.html">obstools.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.html#module-obstools">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">obstools</a></li>
+          <li class="breadcrumb-item"><a href="obstools.html">obstools package</a></li>
+      <li class="breadcrumb-item active">obstools.scrub_deveny_pickup module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/obstools.scrub_deveny_pickup.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-obstools.scrub_deveny_pickup">
+<span id="obstools-scrub-deveny-pickup-module"></span><h1>obstools.scrub_deveny_pickup module<a class="headerlink" href="#module-obstools.scrub_deveny_pickup" title="Permalink to this heading"></a></h1>
+<p>Scrubber for DeVeny Pickup Noise Module</p>
+<p>LDTObserverTools contains python ports of various LDT Observer Tools</p>
+<p>Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)
+<a class="reference external" href="https://lowell.edu">https://lowell.edu</a></p>
+<p>This module cleans the RF pickup noise from DeVeny spectral 2D images by
+fitting a sinusoid to and then subtracting it from each row of the image.</p>
+<p>The frequency of the sinusoid tends to vary from frame to frame but is roughly
+CONSTANT within each frame.  Between the non-integer wavelength and the slight
+delay between row read-out (caused by the advancement of the parallel register)
+the phase shifts from row to row, yielding an ever-changing pattern in the
+output images.  In order to identify the frequency in a given image, this
+module fist taken the FFT of the flattened (<cite>i.e.</cite>, <cite>time series</cite>) image to
+identify the strongest frequency.  (The function that performs the FFT also
+modifies a copy of the data in various ways to remove spurious signals in the
+FFT.)  From there, it uses a tightly bounded curve fitting (from
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.html#module-scipy.optimize" title="(in SciPy v1.14.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.optimize</span></code></a>) to identify the sinusoid in each line of the image.</p>
+<p>Cosmic rays and other impulsive features in the 2D image can cause spurious
+matches for the sinusoid.  So to guard against introducing artifacts into the
+cleaned image from the fitting, the row-by-row fit coefficients are each
+considered as a function and smoothed with an appropriate median window to
+ensure the final subtracted pattern is a smooth function, matching the
+underlying pickup noise.</p>
+<p>The output of the module is a multi-extension FITS file containing [1] the
+cleaned image, [2] the original image, [3,4] the pattern subtracted from the
+original image, and [5] a FITS BinTable containing the sinusoid fit parameters
+for each row of the image.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.ScrubDevenyPickup">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">ScrubDevenyPickup</span></span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#ScrubDevenyPickup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.ScrubDevenyPickup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase" title="obstools.utils.ScriptBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScriptBase</span></code></a></p>
+<p>Script class for <code class="docutils literal notranslate"><span class="pre">scrub_deveny_pickup</span></code> tool</p>
+<p>Script structure borrowed from <a class="reference external" href="https://pypeit.readthedocs.io/en/release/api/pypeit.scripts.scriptbase.html#pypeit.scripts.scriptbase.ScriptBase" title="(in PypeIt v1.16.1.dev69+gdb63cc02)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypeit.scripts.scriptbase.ScriptBase</span></code></a>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.ScrubDevenyPickup.get_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#ScrubDevenyPickup.get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.ScrubDevenyPickup.get_parser" title="Permalink to this definition"></a></dt>
+<dd><p>Construct the command-line argument parser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – A short description of the purpose of the script.</p></li>
+<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>, optional) – Restrict the width of the formatted help output to be no longer
+than this number of characters, if possible given the help
+formatter.  If None, the width is the same as the terminal
+width.</p></li>
+<li><p><strong>formatter</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">HelpFormatter</span></code>) – Class used to format the help output.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArgumentParser</span></code></a> – Command-line interpreter.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.ScrubDevenyPickup.main">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#ScrubDevenyPickup.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.ScrubDevenyPickup.main" title="Permalink to this definition"></a></dt>
+<dd><p>Main Driver</p>
+<p>Simple function that takes the input file list and calls the cleaning
+function for each one.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.clean_pickup">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">clean_pickup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sine_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fft_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#clean_pickup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.clean_pickup" title="Permalink to this definition"></a></dt>
+<dd><p>Clean the Pickup Noise</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Deprecated – do not use.  Only included for historical purposes.
+Use <a class="reference internal" href="#obstools.scrub_deveny_pickup.iterative_pypeit_clean" title="obstools.scrub_deveny_pickup.iterative_pypeit_clean"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_pypeit_clean()</span></code></a> instead.</p>
+</div>
+<p>This is the first version of the cleaning code, which operates directly on
+the raw DeVeny image.  It suffers from confusion from bright night-sky
+lines and brighter objects.  These deficiencies led to the development of
+the iterative scrubber.  This code is kept here for historical purposes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>) – The name of the file to clean</p></li>
+<li><p><strong>use_hann</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – Use a Hann window when cleaning the image for FFT (Default: False)</p></li>
+<li><p><strong>sine_plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – Create a plot of the sinusoid pattern fits for this image?
+(Default: True)</p></li>
+<li><p><strong>fft_plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – Create a plot of the FFT analysis for this image?
+(Default: False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.create_and_apply_pattern">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">create_and_apply_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_coeffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><span class="pre">Table</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#create_and_apply_pattern"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.create_and_apply_pattern" title="Permalink to this definition"></a></dt>
+<dd><p>Construct the pattern from the fit coefficients</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The returned <code class="docutils literal notranslate"><span class="pre">pattern_array</span></code> has a mean = 0 (<em>i.e.</em>, the pattern is
+constructed from the pure sinusoid w/o offset or other additive terms).</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The input array to be cleaned</p></li>
+<li><p><strong>fit_coeffs</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>) – The fit coefficient table produced by <a class="reference internal" href="#obstools.scrub_deveny_pickup.fit_lines" title="obstools.scrub_deveny_pickup.fit_lines"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_lines()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>cleaned_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The cleaned sience array</p></li>
+<li><p><strong>pattern_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The pattern removed from <code class="docutils literal notranslate"><span class="pre">input_array</span></code> – mean = 0</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.create_fft_plot">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">create_fft_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">flat_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_fft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">qa_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_graphics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#create_fft_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.create_fft_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Create the FFT analysis plot</p>
+<p>This function creates a multipanel plot saved as <code class="docutils literal notranslate"><span class="pre">fft_analysis.pdf</span></code> in
+the current working directory.  The panels are:</p>
+<ol class="arabic simple">
+<li><p>The flattened time-like array, where pixels are in the order in which
+they were read out by the CCD electronics.</p></li>
+<li><p>The real part of the FFT of the flattened array, where the abscissa is
+shown as the sinusoid period in pixels.</p></li>
+<li><p>The imaginary part of the FFT of the flattened array, where the abscissa
+is shown as the sinusoid period in pixels.</p></li>
+<li><p>The absolute value squared of the FFT of the flattened array, to show
+the power as a function of frequency.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>) – The filename of the raw data frame</p></li>
+<li><p><strong>flat_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The flattened (1D) pixel array</p></li>
+<li><p><strong>y_fft</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The (complex) FFT values</p></li>
+<li><p><strong>x_fft</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The FFT frequencies for the values in <code class="docutils literal notranslate"><span class="pre">y_fft</span></code></p></li>
+<li><p><strong>peak_freq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – The peak frequency measured from the FFT</p></li>
+<li><p><strong>qa_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>, optional) – The QA directory into which to place the optional plots.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the plots will be placed in the current working directory.
+(Default: None)</p></li>
+<li><p><strong>extra_graphics</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Produce extra graphics formats for documentation?  (Default: False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.fit_lines">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">fit_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">orig_fitc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><span class="pre">Table</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refit_thresh_sig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trim_ends</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objmodel_check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_diagnostic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_sinusoid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><span class="pre">Table</span></a></span></span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#fit_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.fit_lines" title="Permalink to this definition"></a></dt>
+<dd><p>Fit a sinusoid to each line in the image</p>
+<p>This is like a mini-driver function that fits a sinusoid to each line in
+the image.</p>
+<p>It also can refit lines that have excessive RMS residual as compared to the
+bulk of the image.  To enable the refitting, pass in the fit coefficient
+table from the first fitting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The image array to be processed.  This should be HORIZONTAL and in the
+same orientation as images written out by lois directly from the
+instrument.</p></li>
+<li><p><strong>pixel_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – The predicted pixel period for this image array, as computed by
+<a class="reference internal" href="#obstools.scrub_deveny_pickup.flatten_clean_fft" title="obstools.scrub_deveny_pickup.flatten_clean_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">flatten_clean_fft()</span></code></a>.</p></li>
+<li><p><strong>orig_fitc</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>, optional) – If refitting, the first-pass fit coefficient table.  If absent, then a
+full fitting of all lines will be performed.  (Default: None)</p></li>
+<li><p><strong>refit_thresh_sig</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – Threshold for RMS deviation (in sigma-clipped standard deviation units)
+from the mean for a line to be refit.  (Default: 3.0)</p></li>
+<li><p><strong>trim_ends</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Trim the 5 pixels off the ends of the line before fitting?
+(Default: True)</p></li>
+<li><p><strong>objmodel_check</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Is this image the spec2d objmodel?  (Default: False)</p></li>
+<li><p><strong>show_diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Display a diagnotic plot of several lines w/ fit?  (Default: False)</p></li>
+<li><p><strong>fixed_sinusoid</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Determine the (roughly) constant sinusoid amplitude and period and fit
+the lines for phase and secular drift only?  (Default: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a> – A table object containing the fit coefficients, one table row per row
+of the input <code class="docutils literal notranslate"><span class="pre">data_array</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.flatten_clean_fft">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">flatten_clean_fft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hann</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fft_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qa_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_graphics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#flatten_clean_fft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.flatten_clean_fft" title="Permalink to this definition"></a></dt>
+<dd><p>Find the peak frequency of sinusoidal noise</p>
+<dl class="simple">
+<dt>The function name describes what it does:</dt><dd><ol class="arabic simple">
+<li><p>Flatten the 2D array into a 1D timeseries</p></li>
+<li><p>Clean the ends of the CCD for smoother transition</p></li>
+<li><p>Take the FFT to find the proper frequency to return</p></li>
+</ol>
+</dd>
+</dl>
+<p>In order to more effectively find the frequencies of persistent signal
+across the detector, start by flattening out the data array into a one-
+dimensional timeseries-like object representing the order in which the
+pixels are read out.</p>
+<p>According to information in Chapter 5 of <cite>Scientific Charge-Coupled
+Devices</cite> by James R. Janesick (2001), the time to advance a row along
+the parallel register is small compared to the individual pixel
+digitization time because the latter requires a capacitive stabilization
+time to minimize readnoise, whereas parallel register moves simply move
+the charge without trying to measure it.  Therefore, there is no spacing
+in between the rows of the flattened arrays to represent the time required
+for the parallel charge transfer.</p>
+<p>Once the array is flattened, we deal with row-to-row edge effects by
+modifying the flattened array to replace the 10 pixels at the end of one
+row and the 10 pixels at the start of the next row with a linearly varying
+series of values.  The first 10 and last 10 pixels of the flattened array
+are set to the next adjacent value.  This removes some of the “ringing”
+power at integer frequencies of an entire row and places it into the
+fundamental row-length frequency.  There are still sharp edges in the
+flattened array caused by night sky lines, but most of the power from these
+lines should be at the fundamental frequency (whole-row).</p>
+<p>The detected pickup noise has a period in the range 100-300 pixels, so
+peaks in the power spectrum at lower frequencies than this (<cite>e.g.</cite>, the
+fundamental row-length frequency) are masked when choosing the return
+value.</p>
+<p>Additionally, the assumption of continuous readout is close but not
+entriely accurate.  The slight pause in the readout caused by the parallel
+register readout causes the continuous readout amplifier pickup signal
+to manifest itself as a Gaussian packet of related frequencies in the FFT.
+By smoothing the power spectrum ( abs(FFT)^2 ) with a Gaussian kernel, narrow
+spikes in the FFT (caused by autocorrelation of night sky lines, cosmic
+rays, edge effects) are diluted compared to the sought signal.  The
+returned period is that of the maximum of the Gaussian-smoothed absolute
+value squared.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – _description_</p></li>
+<li><p><strong>use_hann</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – Use a Hann window on each row in addition to subtracting the row mean
+(Default: False)</p></li>
+<li><p><strong>fft_plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – Create a debugging plot of the FFT analysis?  (Default: False)</p></li>
+<li><p><strong>qa_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>, optional) – The QA directory into which to place the optional plots.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the plots will be placed in the current working directory.
+(Default: None)</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>) – The filename of the raw data frame for the optional plot.  (Default: None)</p></li>
+<li><p><strong>extra_graphics</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Produce extra graphics formats for documentation?  (Default: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a> – The pixel period of the sinusoidal oscillation to be removed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.iterative_pypeit_clean">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">iterative_pypeit_clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_refit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_graphics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rerun_fft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#iterative_pypeit_clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.iterative_pypeit_clean" title="Permalink to this definition"></a></dt>
+<dd><p>Iteratively use PypeIt to clean pickup noise</p>
+<p>As part of the data-reduction process, PypeIt fits and extracts images as
+well as the sky background.  We can use the reduced <code class="docutils literal notranslate"><span class="pre">spec2d</span></code> files to
+get the “source-free” noise background, which makes identifying the
+sinusoidal noise more straightforward.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>) – The name of the file to clean</p></li>
+<li><p><strong>proc_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>, optional) – The location of the PypeIt-processed images, if not <code class="docutils literal notranslate"><span class="pre">./ldt_deveny_?/</span></code>
+(Default: None)</p></li>
+<li><p><strong>overwrite_raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Overwrite the raw file rather than create a new file with the ‘_scrub’
+suffix  (Default: False)</p></li>
+<li><p><strong>diagnostics</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Output additional information and plots during the image analysis?
+(Default: False)</p></li>
+<li><p><strong>no_refit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Do not refit lines with “bad” RMS  (Default: False)</p></li>
+<li><p><strong>extra_graphics</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Produce extra graphics formats for documentation?  (Default: False)</p></li>
+<li><p><strong>rereun_fft</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Pass the fitted pattern through the FFT analysis?  (Default: False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.make_image_comparison_plots">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">make_image_comparison_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec2d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pypeit.readthedocs.io/en/release/api/pypeit.spec2dobj.html#pypeit.spec2dobj.Spec2DObj" title="(in PypeIt v1.16.1.dev69+gdb63cc02)"><span class="pre">Spec2DObj</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">resid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">qa_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_graphics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#make_image_comparison_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.make_image_comparison_plots" title="Permalink to this definition"></a></dt>
+<dd><p>Make a set of Image Comparison plots</p>
+<p>This function creates a multipanel plot.  The panels are:</p>
+<ol class="arabic simple">
+<li><p>The PypeIt-reduced 2-dimensional spectrum (<code class="docutils literal notranslate"><span class="pre">spec2d.sciimg</span></code>)</p></li>
+<li><p>The PypeIt sky spectrum model (<code class="docutils literal notranslate"><span class="pre">spec2d.skymodel</span></code>).</p></li>
+<li><p>The PypeIt-reduced residual image (<code class="docutils literal notranslate"><span class="pre">spec2d.sciimg</span></code> -
+<code class="docutils literal notranslate"><span class="pre">spec2d.skymodel</span></code> - <code class="docutils literal notranslate"><span class="pre">spec2d.objmodel</span></code>) modified by the good pixel
+mask</p></li>
+<li><p>The noise pattern image generated here from the sinusoidal fits to each
+row of the residual image</p></li>
+<li><p>The cleaned residual image (<code class="docutils literal notranslate"><span class="pre">resid</span></code> - <code class="docutils literal notranslate"><span class="pre">pattern</span></code>)</p></li>
+<li><p>The cleaned 2-dimensional spectrum (<code class="docutils literal notranslate"><span class="pre">spec2d.sciimg</span></code> - <code class="docutils literal notranslate"><span class="pre">pattern</span></code>)</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>) – Filename of theraw image from which all this comes</p></li>
+<li><p><strong>spec2d</strong> (<a class="reference external" href="https://pypeit.readthedocs.io/en/release/api/pypeit.spec2dobj.html#pypeit.spec2dobj.Spec2DObj" title="(in PypeIt v1.16.1.dev69+gdb63cc02)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec2DObj</span></code></a>) – The 2D spectral image class from PypeIt</p></li>
+<li><p><strong>resid</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The PypeIt-produced residual image (the starting point for the fitting)</p></li>
+<li><p><strong>pattern</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The constructed pattern from the sinusoidal fits (mean = 0)</p></li>
+<li><p><strong>qa_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>, optional) – The QA directory into which to place the optional plots.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the plots will be placed in the current working directory.
+(Default: None)</p></li>
+<li><p><strong>with_obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Does <code class="docutils literal notranslate"><span class="pre">resid</span></code> contain the object model?  (Default: False)</p></li>
+<li><p><strong>extra_graphics</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Produce extra graphics formats for documentation?  (Default: False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.make_sine_label">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">make_sine_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">popt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infodict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#make_sine_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.make_sine_label" title="Permalink to this definition"></a></dt>
+<dd><p>Make a sensible label for the sinusoid example plots</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>popt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The array of fit coefficients from <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.curve_fit()</span></code></a></p></li>
+<li><p><strong>infodict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a>) – Dictionary containing fit information from <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.curve_fit()</span></code></a></p></li>
+<li><p><strong>mesg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – Message about completion from <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.curve_fit()</span></code></a></p></li>
+<li><p><strong>ier</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>) – Integer describing fir completion from <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.curve_fit()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a> – The legend label thusly constructed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.make_sinusoid_fit_plots">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">make_sinusoid_fit_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_coeffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><span class="pre">Table</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">qa_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_graphics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_fitc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><span class="pre">Table</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#make_sinusoid_fit_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.make_sinusoid_fit_plots" title="Permalink to this definition"></a></dt>
+<dd><p>Create a set of diagnostic plots from the set of sinusoid fits</p>
+<p>This function creates a multipanel plot saved as <code class="docutils literal notranslate"><span class="pre">sinusoid_fits.pdf</span></code> in
+the current working directory.  The panels are:</p>
+<ol class="arabic simple">
+<li><p>The row-by-row sinusoid amplitude</p></li>
+<li><p>The row-by-row sinusoid period</p></li>
+<li><p>The row-by-row sinusoid phase shift</p></li>
+<li><p>The row-by-row rms residual when the sinusoidal fit is subtracted from
+the original line</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>) – The filename of the original file, used in the plot title</p></li>
+<li><p><strong>fit_coeffs</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>) – The fit coefficients table</p></li>
+<li><p><strong>pixel_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – The estimated pixel period of the sinusoidal noise from the FFT</p></li>
+<li><p><strong>qa_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>, optional) – The QA directory into which to place the optional plots.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the plots will be placed in the current working directory.
+(Default: None)</p></li>
+<li><p><strong>extra_graphics</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Produce extra graphics formats for documentation?  (Default: False)</p></li>
+<li><p><strong>fixed_fitc</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.table.Table.html#astropy.table.Table" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a>, optional) – The fit coefficients table with fixed sinusoid  (Default: None)</p></li>
+<li><p><strong>smoothing</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – Polynomial fit coefficients for amplitude and period  (Default: None)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.package_into_fits">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">package_into_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.nddata.CCDData.html#astropy.nddata.CCDData" title="(in Astropy v6.1)"><span class="pre">CCDData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cleaned_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_coeffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#package_into_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.package_into_fits" title="Permalink to this definition"></a></dt>
+<dd><p>Package the cleaned data into a FITS file</p>
+<p>Package everything into a multiextension FITS file:</p>
+<ol class="arabic simple" start="0">
+<li><p>Primary HDU – contains the raw file’s FITS header</p></li>
+<li><p>Cleaned Image HDU – raw - pattern</p></li>
+<li><p>Original Image HDU – raw</p></li>
+<li><p>Pattern Image HDU – pattern</p></li>
+<li><p>Pattern about Raw Mean Image HDU – pattern + mean(raw)</p></li>
+<li><p>Fit Coefficients BinTable HDU – fit_coeffs</p></li>
+</ol>
+<p>The output filename is the same (including path) as the input raw file,
+but with “_scrub” appended before “.fits”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Path</span></code></a>) – The filename of the raw data frame</p></li>
+<li><p><strong>ccd</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.nddata.CCDData.html#astropy.nddata.CCDData" title="(in Astropy v6.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CCDData</span></code></a>) – The raw data object</p></li>
+<li><p><strong>cleaned_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The cleaned raw data array (raw data - pattern) in ADU</p></li>
+<li><p><strong>pattern_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The computed pattern array in ADU</p></li>
+<li><p><strong>fit_coeffs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a>) – The fit coefficients dictionary from <a class="reference internal" href="#obstools.scrub_deveny_pickup.fit_lines" title="obstools.scrub_deveny_pickup.fit_lines"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_lines()</span></code></a></p></li>
+<li><p><strong>pixel_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – The FFT-computed pixel period from <a class="reference internal" href="#obstools.scrub_deveny_pickup.flatten_clean_fft" title="obstools.scrub_deveny_pickup.flatten_clean_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">flatten_clean_fft()</span></code></a></p></li>
+<li><p><strong>overwrite_raw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Overwrite the raw file rather than create a new file with the ‘_scrub’
+suffix  (Default: False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.pixper_tofrom_hz">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">pixper_tofrom_hz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#pixper_tofrom_hz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.pixper_tofrom_hz" title="Permalink to this definition"></a></dt>
+<dd><p>Convert to/from pixel period and Hertz</p>
+<p>_extended_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>val</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Input value(s) to convert</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a> – Converted output(s)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.scrub_deveny_pickup.smooth_array">
+<span class="sig-prename descclassname"><span class="pre">obstools.scrub_deveny_pickup.</span></span><span class="sig-name descname"><span class="pre">smooth_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'median'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../_modules/obstools/scrub_deveny_pickup.html#smooth_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.scrub_deveny_pickup.smooth_array" title="Permalink to this definition"></a></dt>
+<dd><p>Smooth out an array with a given filter</p>
+<p>This may be used for smoothing a line or attempting to smooth fit
+coefficients from row to row in order to ameliorate the effects of cosmic
+rays and strong sources.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.medfilt.html#scipy.signal.medfilt" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.medfilt()</span></code></a> uses zero-padding for the ends of the
+signal, therefore subtract the mean and re-add it to eliminate edge
+weirdness.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The array to be smoothed.</p></li>
+<li><p><strong>kernel_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>, optional) – Kernel or window size for the smoothing function (Default: 21)</p></li>
+<li><p><strong>ftype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – Smoothing function to use.  Options are “median” and “savgol”.
+(Default: “median”)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a> – The smoothed coefficients</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

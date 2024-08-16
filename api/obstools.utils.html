@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.utils module &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="obstools.scrub_deveny_pickup module" href="obstools.scrub_deveny_pickup.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">LDTObserverTools API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="obstools.html">obstools package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="obstools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="obstools.broker_listener.html">obstools.broker_listener module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.celestial_time.html">obstools.celestial_time module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_collfocus.html">obstools.deveny_collfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_grangle.html">obstools.deveny_grangle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.dfocus.html">obstools.dfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.fix_ldt_header.html">obstools.fix_ldt_header module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.lmi_etc.html">obstools.lmi_etc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.neocp_ephem.html">obstools.neocp_ephem module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.scrub_deveny_pickup.html">obstools.scrub_deveny_pickup module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">obstools.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.html#module-obstools">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">obstools</a></li>
+          <li class="breadcrumb-item"><a href="obstools.html">obstools package</a></li>
+      <li class="breadcrumb-item active">obstools.utils module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/obstools.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-obstools.utils">
+<span id="obstools-utils-module"></span><h1>obstools.utils module<a class="headerlink" href="#module-obstools.utils" title="Permalink to this heading"></a></h1>
+<p>Utility Module</p>
+<p>LDTObserverTools contains python ports of the various DeVeny IDL routines</p>
+<p>Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)
+<a class="reference external" href="https://lowell.edu">https://lowell.edu</a></p>
+<p>This file contains various utility functions needed by other routines in this
+package.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="obstools.utils.ScriptBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">ScriptBase</span></span><a class="reference internal" href="../_modules/obstools/utils.html#ScriptBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.ScriptBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Provides a base class for all scripts.</p>
+<p>Implements base classes for use with <code class="docutils literal notranslate"><span class="pre">PypeIt</span></code> scripts.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.utils.ScriptBase._fill_parser_cwd">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_fill_parser_cwd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#ScriptBase._fill_parser_cwd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.ScriptBase._fill_parser_cwd" title="Permalink to this definition"></a></dt>
+<dd><p>Replace the default of any action that is exactly <code class="docutils literal notranslate"><span class="pre">'current</span> <span class="pre">working</span>
+<span class="pre">directory'</span></code> with the value of <code class="docutils literal notranslate"><span class="pre">os.getcwd()</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">parser</span></code> is edited <em>in place</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parser</strong> (<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArgumentParser</span></code></a>) – The argument parsing object to edit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.utils.ScriptBase.entry_point">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entry_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#ScriptBase.entry_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.ScriptBase.entry_point" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the main script entry point.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.utils.ScriptBase.get_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formatter=&lt;class</span> <span class="pre">'argparse.ArgumentDefaultsHelpFormatter'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#ScriptBase.get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.ScriptBase.get_parser" title="Permalink to this definition"></a></dt>
+<dd><p>Construct the command-line argument parser.</p>
+<p>Derived classes should override this.  Ideally they should use this
+base-class method to instantiate the ArgumentParser object and then fill
+in the relevant parser arguments</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><em>Any</em> argument that defaults to the
+string <code class="docutils literal notranslate"><span class="pre">'current</span> <span class="pre">working</span> <span class="pre">directory'</span></code> will be replaced by the
+result of <code class="docutils literal notranslate"><span class="pre">os.getcwd()</span></code> when the script is executed.  This means
+help dialogs will include this replacement, and parsing of the
+command line will use <code class="docutils literal notranslate"><span class="pre">os.getcwd()</span></code> as the default.  This
+functionality is largely to allow for PypeIt’s automated
+documentation of script help dialogs without the “current working”
+directory being that of the developer that most recently compiled
+the docs.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – A short description of the purpose of the script.</p></li>
+<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>, optional) – Restrict the width of the formatted help output to be no longer
+than this number of characters, if possible given the help
+formatter.  If None, the width is the same as the terminal
+width.</p></li>
+<li><p><strong>formatter</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">HelpFormatter</span></code>) – Class used to format the help output.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArgumentParser</span></code></a> – Command-line interpreter.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.utils.ScriptBase.main">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#ScriptBase.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.ScriptBase.main" title="Permalink to this definition"></a></dt>
+<dd><p>Execute the script.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="obstools.utils.ScriptBase.name">
+<em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#obstools.utils.ScriptBase.name" title="Permalink to this definition"></a></dt>
+<dd><p>Provide the name of the script.  By default, this is the name of the
+module.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.utils.ScriptBase.parse_args">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#ScriptBase.parse_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.ScriptBase.parse_args" title="Permalink to this definition"></a></dt>
+<dd><p>Parse the command-line arguments.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="obstools.utils.SmartFormatter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">SmartFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent_increment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_help_position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#SmartFormatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.SmartFormatter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">HelpFormatter</span></code></p>
+<p>Enable a combination of both fixed-format and wrappable lines to be
+formatted for the help statements for command-line arguments used with
+<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgumentParser</span></code></a>.</p>
+<p>Borrows from
+<a class="reference external" href="https://stackoverflow.com/questions/3853722/python-argparse-how-to-insert-newline-in-the-help-text">https://stackoverflow.com/questions/3853722/python-argparse-how-to-insert-newline-in-the-help-text</a></p>
+<p>Help strings that use this formatter <em>must</em> begin with “R|”.  If not, the
+help string is parsed by the base class.</p>
+<p>When parsed by this formatter, the leading “R|” characters are stripped and
+the lines to be printed are parsed using <code class="xref py py-func docutils literal notranslate"><span class="pre">splitlines()</span></code>.  Each resulting
+line is wrapped using <a class="reference external" href="https://docs.python.org/3/library/textwrap.html#textwrap.wrap" title="(in Python v3.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">wrap()</span></code></a>, unless it begins with the characters
+“F|”, which forces the line to remain unaltered (except for stripping the
+leading characters).</p>
+<p>For example, if you add an argument like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="s1">&#39;--tell_file&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s1">&#39;R|Configuration file to change default telluric parameters.  &#39;</span>
+                         <span class="s1">&#39;Note that the parameters in this file will be overwritten if &#39;</span>
+                         <span class="s1">&#39;you set argument in your terminal.  The --tell_file option &#39;</span>
+                         <span class="s1">&#39;requires a .tell file with the following format:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|    [tellfit]</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         objmodel = qso</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         redshift = 7.6</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         bal_wv_min_max = 10825,12060</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;OR</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|    [tellfit]</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         objmodel = star</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         star_type = A0</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         star_mag = 8.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;OR</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|    [tellfit]</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         objmodel = poly</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         polyorder = 3</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;F|         fit_wv_min_max = 9000.,9500.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result will be (depending on the width of your console):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">-t TELL_FILE, --tell_file TELL_FILE</span>
+<span class="go">                  Configuration file to change default telluric</span>
+<span class="go">                  parameters.  Note that the parameters in this file</span>
+<span class="go">                  will be overwritten if you set argument in your</span>
+<span class="go">                  terminal.  The --tell_file option requires a .tell</span>
+<span class="go">                  file with the following format:</span>
+
+<span class="go">                      [tellfit]</span>
+<span class="go">                           objmodel = qso</span>
+<span class="go">                           redshift = 7.6</span>
+<span class="go">                           bal_wv_min_max = 10825,12060</span>
+<span class="go">                  OR</span>
+<span class="go">                      [tellfit]</span>
+<span class="go">                           objmodel = star</span>
+<span class="go">                           star_type = A0</span>
+<span class="go">                           star_mag = 8.</span>
+<span class="go">                  OR</span>
+<span class="go">                      [tellfit]</span>
+<span class="go">                           objmodel = poly</span>
+<span class="go">                           polyorder = 3</span>
+<span class="go">                           fit_wv_min_max = 9000.,9500.</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.utils.SmartFormatter._split_lines">
+<span class="sig-name descname"><span class="pre">_split_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#SmartFormatter._split_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.SmartFormatter._split_lines" title="Permalink to this definition"></a></dt>
+<dd><p>Split the provided text into width constrained lines.</p>
+<p>See the class description for formatting instructions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.all_subclasses">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">all_subclasses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#all_subclasses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.all_subclasses" title="Permalink to this definition"></a></dt>
+<dd><p>Collect all the subclasses of the provided class.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function borrowed from PypeIt</p>
+</div>
+<p>The search follows the inheritance to the highest-level class.  Intermediate
+base classes are included in the returned set, but not the base class itself.</p>
+<p>Thanks to:
+<a class="reference external" href="https://stackoverflow.com/questions/3862310/how-to-find-all-the-subclasses-of-a-class-given-its-name">https://stackoverflow.com/questions/3862310/how-to-find-all-the-subclasses-of-a-class-given-its-name</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><em>object</em></a>) – The base class</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code></a> – The unique set of derived classes, including any
+intermediate base classes in the inheritance thread.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.check_float">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">check_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potential_float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/obstools/utils.html#check_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.check_float" title="Permalink to this definition"></a></dt>
+<dd><p>Simple funtion to check whether something is a float</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>potential_float</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code></a>) – Value to check for float</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a> – Whether it am or it ain’t a <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.first_moment_1d">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">first_moment_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#first_moment_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.first_moment_1d" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the 1st moment of line</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>line</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – 1-dimensional array to find the 1st moment of</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a> – The first moment of the input array relative to element #</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.flatten_comprehension">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">flatten_comprehension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nested_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a></span></span><a class="reference internal" href="../_modules/obstools/utils.html#flatten_comprehension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.flatten_comprehension" title="Permalink to this definition"></a></dt>
+<dd><p>Flatten a single-depth nested list via list comprehension</p>
+<p><a class="reference external" href="https://realpython.com/python-flatten-list/">https://realpython.com/python-flatten-list/</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>nested_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></a>) – The single-depth nested list to flatten</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></a> – The flattened list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.gaussfit">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">gaussfit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nterms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#gaussfit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.gaussfit" title="Permalink to this definition"></a></dt>
+<dd><p>Function similar to IDL’s GAUSSFIT</p>
+<p>Big caveat: as implemented, can only estimate the initial parameters for
+POSITIVE gaussians (emission), and cannot correctly estimate parameters
+for negative (absorption) gaussians.  The function will still happily fit
+a negative gaussian if given the proper estimates.</p>
+<p>Utilizes <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.curve_fit()</span></code></a> and the helper function
+<a class="reference internal" href="#obstools.utils.gaussian_function" title="obstools.utils.gaussian_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">gaussian_function()</span></code></a> below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Input abscissa values for the fitting</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Input ordinate values for the fitting</p></li>
+<li><p><strong>nterms</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>, optional) – Number of terms to use in the Gaussian fit (Default: 3)</p></li>
+<li><p><strong>estimates</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>, optional) – Estimated values for the <code class="docutils literal notranslate"><span class="pre">nterms</span></code> parameters
+(see <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">curve_fit()</span></code></a>; Default: None)</p></li>
+<li><p><strong>bounds</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>, optional) – Bounds on the <code class="docutils literal notranslate"><span class="pre">nterms</span></code> parameters
+(see <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">curve_fit()</span></code></a>; Default: None)</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Print debugging statements.  (Defualt: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>popt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Optimal values for the parameters (see <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">curve_fit()</span></code></a>)</p></li>
+<li><p><strong>pcov</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The estimated covariance of <code class="docutils literal notranslate"><span class="pre">popt</span></code> (see <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">curve_fit()</span></code></a>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.gaussian_function">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">gaussian_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">a0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">a1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">a2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">a3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a4</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#gaussian_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.gaussian_function" title="Permalink to this definition"></a></dt>
+<dd><p>Gaussian Function</p>
+<p>Construct a basic Gaussian using at least 3, but up to 6 parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – X values over which to compute the gaussian</p></li>
+<li><p><strong>a0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – Gaussian amplitude</p></li>
+<li><p><strong>a1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – Gaussian mean (mu)</p></li>
+<li><p><strong>a2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – Gaussian width (sigma)</p></li>
+<li><p><strong>a3</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – Baseline atop which the Gaussian sits.  (Default: 0)</p></li>
+<li><p><strong>a4</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – Slope of the baseline atop which the Gaussian sits.  (Default: 0)</p></li>
+<li><p><strong>a5</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – Quadratic term of the baseline atop which the Gaussian sits.
+(Default: 0)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a> – The Y values of the Gaussian corresponding to X</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.good_poly">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">good_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#good_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.good_poly" title="Permalink to this definition"></a></dt>
+<dd><p>Robust fitting of a polynomial to data</p>
+<p>This is a python port of an IDL routine written years ago by M. Buie.</p>
+<p>This is a multi-pass fitting routine that fits a fixed order polynomial
+to the input data.  After each pass, the scatter of the fit relative
+to the fitted line is computed.  Each point is examined to see if it
+falls beyond THRESH sigma from the line.  If is does, it is removed
+from the data and the fit is tried again.  This will make up to two
+attempts to remove bad data.</p>
+<p>Written in IDL 1991-1998, Marc W. Buie, Lowell Observatory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Input dataset, independant values.</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Input dataset, dependant values.</p></li>
+<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>) – Order of the polynomial fit (linear = 1).</p></li>
+<li><p><strong>thresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – Sigma threshold for removing outliers.</p></li>
+<li><p><strong>return_full</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – <dl class="simple">
+<dt>If True, also return:</dt><dd><p>yfit : Fitted values for y that match the input vector.
+newx : X values from input that were considered good.
+newy : Y values from input that were considered good.</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a> – Array of fit parameters, as in <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.polyfit.html#numpy.polyfit" title="(in NumPy v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.polyfit()</span></code></a>.</p></li>
+<li><p>Also, optionally, the <code class="docutils literal notranslate"><span class="pre">return_full</span></code> bits</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.nearest_odd">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">nearest_odd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/obstools/utils.html#nearest_odd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.nearest_odd" title="Permalink to this definition"></a></dt>
+<dd><p>Find the nearest odd integer</p>
+<p><a class="reference external" href="https://www.mathworks.com/matlabcentral/answers/45932-round-to-nearest-odd-integer#accepted_answer_56149">https://www.mathworks.com/matlabcentral/answers/45932-round-to-nearest-odd-integer#accepted_answer_56149</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – Input number</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a> – The nearest odd integer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.set_std_tickparams">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">set_std_tickparams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tsz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#set_std_tickparams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.set_std_tickparams" title="Permalink to this definition"></a></dt>
+<dd><p>Set standard tick parameters for a plot</p>
+<p>These are my own “standards”, based on plots I used to make in IDL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> (<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.axis.html#matplotlib.pyplot.axis" title="(in Matplotlib v3.9.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">axis</span></code></a>) – PyPlot axis for whom the tick parameters must be set</p></li>
+<li><p><strong>tsz</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – TypeSiZe</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.sinusoid">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">sinusoid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../_modules/obstools/utils.html#sinusoid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.sinusoid" title="Permalink to this definition"></a></dt>
+<dd><p>Return a basic sinusoid (for use with <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.optimize.curve_fit()</span></code></a>)</p>
+<p>_extended_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The abscissa values for which to return the ordinate</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – The amplitude of the sinusoid (in units of ordinate)</p></li>
+<li><p><strong>lam</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – The wavelength of the sinusoid (in units of abscissa), equivalent to
+<cite>2π/k</cite> (where <cite>k</cite> is the wavenumber).</p></li>
+<li><p><strong>phi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>) – The phase shift of the sinusoid (in units of phase, nominally 0-1)</p></li>
+<li><p><strong>y0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – The vertical offset of the sinusoid from zero (in units of ordinate)
+(Default: 0)</p></li>
+<li><p><strong>lin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – The linear term added to the fit (in units of ordinate/abscissa)
+(Default: 0)</p></li>
+<li><p><strong>quad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – The quadratic term added to the fit (in units of ordinate/abscissa**2)
+(Default: 0)</p></li>
+<li><p><strong>cube</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – The cubic term added to the fit (in units of ordinate/abscissa**3)
+(Default: 0)</p></li>
+<li><p><strong>quar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code></a>, optional) – The quartic term added to the fit (in units of ordinate/abscissa**4)
+(Default: 0)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a> – The sinusoid ordinate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.utils.warn_and_return_zeros">
+<span class="sig-prename descclassname"><span class="pre">obstools.utils.</span></span><span class="sig-name descname"><span class="pre">warn_and_return_zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_full</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_warn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/utils.html#warn_and_return_zeros"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.utils.warn_and_return_zeros" title="Permalink to this definition"></a></dt>
+<dd><p>Set warning and return zeroes from <a class="reference internal" href="#obstools.utils.good_poly" title="obstools.utils.good_poly"><code class="xref py py-func docutils literal notranslate"><span class="pre">good_poly()</span></code></a></p>
+<p>This function is a DRY.  Since this block is used several times in
+<a class="reference internal" href="#obstools.utils.good_poly" title="obstools.utils.good_poly"><code class="xref py py-func docutils literal notranslate"><span class="pre">good_poly()</span></code></a>, separate out as a function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>return_full</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – Return a bunch of stuff</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – [description]</p></li>
+<li><p><strong>xx</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – [description]</p></li>
+<li><p><strong>yy</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – [description]</p></li>
+<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>) – The order of the polynomial fit</p></li>
+<li><p><strong>raise_warn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>, optional) – Actually raise the warning this function is meant to  [Default: False]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndarray</span></code></a> – An array of zeros of the proper length</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

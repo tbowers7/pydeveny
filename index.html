@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LDTObserverTools &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="LMI Exposure Time Calculator" href="lmi_etc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#">
+            
+              <img src="_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">LDTObserverTools   </li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <a class="reference external image-reference" href="https://github.com/LowellObservatory/LDTObserverTools"><img alt="https://raw.githubusercontent.com/LowellObservatory/LDTObserverTools/main/doc/_static/obstools_logo.png" src="https://raw.githubusercontent.com/LowellObservatory/LDTObserverTools/main/doc/_static/obstools_logo.png" style="width: 500px;" /></a>
+<section id="ldtobservertools-forks-stars-watch">
+<span id="obstools-main"></span><h1>LDTObserverTools <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/forks"><img alt="forks" src="https://img.shields.io/github/forks/LowellObservatory/LDTObserverTools?style=social" /></a> <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/LowellObservatory/LDTObserverTools?style=social" /></a> <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/watchers"><img alt="watch" src="https://img.shields.io/github/watchers/LowellObservatory/LDTObserverTools?style=social" /></a><a class="headerlink" href="#ldtobservertools-forks-stars-watch" title="Permalink to this heading"></a></h1>
+<p><a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools"><img alt="github" src="https://img.shields.io/badge/GitHub-LDTObserverTools-brightgreen" /></a> <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/releases/"><img alt="latest_version" src="https://img.shields.io/github/v/release/LowellObservatory/LDTObserverTools?label=version" /></a> <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools"><img alt="release_date" src="https://img.shields.io/github/release-date/LowellObservatory/LDTObserverTools" /></a></p>
+<p><a class="reference external" href="https://www.astropy.org/"><img alt="astropy" src="https://img.shields.io/badge/powered%20by-AstroPy-blue.svg?style=flat" /></a> <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools"><img alt="language" src="https://img.shields.io/github/languages/top/LowellObservatory/LDTObserverTools" /></a> <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/LowellObservatory/LDTObserverTools" /></a></p>
+<p><a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/issues"><img alt="issues" src="https://img.shields.io/github/issues/LowellObservatory/LDTObserverTools?style=badge" /></a> <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/pulls"><img alt="pulls" src="https://img.shields.io/github/issues-pr/LowellObservatory/LDTObserverTools?style=badge" /></a></p>
+<p>The LDTObserverTools package is a collection of command-line and GUI tools
+for observers at the Lowell Discovery Telescope (LDT) in Happy Jack, AZ.</p>
+<p>Some of these tools are Python ports of existing tools written in other
+languages, and others are newly written to meet particular needs of the
+observing community.  Detailed instructions on how to use each tool are
+contained in the <a class="reference external" href="https://lowellobservatory.github.io/LDTObserverTools/">online documentation</a>.  Please use
+the GitHub <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/issues">Issues</a> and/or
+<a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/pulls">Pull Requests</a>
+features to report bugs or suggest new tools and features.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you try to run tools from this package and receive a PySimpleGUI notice
+requesting you to register a license key, please update THIS PACKAGE to
+version <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">0.6.3</span></code>.  PySimpleGUI moved to a subscription model on 1 July
+2024, but this package (temporarily) points to an archived FOSS version of
+the GUI library until the various user interfaces can be ported to a
+different infrastructure.</p>
+</div>
+<hr class="docutils" />
+</section>
+<section id="list-of-programs">
+<span id="programs"></span><h1>List of Programs<a class="headerlink" href="#list-of-programs" title="Permalink to this heading"></a></h1>
+<section id="tools-contained-in-this-package">
+<span id="extant"></span><h2>Tools Contained in this Package:<a class="headerlink" href="#tools-contained-in-this-package" title="Permalink to this heading"></a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>DeVeny Spectrograph grating angle calculator (<code class="docutils literal notranslate"><span class="pre">deveny_grangle</span></code>)</p></li>
+<li><p>DeVeny Spectrograph collimator focus sequence estimator (<code class="docutils literal notranslate"><span class="pre">deveny_collfocus</span></code>)</p></li>
+<li><p>DeVeny Spectrograph collimator focus calculator (<code class="docutils literal notranslate"><span class="pre">dfocus</span></code>)</p></li>
+<li><p>DeVeny Spectrograph pickup noise scrubber (<code class="docutils literal notranslate"><span class="pre">scrub_deveny_pickup</span></code> – <em>beta testing</em>)</p></li>
+<li><p>Simple FITS header fixing tool (<code class="docutils literal notranslate"><span class="pre">fix_ldt_header</span></code>)</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="future-tools-planned-or-in-development">
+<span id="future"></span><h2>Future Tools (planned or in development):<a class="headerlink" href="#future-tools-planned-or-in-development" title="Permalink to this heading"></a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>LMI exposure time calculator (<code class="docutils literal notranslate"><span class="pre">lmi_etc</span></code>)</p></li>
+<li><p>NEO Confirmation Page ephemeris generator (<code class="docutils literal notranslate"><span class="pre">neocp_ephem</span></code>)</p></li>
+<li><p>Input List Validator (<code class="docutils literal notranslate"><span class="pre">validate_input_list</span></code>)</p></li>
+<li><p>Observer Target List Tool (<code class="docutils literal notranslate"><span class="pre">observer_target_list</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<hr class="docutils" />
+</section>
+</section>
+<section id="installing">
+<span id="id93"></span><h1>Installing<a class="headerlink" href="#installing" title="Permalink to this heading"></a></h1>
+<section id="set-up-a-clean-python-environment">
+<span id="environment"></span><h2>Set up a clean python environment<a class="headerlink" href="#set-up-a-clean-python-environment" title="Permalink to this heading"></a></h2>
+<p>Because installing a python tool like LDTObserverTools also installs or
+upgrades its <a class="reference internal" href="#dependencies"><span class="std std-ref">Package Dependencies</span></a>, the best course of
+action is to setup a clean python environment into which the installation will
+occur.  This mitigates any possible dependency conflicts with other packages
+you use.</p>
+<p>The recommended method of setting up a new environment is with <code class="docutils literal notranslate"><span class="pre">conda</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda create -n obstools python=3.11</span>
+<span class="go">conda activate obstools</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html">Managing Environments with Conda</a>
+for more details.</p>
+</section>
+<section id="installing-ldtobservertools-via-pip">
+<span id="pip-install"></span><h2>Installing LDTObserverTools via <code class="docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#installing-ldtobservertools-via-pip" title="Permalink to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The commands here assume <code class="docutils literal notranslate"><span class="pre">pip</span></code> is associated with Python3.  To check, run
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">--version</span></code> from the command line and check that the associated python
+version is <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">3.10</span></code>.</p>
+<p>Also, you will need <code class="docutils literal notranslate"><span class="pre">git</span></code> installed on your system / in your environment.</p>
+</div>
+<p>To install the latest version of LDTObserverTools and its required dependencies,
+execute:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install &quot;obstools @ git+https://github.com/LowellObservatory/LDTObserverTools&quot;</span>
+</pre></div>
+</div>
+<p>This will download the latest version of the package from GitHub and install it along
+with its required dependencies.  (Note: whether or not you need quotation marks depends
+on your particular shell – <code class="docutils literal notranslate"><span class="pre">bash</span></code>, <code class="docutils literal notranslate"><span class="pre">zsh</span></code>, etc.)</p>
+<p>As the package undergoes continued development, it will be necessary to upgrade
+your installation to access the latest features.  The upgrade process should
+simply be a matter of executing:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install &quot;obstools @ git+https://github.com/LowellObservatory/LDTObserverTools&quot; --upgrade</span>
+</pre></div>
+</div>
+<section id="optional-dependencies">
+<span id="id94"></span><h3>Optional Dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this heading"></a></h3>
+<p>Some of the instrument-specific routines in this package require additional dependencies
+that are not otherwise needed by the majority of the routines herein.</p>
+<blockquote>
+<div><ul>
+<li><p>If you are using the <code class="docutils literal notranslate"><span class="pre">scrub_deveny_pickup</span></code> tool, you will need the
+spectroscopic data reduction pipeline <a class="reference external" href="https://pypeit.readthedocs.io/en/release/">PypeIt</a>
+for the iterative cleaning of the pickup noise.  It can be installed by
+including it in the optional dependencies, <em>e.g.</em>:</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install &quot;obstools[pypeit] @ git+https://github.com/LowellObservatory/LDTObserverTools&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</section>
+<section id="dependencies-table">
+<span id="dependencies"></span><h3>Dependencies Table<a class="headerlink" href="#dependencies-table" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Python Version</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&gt;=3.10,&lt;3.13</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Required for users</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PySimpleGUI-4-foss</span></code>, <code class="docutils literal notranslate"><span class="pre">astropy&gt;=5.1</span></code>, <code class="docutils literal notranslate"><span class="pre">ccdproc</span></code>, <code class="docutils literal notranslate"><span class="pre">darkdetect</span></code>, <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, <code class="docutils literal notranslate"><span class="pre">numpy&gt;=1.23,&lt;2.0.0</span></code>, <code class="docutils literal notranslate"><span class="pre">requests</span></code>, <code class="docutils literal notranslate"><span class="pre">scipy&gt;=1.9</span></code>, <code class="docutils literal notranslate"><span class="pre">setuptools</span></code>, <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code>, <code class="docutils literal notranslate"><span class="pre">tqdm</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Optional <code class="docutils literal notranslate"><span class="pre">pypeit</span></code> requirements</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pypeit[specutils]&gt;=1.14.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Required for developers</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">black</span></code>, <code class="docutils literal notranslate"><span class="pre">pylint</span></code>, <code class="docutils literal notranslate"><span class="pre">pypeit[specutils]&gt;=1.14.0</span></code>, <code class="docutils literal notranslate"><span class="pre">pyyaml</span></code>, <code class="docutils literal notranslate"><span class="pre">sphinx</span></code>, <code class="docutils literal notranslate"><span class="pre">sphinx-automodapi</span></code>, <code class="docutils literal notranslate"><span class="pre">sphinx-subfigure</span></code>, <code class="docutils literal notranslate"><span class="pre">sphinx_rtd_theme==1.2.2</span></code>, <code class="docutils literal notranslate"><span class="pre">stomp.py</span></code>, <code class="docutils literal notranslate"><span class="pre">xmltodict</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

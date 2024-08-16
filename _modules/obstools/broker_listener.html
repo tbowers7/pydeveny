@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.broker_listener &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../obstools.html">obstools</a></li>
+      <li class="breadcrumb-item active">obstools.broker_listener</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for obstools.broker_listener</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1">#  This file is part of LDTObserverTools.</span>
+<span class="c1">#</span>
+<span class="c1">#   This Source Code Form is subject to the terms of the Mozilla Public</span>
+<span class="c1">#   License, v. 2.0. If a copy of the MPL was not distributed with this</span>
+<span class="c1">#   file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
+<span class="c1">#</span>
+<span class="c1">#  Created on 31-May-2023</span>
+<span class="c1">#</span>
+<span class="c1">#  @author: tbowers</span>
+
+<span class="sd">&quot;&quot;&quot;Apache ActiveMQ Broker Listener Module</span>
+
+<span class="sd">LDTObserverTools contains python ports of various LDT Observer Tools</span>
+
+<span class="sd">Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)</span>
+<span class="sd">https://lowell.edu</span>
+
+<span class="sd">This file contains the ``ActiveMQ_Listener`` class used by the</span>
+<span class="sd">``deveny_collfocus`` routine for retrieving current values from the LDT&#39;s</span>
+<span class="sd">ActiveMQ broker.  This is kept separate so that an ``ImportError`` on ``stomp``</span>
+<span class="sd">simply causes this module to not import and the calling module can go about its</span>
+<span class="sd">business.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Built-In Libraries</span>
+
+<span class="c1"># 3rd-Party Libraries</span>
+<span class="kn">import</span> <span class="nn">stomp</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">xmltodict</span>
+
+<span class="c1"># Local Libraries</span>
+
+
+<div class="viewcode-block" id="ActiveMQ_Listener"><a class="viewcode-back" href="../../api/obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener">[docs]</a><span class="k">class</span> <span class="nc">ActiveMQ_Listener</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Broadcast (status) message listening class</span>
+
+<span class="sd">    This class listens to the ActiveMQ broker and places a parsed version of</span>
+<span class="sd">    the desired broker messages into attributes accessible by the calling</span>
+<span class="sd">    function.  This class is adapted from similar ones used with the LORAX</span>
+<span class="sd">    project, being developed at Lowell Observatory.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_file : :obj:`str` or :obj:`pathlib.Path`</span>
+<span class="sd">        The location of the configuration file to read</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
+        <span class="c1"># Initialize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mounttemp_from_broker</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grangle_from_broker</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Read the config file.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+        <span class="c1"># Get the broker host from the configuration.</span>
+        <span class="c1"># Make a connection to the broker.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;broker_hosts&quot;</span><span class="p">])]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Get a connection handle.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">stomp</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">host_and_ports</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">)</span>
+
+            <span class="c1"># Set up a listener and and connect.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MyListener</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">stomp</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">StompException</span><span class="p">:</span>
+            <span class="c1"># If we cannot connect to the broker, return now and don&#39;t subscribe</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Subscribe to specified topics</span>
+        <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_source</span><span class="si">}</span><span class="s2">_incoming_topic&quot;</span> <span class="k">for</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mounttemp&quot;</span><span class="p">,</span> <span class="s2">&quot;grangle&quot;</span><span class="p">]</span>
+        <span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+                <span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">destination</span><span class="o">=</span><span class="s2">&quot;/topic/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">topic</span><span class="p">],</span>
+                <span class="n">headers</span><span class="o">=</span><span class="p">{},</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="ActiveMQ_Listener.MyListener"><a class="viewcode-back" href="../../api/obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener.MyListener">[docs]</a>    <span class="k">class</span> <span class="nc">MyListener</span><span class="p">(</span><span class="n">stomp</span><span class="o">.</span><span class="n">ConnectionListener</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Class for listening to the STOMPing</span>
+
+<span class="sd">        This listener runs asynchronously from the main body of the program</span>
+<span class="sd">        through stomp&#39;s threading functionality.  When a broker message is</span>
+<span class="sd">        received, it is parsed and placed into the ``parent`` attribute(s)</span>
+<span class="sd">        to be accessed whenever the main code needs it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : :obj:`class`</span>
+<span class="sd">            The parent class into whose attributes values from the broker</span>
+<span class="sd">            message are placed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+            <span class="c1"># Set parent for communication upward</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+<div class="viewcode-block" id="ActiveMQ_Listener.MyListener.on_error"><a class="viewcode-back" href="../../api/obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener.MyListener.on_error">[docs]</a>        <span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+            <span class="c1"># TODO: This really needs to do something substantial</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;received an error &quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ActiveMQ_Listener.MyListener.on_message"><a class="viewcode-back" href="../../api/obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener.MyListener.on_message">[docs]</a>        <span class="k">def</span> <span class="nf">on_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+            <span class="c1"># When a message is recieved, parse out and place into parent attributes</span>
+
+            <span class="c1"># Get the topic</span>
+            <span class="n">topic</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;destination&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mounttemp_incoming_topic&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">topic</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">body</span><span class="p">)[</span><span class="s2">&quot;TCSTelemetry&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mounttemp_from_broker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parse_deveny</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;grangle_incoming_topic&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">topic</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">body</span><span class="p">)[</span><span class="s2">&quot;DevenyTelemetry&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">grangle_from_broker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parse_deveny</span><span class="p">(</span><span class="n">status</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="ActiveMQ_Listener.parse_deveny"><a class="viewcode-back" href="../../api/obstools.broker_listener.html#obstools.broker_listener.ActiveMQ_Listener.parse_deveny">[docs]</a>    <span class="k">def</span> <span class="nf">parse_deveny</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse an XMLTODICT status message</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        status : :obj:`dict`</span>
+<span class="sd">            Translated XML status message</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`dict`</span>
+<span class="sd">            The parsed status dictionary for this particular use case.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Return empty dictionary if no status</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">ret_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+        <span class="c1"># Convert to float, if possible</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">status</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ret_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">ret_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="c1"># Return</span>
+        <span class="k">return</span> <span class="n">ret_dict</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

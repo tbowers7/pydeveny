@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeVeny Pickup Noise Scrubber &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Simple FITS Header Fixing Tool" href="fix_ldt_header.html" />
+    <link rel="prev" title="DeVeny Collimator Focus Calculator" href="dfocus.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pickup Noise Scrubber</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-pre-and-post-scrubbed-data-products">Example Pre- and Post-Scrubbed Data Products</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#outline">Outline</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-processing-steps">Data Processing Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#command-line">Command Line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#terminal-output">Terminal Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-fits-file">Output FITS File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qa-plots">QA Plots</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#algorithmic-details-of-the-scrubbing">Algorithmic Details of the Scrubbing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fft-analysis">FFT Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#row-by-row-sinusoid-fits">Row-by-Row Sinusoid Fits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pickup-noise-pattern-construction">Pickup Noise Pattern Construction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#appendix">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#line-by-line-fits-vs-fourier-space-filtering">Line-by-Line Fits vs Fourier-Space Filtering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DeVeny Pickup Noise Scrubber</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/scrub_deveny_pickup.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+  .ss-layout-default-A_B { grid-template-areas: 'A' 'B'; }
+</style>
+<section id="deveny-pickup-noise-scrubber">
+<span id="scrub-deveny-pickup"></span><h1>DeVeny Pickup Noise Scrubber<a class="headerlink" href="#deveny-pickup-noise-scrubber" title="Permalink to this heading"></a></h1>
+<p>Status: <em>Beta Testing</em></p>
+<p>To report problems or suggest improvements, please submit a GitHub <a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/issues">Issue</a> and/or
+<a class="reference external" href="https://github.com/LowellObservatory/LDTObserverTools/pulls">Pull Request</a>.
+Please include the appropriate QA plot in your Issue/PR to illustrate the
+problem you encountered.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>The spectral channel CCD of the DeVeny Optical Spectrograph has been subject
+to ground-loop EMI pickup in the readout electronics during most of its tenure
+at the Lowell Discovery Telescope (LDT).  This pickup manifests in the science
+images as a low-amplitude sinusoidal pattern sitting atop the raw 2D spectral
+image.</p>
+<p>In January 2018, the Instrument Group broke a significant ground loop,
+eliminating a prominent “corduroy” noise pattern with amplitude <span class="math notranslate nohighlight">\(\pm 4\)</span>
+DN that had been affecting observers’ low-SNR extractions.  At that point,
+there still remained a low-level (<span class="math notranslate nohighlight">\(\pm 2\)</span> DN) scalloping noise that shifted
+from frame to frame, indicating another source of EMI.  After this brief
+reprieve, however, changes on the LDT instrument cube led to the reappearance
+of the larger <span class="math notranslate nohighlight">\(\pm 4\)</span> DN “corduroy” pattern with that continues into 2023.
+While the Instrument Group works diligently to identify and remove this
+ground loop, the present tool is available for observers whose low-SNR
+extractions are affected by this pickup signal.</p>
+<figure class="align-default" id="id5">
+<span id="raw-frame"></span><img alt="Raw DeVeny frame with sinusoidal pickup noise" class="with-shadow" src="_images/scrubber_raw_frame.svg" /><figcaption>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">– Raw frame from DeVeny taken in late 2022.  This is the frame for which
+we will show the scrubber processing steps in the sections below.  The
+object is the thin horizontal line in the center of the frame, and there are
+several prominent (vertical) night sky lines in addition to the wavy pattern
+caused by AC EMI pickup in the readout electronics of the CCD.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Fitting and removing the sinusoidal signal seen in <a class="reference internal" href="#raw-frame"><span class="std std-numref">Fig. 8</span></a> is
+complicated by the presence of bright features in the raw frame such as the
+observed object(s), night sky lines, and cosmic rays.  We use the spectroscopic
+data reduction pipeline (<a class="reference external" href="https://pypeit.readthedocs.io/en/release/index.html">PypeIt</a>) with a particular set
+of parameters to mask cosmic rays and extract night sky lines and object
+spectra.  With these bright signals removed, we can then to fit sinusoids to
+the residual noise image to produce a pattern image representing the EMI
+signal.  This patten is then subtracted from the original image and saved to
+a FITS file for usual data reduction processing (preferably with PypeIt) to
+yield an extracted 1D spectrum for analysis.</p>
+<section id="example-pre-and-post-scrubbed-data-products">
+<h3>Example Pre- and Post-Scrubbed Data Products<a class="headerlink" href="#example-pre-and-post-scrubbed-data-products" title="Permalink to this heading"></a></h3>
+<p>To illustrate the need for and utility of this tool, <a class="reference internal" href="#spec1d-comps"><span class="std std-numref">Fig. 9</span></a>
+shows a comparison of the extracted 1D spectra for two different object types
+from two different programs (and nights) from both the original and scrubbed
+version of the frame.  The galaxy is the (horizontal) object in the middle of
+<a class="reference internal" href="#raw-frame"><span class="std std-numref">Fig. 8</span></a>.  Not only does this tool remove the sinusoidal oscillation
+in the continuum, but astrophysical measurements are more accurately measured
+from the spectra.</p>
+<figure class="align-default" id="id6">
+<span id="spec1d-comps"></span><img alt="Comparison of raw and scrubbed extracted 1D spectra" class="with-shadow" src="_images/spec1d_scrub_double_compare.svg" /><figcaption>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">– Comparison of the PypeIt-extracted 1D spectra for two different object
+types (from different programs).  For each object, the raw and scrubbed
+frames are shown to illustrate the utility of this tool. The red dashed
+line represents the <span class="math notranslate nohighlight">\(1\sigma\)</span> uncertainty in the spectrum.  PypeIt
+estimates a mean <span class="math notranslate nohighlight">\(SNR = 4.8\)</span> for the scrubbed galaxy spectrum and
+a mean <span class="math notranslate nohighlight">\(SNR = 7.2\)</span> for the scrubbed white dwarf spectrum.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Of equivalent interest to the quality of the extracted spectra is the noise
+remaining after extraction of sky and objects.  Shown in <a class="reference internal" href="#prepost-noise"><span class="std std-numref">Fig. 10</span></a>
+are the noise analysis plots from PyepIt for the pre- and post-scrubbed
+versions of the 2D spectral image shown in <a class="reference internal" href="#raw-frame"><span class="std std-numref">Fig. 8</span></a>.  The images and
+pixel histograms are of the residual noise image, which is the science image
+minus the object and sky models, and then divided by the uncertainty image.
+The ideal pixel histogram would be a gaussian with width <span class="math notranslate nohighlight">\(\sigma=1\)</span>.</p>
+<figure class="sphinx-subfigure align-default" id="id7">
+<span id="prepost-noise"></span><div class="sphinx-subfigure-grid ss-layout-default-A_B outline" style="display: grid; gap: 2px; grid-gap: 2px;">
+<div class="sphinx-subfigure-area" style="display: flex; flex-direction: column; justify-content: center; align-items: center; grid-area: A;">
+<img alt="Pre-scrubbed noise analysis plot" src="_images/pypeit_spec2d_noise_prescrub.png" />
+</div>
+<div class="sphinx-subfigure-area" style="display: flex; flex-direction: column; justify-content: center; align-items: center; grid-area: B;">
+<img alt="Post-scrubbed noise analysis plot" src="_images/pypeit_spec2d_noise_postscrub.png" />
+</div>
+</div>
+<figcaption>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">– Noise analysis of the pre- (top) and post-scrubbed (bottom) versions of
+the frame shown in <a class="reference internal" href="#raw-frame"><span class="std std-numref">Fig. 8</span></a>.  Image values are residual image
+divided by uncertainty, so the ideal pixel histogram would be a gaussian
+with width <span class="math notranslate nohighlight">\(\sigma=1\)</span>.  Note the improvement in both the visual
+quality of the scrubbed frame and the width and shape of the pixel histogram
+compared to the pre-scrubbed frame.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="outline">
+<h3>Outline<a class="headerlink" href="#outline" title="Permalink to this heading"></a></h3>
+<p>This document begins with a description of how to use this tool to clean the
+EMI pickup noise from your data, and moves on to lay out the details of what
+the tool does to your data and other points to consider.</p>
+</section>
+</section>
+<section id="data-processing-steps">
+<span id="scrub-process"></span><h2>Data Processing Steps<a class="headerlink" href="#data-processing-steps" title="Permalink to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Before the pickup noise may be fit out, it is necessary to perform a basic
+spectroscopic reduction using the PypeIt pipeline.  The outline of how to
+perform this reduction is given in the <a class="reference external" href="https://confluence.lowell.edu/display/LDTOI/DeVeny+Optical+Spectrograph">DeVeny User Manual</a>.
+What is needed for this tool, however, is not a completely normal reduction
+procedure, and it is important to not modify any of the object finding, sky
+subtraction, or extraction parameters (except as enumerated below) in your
+PypeIt Reduction File for this step.  The scrubber tool expects certain
+qualities of the processed images in order to successfully fit the EMI
+noise.</p>
+<p>In particular, to perform a sky subtraction in a way to limit the number and
+severity of artifacts introduced into the residual noise image and to not
+spend time computing spectral flexure, the user should include the following
+in the Parameter Block of the <code class="docutils literal notranslate"><span class="pre">.pypeit</span></code> file:</p>
+<blockquote>
+<div><div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[flexure]</span>
+<span class="w">   </span><span class="na">spec_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">skip</span>
+<span class="k">[reduce]</span>
+<span class="w">   </span><span class="k">[[skysub]]</span>
+<span class="w">      </span><span class="na">bspline_spacing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100</span>
+<span class="w">      </span><span class="na">local_maskwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200.</span>
+<span class="w">      </span><span class="na">no_poly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you are using a version of PypeIt <code class="docutils literal notranslate"><span class="pre">&lt;</span> <span class="pre">1.15.0</span></code> (see the top line of
+the PypeIt Reduction File for the version number), then you will instead
+need to add the entirety of the following to the Parameter Block to
+ensure the traced slit edges do not shrink unreasonably and that pattern
+noise in the CCD overscan does not introduce artifacts in the fitting.
+Regions outside the marked slits will have 0 value in the residual image,
+and therefore any sinusoidal signal there will not be fit out.  (The
+additional parameters included here were added to the DeVeny default set
+in PypeIt version <code class="docutils literal notranslate"><span class="pre">1.15.0</span></code>.)</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[flexure]</span>
+<span class="w">   </span><span class="na">spec_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">skip</span>
+<span class="k">[reduce]</span>
+<span class="w">   </span><span class="k">[[skysub]]</span>
+<span class="w">      </span><span class="na">bspline_spacing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100</span>
+<span class="w">      </span><span class="na">local_maskwidth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200.</span>
+<span class="w">      </span><span class="na">no_poly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="w">   </span><span class="k">[[findobj]]</span>
+<span class="w">      </span><span class="na">find_trim_edge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0,0</span>
+<span class="k">[calibrations]</span>
+<span class="w">   </span><span class="k">[[slitedges]]</span>
+<span class="w">      </span><span class="na">minimum_slit_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">170</span>
+<span class="w">      </span><span class="na">max_nudge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span>
+<span class="w">      </span><span class="na">det_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+<span class="w">   </span><span class="k">[[flatfield]]</span>
+<span class="w">      </span><span class="na">tweak_slits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="k">[scienceframe]</span>
+<span class="w">   </span><span class="k">[[process]]</span>
+<span class="w">      </span><span class="na">overscan_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">polynomial</span>
+<span class="w">      </span><span class="na">overscan_par</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1,0,0</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p>Once the PypeIt reduction is complete, you are ready to run the scrubber.
+In the directory containing the raw files, run the scrubber (see
+<a class="reference internal" href="#usage"><span class="std std-ref">Usage</span></a>) on the files in the directory.  If an input file is <strong>NOT</strong>
+an object science frame (<em>e.g.</em>, it is a bias or dome flat), it will be
+skipped without being processed.  The scrubber will use both the raw frame
+and the processed 2D spectrum (in the <code class="docutils literal notranslate"><span class="pre">ldt_deveny_?/Science</span></code> directory)
+to fit the sinusoidal pickup noise and produce a cleaned image, saved to
+a FITS file in the raw directory.</p></li>
+<li><p>After the scrubber has completed its work, you will need to perform a normal
+PypeIt data reduction workflow, starting with the <code class="docutils literal notranslate"><span class="pre">pypeit_setup</span></code> script to
+include the scrubbed files in a new PypeIt Reduction File.  At this point,
+you may remove the lines in the <code class="docutils literal notranslate"><span class="pre">.pypeit</span></code> file corresponding to the
+original images and add any parameter modifications you desire, including
+those affecting object finding and extraction.  In particular, <strong>DO NOT</strong>
+include the <code class="docutils literal notranslate"><span class="pre">[flexure]</span></code> and three <code class="docutils literal notranslate"><span class="pre">[[skysub]]</span></code> parameters used in Step
+#1 above, as they may cause unpleasant artifacts in the actual reduction of
+your data.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In a future version of this tool, it may be possible to combine steps #1 and
+#2, so that the user need not concern themselves with the particular PypeIt
+parameter modifications here, and would only need run this tool on the raw
+data (which will include an integral PypeIt reduction) before running the
+usual PypeIt reduction steps.</p>
+</div>
+</section>
+<section id="usage">
+<span id="id1"></span><h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
+<section id="command-line">
+<h3>Command Line<a class="headerlink" href="#command-line" title="Permalink to this heading"></a></h3>
+<p>The tool usage can be displayed by calling the script with the
+<code class="docutils literal notranslate"><span class="pre">-h</span></code> option:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>scrub_deveny_pickup<span class="w"> </span>-h
+<span class="go">usage: scrub_deveny_pickup [-h] [--proc_dir PROC_DIR] [--overwrite_raw] [-d]</span>
+<span class="go">                           [-n]</span>
+<span class="go">                           file [file ...]</span>
+
+<span class="go">Clean RF pickup noise from DeVeny raw frames</span>
+
+<span class="go">positional arguments:</span>
+<span class="go">  file                 File(s) to clean</span>
+
+<span class="go">options:</span>
+<span class="go">  -h, --help           show this help message and exit</span>
+<span class="go">  --proc_dir PROC_DIR  Path to the directory above that which contains the</span>
+<span class="go">                       .pypeit file used to process `file` (i.e., the directory</span>
+<span class="go">                       above ldt_deveny_?) -- use only if `-r` was used in the</span>
+<span class="go">                       call to `pypeit_setup`. (default: current working</span>
+<span class="go">                       directory)</span>
+<span class="go">  --overwrite_raw      Overwrite the raw file rather than create a new file with</span>
+<span class="go">                       the &#39;_scrub&#39; suffix (default: False)</span>
+<span class="go">  -d, --diagnostics    Output additional information and plots during the</span>
+<span class="go">                       analysis for debugging purposes (default: False)</span>
+<span class="go">  -n, --no_refit       Force no refit of &#39;bad&#39; RMS values (default: False)</span>
+</pre></div>
+</div>
+<p>You may specify either a single <code class="docutils literal notranslate"><span class="pre">file</span></code> for the scrubber to process, or
+include a list of files (by way of wildcards or shell filename expansions)
+over which the tool should iterate.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--proc_dir</span></code> option may be used to specify the location of the
+PypeIt-processed files (<em>i.e.</em>, the <code class="docutils literal notranslate"><span class="pre">ldt_deveny_?</span></code> directory you created
+with <code class="docutils literal notranslate"><span class="pre">pypeit_setup</span></code>), if other than as a subdirectory of the raw data
+directory.  This works in the same sense but opposite direction as the <code class="docutils literal notranslate"><span class="pre">-r</span>
+<span class="pre">&lt;RAWDIR&gt;</span></code> option to <code class="docutils literal notranslate"><span class="pre">pypeit_setup</span></code>.  In particular, if you did not specify
+<code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&lt;RAWDIR&gt;</span></code> to <code class="docutils literal notranslate"><span class="pre">pypeit_setup</span></code>, do not use this option.</p>
+<p>To simply overwrite the raw data file with the output of this tool, the
+<code class="docutils literal notranslate"><span class="pre">--overwrite_raw</span></code> option may be specified.  Since the output FITS file
+created here includes the entirety of the raw frame (all header cards plus the
+raw image), this may be acceptable if processing large number of files.</p>
+<p>Other options shown are debugging tools that may be removed in the future.</p>
+</section>
+<section id="terminal-output">
+<h3>Terminal Output<a class="headerlink" href="#terminal-output" title="Permalink to this heading"></a></h3>
+<p>When run, the tool prints to the screen information about the current
+processing step and produces progress bars when repeatedly running an algorithm
+on multiple rows of the image.  The terminal output for the example frame used
+in this documentation is shown below.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>scrub_deveny_pickup<span class="w"> </span><span class="m">20290101</span>.0001.fits
+
+<span class="go">Processing frame 20290101.0001.fits</span>
+<span class="go">--&gt; FFT-predicted pixel period: 169.7 pix</span>
+<span class="go">Checking the object model for bulk sinusoidal signal...</span>
+<span class="go">100%|██████████████████████████████████████████| 46/46 [00:01&lt;00:00, 23.84row/s]</span>
+<span class="go">* Object model appears clean of target sinusoidal signal.</span>
+<span class="go">Fitting sinusoids to each line in the image...</span>
+<span class="go">100%|████████████████████████████████████████| 508/508 [00:10&lt;00:00, 50.45row/s]</span>
+<span class="go">   --&gt; Mean fit pixel period: 172.9 pix</span>
+<span class="go">Refitting lines with poor fit in first pass...</span>
+<span class="go">100%|██████████████████████████████████████████| 63/63 [00:01&lt;00:00, 50.86row/s]</span>
+<span class="go">   --&gt; Mean fit pixel period: 173.7 pix</span>
+<span class="go">Refitting all lines within the slit assuming nearly constant sinusoid...</span>
+<span class="go">100%|████████████████████████████████████████| 478/478 [00:07&lt;00:00, 62.00row/s]</span>
+<span class="go">   --&gt; Mean fit pixel period: 173.7 pix</span>
+<span class="go"> Writing QA plots to ./ldt_deveny_A/QA/PDFs</span>
+<span class="go">Writing out scrubbed FITS file: 20290101.0001_scrub.fits</span>
+</pre></div>
+</div>
+<p>Important pieces to note in the terminal output:</p>
+<ul class="simple">
+<li><p>The FFT-predicted and mean sinusoid fit pixel periods are printed for quality
+assurance purposes.</p></li>
+<li><p>If the PypeIt-reduced <code class="docutils literal notranslate"><span class="pre">spec2d</span></code> file contains a non-zero object model, the
+code will analyze it for the sinusoidal signal at the predicted period.  If
+the object model contains this signal, then the residual noise image
+(<code class="docutils literal notranslate"><span class="pre">sciimg</span></code> - <code class="docutils literal notranslate"><span class="pre">skymodel</span></code> - <code class="docutils literal notranslate"><span class="pre">objmodel</span></code>) will be missing power from the
+pickup noise (<em>i.e.</em>, that power was extracted into the object model).  In
+this case, the tool will print a statement indicating that the object model
+will be included in the residual image and the amplitude of the sinusoidal
+fit (for QA purposes).  If the object(s) remains extracted (<em>i.e.</em> does not
+contain bulk sinusoidal signal), the tool will print the message: <code class="docutils literal notranslate"><span class="pre">Object</span>
+<span class="pre">model</span> <span class="pre">appears</span> <span class="pre">clean</span> <span class="pre">of</span> <span class="pre">target</span> <span class="pre">sinusoidal</span> <span class="pre">signal</span></code>.</p></li>
+<li><p>The first pass at fitting sinusoids to the image should include all rows in
+the (trimmed) image (FITS keyword <code class="docutils literal notranslate"><span class="pre">TRIMSEC</span></code>).  In this example, the CCD was
+binned <code class="docutils literal notranslate"><span class="pre">1x1</span></code>, so there were 516 rows in the original image, trimmed down to
+508.</p></li>
+<li><p>As an iterative step, the tool assesses the rms residuals of the fit and
+determines if there are outliers that need to be refit using initial guess
+parameters from nearby well-fit rows.  The number of rows indicated in this
+progress bar is less than the total image, and can vary based on the
+particular pattern noise in the image.</p></li>
+<li><p>The EMI signal should be roughly constant in amplitude and period over the
+approximately 8 seconds the CCD takes to read out.  Therefore, as a final
+step, the tool fits the amplitude and period fit coefficients with a
+low-order polynomial as a function of row number to account for the
+secular drift in the sinusoid period that causes the mean period to change
+from frame to frame.  With the polynomial fit in hand, one last pass at
+fitting sinusoids to the rows is completed, fixing the period and amplitude
+while allowing the phase and underlying secular drift of the row to be fit.
+This pass only fits rows identified within the slit, so may have fewer rows
+to process than the full frame.</p></li>
+<li><p>Finally, the location of QA plots and filename of the scrubbed FITS file are
+shown for reference.</p></li>
+</ul>
+</section>
+<section id="output-fits-file">
+<h3>Output FITS File<a class="headerlink" href="#output-fits-file" title="Permalink to this heading"></a></h3>
+<p>The output of this tool is a multiextension FITS with filename identical to the
+raw file (including path) except with “_scrub” appended before “.fits”.  It
+includes the following HDUs:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Primary HDU: contains the raw file’s complete FITS header</p></li>
+<li><p>Cleaned Image HDU: (<code class="docutils literal notranslate"><span class="pre">raw</span></code> - <code class="docutils literal notranslate"><span class="pre">pattern</span></code>)</p></li>
+<li><p>Original Image HDU: (<code class="docutils literal notranslate"><span class="pre">raw</span></code>)</p></li>
+<li><p>Pattern Image HDU: (<code class="docutils literal notranslate"><span class="pre">pattern</span></code>)</p></li>
+<li><p>Pattern about Raw Mean Image HDU: (<code class="docutils literal notranslate"><span class="pre">pattern</span></code> + <code class="docutils literal notranslate"><span class="pre">mean(raw)</span></code>)</p></li>
+<li><p>Fit Coefficients BinTable HDU: (<code class="docutils literal notranslate"><span class="pre">fit_coeffs</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Running the AstroPy utility <code class="docutils literal notranslate"><span class="pre">fitsinfo</span></code> yields the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>fitsinfo<span class="w"> </span><span class="m">20290101</span>.0001_scrub.fits
+<span class="go">Filename: 20290101.0001_scrub.fits</span>
+<span class="go">No.    Name      Ver    Type      Cards   Dimensions   Format</span>
+<span class="go">  0  PRIMARY       1 PrimaryHDU     193   ()</span>
+<span class="go">  1  CLEANED       1 ImageHDU        10   (2148, 516)   float64</span>
+<span class="go">  2  ORIGINAL      1 ImageHDU        12   (2148, 516)   int16 (rescales to uint16)</span>
+<span class="go">  3  PATTERN0      1 ImageHDU        10   (2148, 516)   float64</span>
+<span class="go">  4  PATTERN1      1 ImageHDU        10   (2148, 516)   float64</span>
+<span class="go">  5  FIT DATA      1 BinTableHDU     50   508R x 15C   [D, D, D, D, D, D, D, D, D, D, D, D, D, D, D]</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">ORIGINAL</span></code> raw data frame is included in the scrubbed output for reference
+and posterity.  The fitted sinusoidal pattern is included in two different
+formats, one with a zero mean (<code class="docutils literal notranslate"><span class="pre">PATTERN0</span></code>) and the other with the raw image
+mean (<code class="docutils literal notranslate"><span class="pre">PATTERN1</span></code>) for use as desired (<em>e.g.</em> it is easier to compare
+<code class="docutils literal notranslate"><span class="pre">PATTERN1</span></code> to the raw image in <code class="docutils literal notranslate"><span class="pre">ds9</span></code>, but the actual signal removed from
+the raw image is <code class="docutils literal notranslate"><span class="pre">PATTERN0</span></code>).  Finally, the sinusoidal fit coefficients are
+included for perusal.</p>
+<p>When processing the scrubbed frames with PypeIt, the data reduction pipeline
+will recognize the scrubbed image and use the <code class="docutils literal notranslate"><span class="pre">CLEANED</span></code> HDU for processing
+without user intervention.</p>
+</section>
+<section id="qa-plots">
+<h3>QA Plots<a class="headerlink" href="#qa-plots" title="Permalink to this heading"></a></h3>
+<p>The tool generates three quality assurance (QA) plots per frame to allow the
+user to assess the scrubbing.  All QA plots are placed into the PypeIt <code class="docutils literal notranslate"><span class="pre">QA/</span></code>
+directory for convenience. Within the PypeIt <code class="docutils literal notranslate"><span class="pre">QA/</span></code> directory, that pipeline
+places its QA plots into a <code class="docutils literal notranslate"><span class="pre">PNGs/</span></code> subdirectory (because the plots are PNG
+format).  To keep QA files from this tool separate (yet also in an easy-to-find
+location), files generated here are in the <code class="docutils literal notranslate"><span class="pre">PDFs/</span></code> subdirectory (because, wait
+for it, they are in PDF format).</p>
+<p>The three files are:</p>
+<ol class="arabic simple">
+<li><p>The FFT QA plots showing the frequencies found and indicating the likely
+period of the EMI noise.  (See <a class="reference internal" href="#id2"><span class="std std-numref">Fig. 11</span></a> as an example.)
+These have the filename template <code class="docutils literal notranslate"><span class="pre">YYYYMMDD.NNNN_scrubber_fft_analysis.pdf</span></code>
+where the <code class="docutils literal notranslate"><span class="pre">YYYYMMDD.NNNN</span></code> corresponds to the filename of the raw frame.</p></li>
+<li><p>The sinusoidal fits QA plots showing the row-by-row fit coefficients and
+rms residuals.  (See <a class="reference internal" href="#sinusoid-fits"><span class="std std-numref">Fig. 12</span></a> as an example.)  These have
+the filename template <code class="docutils literal notranslate"><span class="pre">YYYYMMDD.NNNN_scrubber_sinusoid_fits.pdf</span></code>.</p></li>
+<li><p>Image comparison QA plots showing the various stages of the analysis
+including the original (PypeIt-processed) frame, residual image, modeled
+pattern noise, and cleaned image.  (See <a class="reference internal" href="#image-comparisons"><span class="std std-numref">Fig. 13</span></a> as an
+example.)  These have the filename template
+<code class="docutils literal notranslate"><span class="pre">YYYYMMDD.NNNN_scrubber_image_comparisons.pdf</span></code>.</p></li>
+</ol>
+</section>
+</section>
+<section id="algorithmic-details-of-the-scrubbing">
+<span id="scrub-details"></span><h2>Algorithmic Details of the Scrubbing<a class="headerlink" href="#algorithmic-details-of-the-scrubbing" title="Permalink to this heading"></a></h2>
+<p>Here we describe the processing details for the scrubber and illustrate example
+QA plots generated by the tool.</p>
+<p>The fitting of the sinusoidal pickup noise is done on the residual
+PypeIt-processed image, in which cosmic rays, the sky model, and (frequently)
+the object have been removed, leaving behind the underlying noise in the image.
+This is done because bright features in the raw science frame such as night sky
+lines and objects obfuscate and cover the few-DN amplitude AC signal we wish to
+remove.  We take advantage of the sophisticated modeling algorithms in PypeIt
+to do this heavy lifting for us, leaving us to concentrate on the
+DeVeny-specific issues at hand.  See <a class="reference internal" href="#image-comparisons"><span class="std std-numref">Fig. 13</span></a> below for an
+illustration of the various processing steps and frames used.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>PypeIt converts all raw images from ADU into electrons using the gain value
+recorded in the FITS header.  For DeVeny, this is 1.52 e-/ADU.  The QA plots
+shown here are constructed from the PypeIt-processed images, and so are in
+electrons.  The <span class="math notranslate nohighlight">\(\pm 6\)</span> electron amplitude illustrated here translates
+to a <span class="math notranslate nohighlight">\(\pm 4\)</span> DN signal in the raw images.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Include a description of when the object may or may not be included in the
+residual image – namely if the object model from PypeIt contains
+sinusoidal signal of the period indicated from the FFT.</p>
+</div>
+<section id="fft-analysis">
+<h3>FFT Analysis<a class="headerlink" href="#fft-analysis" title="Permalink to this heading"></a></h3>
+<p>The EMI pickup noise present in the DeVeny images has an unpredictably variable
+apparent frequency (or wavelength in pixel space) from frame to frame.  The
+secular variation in the frequency is slow enough, however, that the measured
+wavelength of the sinusoidal noise is approximately constant across a single
+image given the <span class="math notranslate nohighlight">\(\sim 8\)</span> second readout time of the spectral channel
+CCD.</p>
+<p>Estimation of the mean sinusoid period is done with a fast fourier transform
+(FFT).  Rather than attempt to pull the (varying) horizontal frequencies out
+of a 2D FFT, the image is instead flattened into a timeseries-like array, where
+pixels are arranged in the order in which they were read out.  In its
+processing, PypeIt trims the raw image to remove overscan sections and unruly
+rows at the edges of the CCD.  As such, the last pixel of one row is not
+strictly temporally adjacent to the first pixel of the next row in the same way
+that pixels within a given row are.  Rather than attempt to fill in a
+temporally appropriate gap between rows (which would introduce artifacts in the
+resulting FFT), we simply stitch the rows together as-is and rely upon the FFT
+to pick out the prominent frequencies in the flattened array.</p>
+<p>An example QA plot for the FFT analysis is shown in <a class="reference internal" href="#id2"><span class="std std-numref">Fig. 11</span></a>.</p>
+<figure class="align-default" id="id8">
+<span id="id2"></span><img alt="FFT analysis of the flattened frame" class="with-shadow" src="_images/scrubber_fft_analysis.svg" /><figcaption>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">– FFT QA plot.  The top panel shows the flattened image array, while the
+remaining rows show the real (amplitude as a function of frequency),
+imaginary (phase as a function of frequency), and absolute square (power
+spectrum) components of the FFT.  The power spectrum is further smoothed
+with a gaussian kernel to help isolate desired signal (with variable
+frequency, as discussed above) from artifacts and ringing in the FFT.
+The peak at 169.7 pixels indicates the frequency with the most power in the
+flattened array: most likely the period of the AC EMI pickup noise.</span><a class="headerlink" href="#id8" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The power spectrum of the FFT (absolute value squared) is smoothed with a 10-Hz
+wide gaussian kernel since there is variation in the frequency of the sinusoid
+from row to row.  This has the added benefit of squashing artificial peaks in
+the power spectrum caused by ringing or aliasing of the signal across rows.
+We use the pixel period of the peak of the power spectrum as the initial guess
+for the iterative fitting of a sinusoid (in pixel space) to each row of the
+residual image.</p>
+</section>
+<section id="row-by-row-sinusoid-fits">
+<h3>Row-by-Row Sinusoid Fits<a class="headerlink" href="#row-by-row-sinusoid-fits" title="Permalink to this heading"></a></h3>
+<p>With an initial guess at the sinusoid period in hand, the tool moves on to fit
+a sinusoid to each row in the image.  This is an iterative process, where the
+results of one pass inform the initial guess and bounds on the fit parameters
+for subsequent passes.  In addition to a basic sinusoid (amplitude, period, and
+phase), a quadratic polynomial is included to account for secular drift in the
+background.  The <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html#scipy.optimize.curve_fit" title="(in SciPy v1.14.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">curve_fit()</span></code></a> function from
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/optimize.html#module-scipy.optimize" title="(in SciPy v1.14.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scipy.optimize</span></code></a> is used to perform a non-linear least-squares fit to each
+row, with bounds placed on the sinusoid terms to keep the final fit reasonably
+close to initial guess values.</p>
+<p><a class="reference internal" href="#sinusoid-fits"><span class="std std-numref">Fig. 12</span></a> shows the result of this iterative fitting for this
+example frame.  During each pass, the rms of the fit is computed for each row
+as an estimate of how well any particular row’s model matches the data.  The
+mean and standard deviation of the row-by-row rms values (bottom panel in
+<a class="reference internal" href="#sinusoid-fits"><span class="std std-numref">Fig. 12</span></a>) are used to identify outliers that likely have a poor
+fit after the first pass.</p>
+<p>In the second pass, these outlier lines are refit with tighter bounds and using
+the fit values from nearby “good” rows as the initial guesses.  The collection
+of fit values as a function of row number after the second pass are shown in
+orange in <a class="reference internal" href="#sinusoid-fits"><span class="std std-numref">Fig. 12</span></a>.  As a result of this iterative process, the
+set of sinusoidal fits tends to have a narrow range of values for amplitude
+and period.</p>
+<p>For the final pass, the tool assumes that the underlying EMI noise is nearly
+constant in period and amplitude.  A low-order (quadratic) polynomial is fit to
+the top two plots in <a class="reference internal" href="#sinusoid-fits"><span class="std std-numref">Fig. 12</span></a> to estimate the true sinusoidal
+signal imprinted on the frame.  The sinusoidal fits for this pass fix the
+values of the period and amplitude to those smooth values (black lines in
+<a class="reference internal" href="#sinusoid-fits"><span class="std std-numref">Fig. 12</span></a>), allowing the phase and secular drift of the row to be
+fit.  As a result, the sinusoid phase from row to row is a smoother function,
+and the rms of the fit is generally a little smaller than the orange fit.</p>
+<p>The pattern image produced from these final fit coefficients (see
+<a class="reference internal" href="#image-comparisons"><span class="std std-numref">Fig. 13</span></a>) closely resembles the unwanted pattern in the raw
+frame.  Note, however, that the final pixel periods tend to be slightly larger
+than that predicted from the FFT (green dashed line in the second panel of
+<a class="reference internal" href="#sinusoid-fits"><span class="std std-numref">Fig. 12</span></a>).  The origin of this discrepancy is not clear (see
+<a class="reference internal" href="#fourier-analysis"><span class="std std-ref">Line-by-Line Fits vs Fourier-Space Filtering</span></a> for further discussion).</p>
+<figure class="align-default" id="id9">
+<span id="sinusoid-fits"></span><img alt="Sinusoid fits to each row" class="with-shadow" src="_images/scrubber_sinusoid_fits.svg" /><figcaption>
+<p><span class="caption-number">Fig. 12 </span><span class="caption-text">– Sinusoid fit QA plots, showing the row-by-row fit
+parameters for the amplitude, period, and phase in the first three panels,
+and the rms of the fit in the bottom panel.  In the period panel, the
+green dashed line indicates the peak of the FFT power spectrum used as the
+initial guess for the sinusoid fit parameters.</span><a class="headerlink" href="#id9" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="pickup-noise-pattern-construction">
+<h3>Pickup Noise Pattern Construction<a class="headerlink" href="#pickup-noise-pattern-construction" title="Permalink to this heading"></a></h3>
+<p>The final result of sinusoid fits is a constructed pattern image.  This is the
+zero-mean sinusoid (sans quadratic polynomial) that <em>should</em> represent only the
+EMI pickup noise (as an additive AC-only signal).  <a class="reference internal" href="#image-comparisons"><span class="std std-numref">Fig. 13</span></a>
+shows the process of pattern construction and its effect on the processed
+science image.</p>
+<figure class="align-default" id="id10">
+<span id="image-comparisons"></span><img alt="Image comparison plot showing initial, intermediate, and final images" class="with-shadow" src="_images/scrubber_image_comparisons.svg" /><figcaption>
+<p><span class="caption-number">Fig. 13 </span><span class="caption-text">– This QA plot illustrates the image-space effects of the sinusoidal fits.
+Panels are all shown with the <a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.visualization.ZScaleInterval.html">IRAF ZScale mapping</a>;
+panels sharing a color map also share visualization scale limits. The panels
+are described below.</span><a class="headerlink" href="#id10" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Panel Description:</p>
+<ol class="arabic simple">
+<li><p>The science image after the initial PypeIt processing.  Without scrubbing,
+this would be the 2D image from which the object(s) are extracted.</p></li>
+<li><p>The PypeIt sky + object model, where the local sky modeling has included the
+entire slit thanks to the <code class="docutils literal notranslate"><span class="pre">local_maskwidth</span> <span class="pre">=</span> <span class="pre">200.</span></code> specified in the PypeIt
+Reduction File.  If the object is not included here, it is because the
+extracted object model includes power from the sinusoidal EMI signal and
+must therefore be included in the residual image for fitting.  The sky is
+purposefully broad-brush and blurred so as to not induce artifacts in the
+fitted pattern by including, <em>e.g.</em>, contiguous rows of sinusoids with
+similar phase in the sky model (rather in the noise pattern where it
+belongs).</p></li>
+<li><p>The PypeIt residual image, where the sky model (and frequently the object
+model) has been subtracted and cosmic rays (and other bad pixels) have been
+masked.  What <em>should</em> remain in this image is flat residual noise with rms
+based on the sky model photon statistics.  In the case of DeVeny images
+subject to the EMI pickup noise, that noise should be the dominant feature
+in this frame, with some residual sky lines because of the broad-brush sky
+subtraction above.</p></li>
+<li><p>The modeled sinusoidal pickup noise.  While the sinusoidal fit to each row
+of the residual image (#3) includes a quadratic polynomial to account for
+secular variation in the background, only the base sinusoid is included in
+this pattern image to match the AC nature of the pickup.</p></li>
+<li><p>The scrubbed residual image, where the pattern image (#4) has been
+subtracted off.  This frame should be largely featureless (except if the
+object is still included).</p></li>
+<li><p>This is the scrubbed science frame (#1 minus #4), and it should be clear of
+the sinusoidal noise.  Even in frames where the phase difference of the
+pickup noise from row to row is such that large-scale wavy patterns are not
+visible in the base science image (#1), this scrubbed frame should be less
+noisy since a <span class="math notranslate nohighlight">\(\sim 4\)</span> DN sinusoid has been removed from each line.</p></li>
+</ol>
+<p>Panels #1, #2, and #6 are shown in a purple-red-yellow color map with common
+scale limits based on the processed science image (range -15 e- to +51 e-), and
+panels #3 - #5 are shown in a blue-green-yellow color map with common scale
+limits based on the pattern image (range -6.1 e- to +6.1 e-) to illustrate
+the completeness of the EMI signal removal.</p>
+<hr class="docutils" />
+</section>
+</section>
+<section id="appendix">
+<span id="id3"></span><h2>Appendix<a class="headerlink" href="#appendix" title="Permalink to this heading"></a></h2>
+<p>For the adventurous reader, here is some additional information about the
+development of the scrubber and various points of interest.</p>
+<section id="line-by-line-fits-vs-fourier-space-filtering">
+<span id="fourier-analysis"></span><h3>Line-by-Line Fits vs Fourier-Space Filtering<a class="headerlink" href="#line-by-line-fits-vs-fourier-space-filtering" title="Permalink to this heading"></a></h3>
+<div class="admonition-todo admonition" id="id4">
+<p class="admonition-title">Todo</p>
+<p>This section needs updated images and text.</p>
+</div>
+<p>Given the nearly constant frequency (manifested as a periodic sinusoid in
+pixel space) of the AC EMI, one is tempted to attempt filtering the signal in
+Fourier space rather than doing a line-by-line fitting.</p>
+<p>The FFT computation is done on a flattened 1D version of the image, with the
+pixels in time-order of readout.  Now, if the exact time between rows were
+included as spacers between the rows of data in the 1D array, a single period
+may emerge.  Since this is difficult to guess (and can vary within the readout
+electronics), the rows were simply strung together one after another.  The
+effect of this is a significant amount of ringing in the FFT caused by
+breaks in the sinusoidal pattern from row to row.</p>
+<p>We can run the computed EMI pattern image (4th panel in
+<a class="reference internal" href="#image-comparisons"><span class="std std-numref">Fig. 13</span></a>) through the same FFT analysis routine to yield the
+QA plot shown in <a class="reference internal" href="#pattern-fft"><span class="std std-numref">Fig. 14</span></a>.</p>
+<figure class="align-default" id="id11">
+<span id="pattern-fft"></span><img alt="FFT analysis of the constructed pattern" class="with-shadow" src="_images/pattern_scrubber_fft_analysis.svg" /><figcaption>
+<p><span class="caption-number">Fig. 14 </span><span class="caption-text">– FFT QA plot, showing the flattened image array, the real
+(amplitude as a function of frequency) and imaginary (phase as a function
+of frequency) components of the FFT, along with the power spectrum
+(absolute value squared).  The power spectrum is further smoothed with a
+gaussian kernel to help isolate real signal (with variable frequency, as
+discussed above) from artifacts and ringing in the FFT.  The peak at 169.1
+pixels, indicating the frequency with the most power in the flattened array:
+most likely the period of the AC EMI pickup noise.</span><a class="headerlink" href="#id11" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>When compared to <a class="reference internal" href="#id2"><span class="std std-numref">Fig. 11</span></a>, most of the structure apparent in the
+analysis of the residual image still appears here.  This is why simply applying
+a notch filter in Fourier space around the peak of the FFT does not clean the
+EMI noise, but rather amplifies the problem.  It is comforting that the peak
+period found in the pattern image is identical to that in the residual image
+(169.1 pixels), although both are smaller than the average pixel period found
+in the sinusoid fitting (173.6 pixels).</p>
+<p>Finally, we can perform the same analysis on the scrubbed residual image (5th
+panel in <a class="reference internal" href="#image-comparisons"><span class="std std-numref">Fig. 13</span></a>).  The result is shown in
+<a class="reference internal" href="#cleaned-fft"><span class="std std-numref">Fig. 15</span></a>.</p>
+<figure class="align-default" id="id12">
+<span id="cleaned-fft"></span><img alt="FFT analysis of the cleaned residual image" class="with-shadow" src="_images/cleaned_scrubber_fft_analysis.svg" /><figcaption>
+<p><span class="caption-number">Fig. 15 </span><span class="caption-text">– FFT QA plot, showing the flattened image array, the real
+(amplitude as a function of frequency) and imaginary (phase as a function
+of frequency) components of the FFT, along with the power spectrum
+(absolute value squared).  The power spectrum is further smoothed with a
+gaussian kernel to help isolate real signal (with variable frequency, as
+discussed above) from artifacts and ringing in the FFT.  The peak at 169.1
+pixels, indicating the frequency with the most power in the flattened array:
+most likely the period of the AC EMI pickup noise.</span><a class="headerlink" href="#id12" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Also, say something about the actual line-by-line fits in terms of how good a
+sinusoid fits each one.  Show a figure like <a class="reference internal" href="#line-by-line"><span class="std std-numref">Fig. 16</span></a>.</p>
+<figure class="align-default" id="id13">
+<span id="line-by-line"></span><img alt="Line-by-line fitting examples" class="with-shadow" src="_images/scrubber_line_fitting.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 16 </span><span class="caption-text">– Examples of individual line fits for 4 randomly selected lines from the
+image shown in <a class="reference internal" href="#raw-frame"><span class="std std-numref">Fig. 8</span></a>.</span><a class="headerlink" href="#id13" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

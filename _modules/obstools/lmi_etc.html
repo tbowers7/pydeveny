@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.lmi_etc &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../obstools.html">obstools</a></li>
+      <li class="breadcrumb-item active">obstools.lmi_etc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for obstools.lmi_etc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1">#  This file is part of LDTObserverTools.</span>
+<span class="c1">#</span>
+<span class="c1">#   This Source Code Form is subject to the terms of the Mozilla Public</span>
+<span class="c1">#   License, v. 2.0. If a copy of the MPL was not distributed with this</span>
+<span class="c1">#   file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
+<span class="c1">#</span>
+<span class="c1">#  Created on 29-Dec-2021</span>
+<span class="c1">#</span>
+<span class="c1">#  @author: tbowers</span>
+
+<span class="sd">&quot;&quot;&quot;LMI Exposure Time Calculator Module</span>
+
+<span class="sd">LDTObserverTools contains python ports of various LDT Observer Tools</span>
+
+<span class="sd">Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)</span>
+<span class="sd">https://lowell.edu</span>
+
+<span class="sd">This file contains the LMI exposure time calculator routine (ported from PHP)</span>
+<span class="sd">from Phil Massey&#39;s webpage.</span>
+<span class="sd">http://www2.lowell.edu/users/massey/LMI/etc_calc.php</span>
+
+<span class="sd">These routines are used for computing the required exposure times for LMI based</span>
+<span class="sd">on various requirements.</span>
+
+<span class="sd">The values for ``Star20`` are the count rates in `e-`/`sec`/`image` at airmass=0</span>
+<span class="sd">for a 20th magnitude star measured with a radius = 1.4 x FWHM in pixels.</span>
+
+<span class="sd">.. warning::</span>
+
+<span class="sd">    The LMI-specific pixel scale, gain, and readnoise are hard-coded into</span>
+<span class="sd">    this module.</span>
+
+<span class="sd">    </span>
+<span class="sd">.. note::</span>
+
+<span class="sd">    A GUI wrapper for these functions is forthcoming.</span>
+
+<span class="sd">.. todo::</span>
+
+<span class="sd">    Refactor this into a class to eliminate the continual passing back and</span>
+<span class="sd">    forth of the same arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="c1"># Built-In Libraries</span>
+
+<span class="c1"># 3rd-Party Libraries</span>
+<span class="kn">import</span> <span class="nn">astropy.table</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Local Libraries</span>
+<span class="kn">from</span> <span class="nn">obstools</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="c1"># Constants</span>
+<span class="n">SCALE</span> <span class="o">=</span> <span class="mf">0.12</span>  <span class="c1"># &quot;/pix</span>
+<span class="n">READ_NOISE</span> <span class="o">=</span> <span class="mf">6.0</span>  <span class="c1"># e-</span>
+<span class="n">GAIN</span> <span class="o">=</span> <span class="mf">2.89</span>  <span class="c1"># e-/ADU</span>
+<span class="n">BIAS</span> <span class="o">=</span> <span class="mi">1050</span>  <span class="c1"># ADU (approx) for 2x2 binning</span>
+
+
+<span class="c1"># Define the API as the &quot;User-Interface Computation Routines&quot;</span>
+<span class="c1"># __all__ = [</span>
+<span class="c1">#     &quot;exptime_given_snr_mag&quot;,</span>
+<span class="c1">#     &quot;exptime_given_peak_mag&quot;,</span>
+<span class="c1">#     &quot;snr_given_exptime_mag&quot;,</span>
+<span class="c1">#     &quot;mag_given_snr_exptime&quot;,</span>
+<span class="c1">#     &quot;peak_counts&quot;,</span>
+<span class="c1"># ]</span>
+
+
+<span class="c1"># User-Interface Computation Routines ========================================#</span>
+<div class="viewcode-block" id="exptime_given_snr_mag"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.exptime_given_snr_mag">[docs]</a><span class="k">def</span> <span class="nf">exptime_given_snr_mag</span><span class="p">(</span>
+    <span class="n">snr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">airmass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">band</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the exposure time given SNR and magnitude</span>
+
+<span class="sd">    Given a desired signal-to-noise ratio and stellar magnitude, compute the</span>
+<span class="sd">    exposure time required for a particular LMI Filter, moon phase, seeing and</span>
+<span class="sd">    CCD binning.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    snr : :obj:`float`</span>
+<span class="sd">        Desired signal-to-noise ratio</span>
+<span class="sd">    mag : :obj:`float`</span>
+<span class="sd">        Magnitude in the band of the star desired</span>
+<span class="sd">    airmass : :obj:`float`</span>
+<span class="sd">        Airmass at which the observation will take place</span>
+<span class="sd">    band : :obj:`str`</span>
+<span class="sd">        The LMI filter for which to perform the calculation</span>
+<span class="sd">    phase : :obj:`float`</span>
+<span class="sd">        Moon phase (0-14)</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`, optional</span>
+<span class="sd">        Binning of the CCD  (Default: 2)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The desired exposure time in seconds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check the inputs</span>
+    <span class="n">check_etc_inputs</span><span class="p">(</span><span class="n">airmass</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">,</span> <span class="n">mag</span><span class="o">=</span><span class="n">mag</span><span class="p">,</span> <span class="n">snr</span><span class="o">=</span><span class="n">snr</span><span class="p">)</span>
+
+    <span class="c1"># Load the necessary counts information</span>
+    <span class="n">band_dict</span> <span class="o">=</span> <span class="n">get_band_specific_values</span><span class="p">(</span><span class="n">band</span><span class="p">)</span>
+    <span class="n">star_counts</span> <span class="o">=</span> <span class="n">counts_from_star_per_sec</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">airmass</span><span class="p">)</span>
+    <span class="n">sky_counts</span> <span class="o">=</span> <span class="n">sky_count_per_sec_per_ap</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+    <span class="n">read_counts</span> <span class="o">=</span> <span class="n">read_noise_contribution</span><span class="p">(</span><span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+
+    <span class="c1"># Do the computation</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">star_counts</span> <span class="o">*</span> <span class="n">star_counts</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="o">-</span><span class="n">snr</span> <span class="o">*</span> <span class="n">snr</span> <span class="o">*</span> <span class="p">(</span><span class="n">star_counts</span> <span class="o">+</span> <span class="n">sky_counts</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="o">-</span><span class="n">snr</span> <span class="o">*</span> <span class="n">snr</span> <span class="o">*</span> <span class="p">(</span><span class="n">read_counts</span> <span class="o">*</span> <span class="n">read_counts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="n">B</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">B</span> <span class="o">-</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">A</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="exptime_given_peak_mag"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.exptime_given_peak_mag">[docs]</a><span class="k">def</span> <span class="nf">exptime_given_peak_mag</span><span class="p">(</span>
+    <span class="n">peak</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">airmass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">band</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the exposure time given peak and mag</span>
+
+<span class="sd">    Given a desired peak count level on the CCD and stellar magnitude, compute</span>
+<span class="sd">    the exposure time required for a particular LMI Filter, moon phase, seeing</span>
+<span class="sd">    and CCD binning.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    peak : :obj:`float`</span>
+<span class="sd">        Desired peak count level on the CCD (e-)</span>
+<span class="sd">    mag : :obj:`float`</span>
+<span class="sd">        Magnitude in the band of the star desired</span>
+<span class="sd">    airmass : :obj:`float`</span>
+<span class="sd">        Airmass at which the observation will take place</span>
+<span class="sd">    band : :obj:`str`</span>
+<span class="sd">        The LMI filter for which to perform the calculation</span>
+<span class="sd">    phase : :obj:`float`</span>
+<span class="sd">        Moon phase (0-14)</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`, optional</span>
+<span class="sd">        Binning of the CCD  (Default: 2)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The desired exposure time in seconds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check the inputs</span>
+    <span class="n">check_etc_inputs</span><span class="p">(</span><span class="n">airmass</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">,</span> <span class="n">mag</span><span class="o">=</span><span class="n">mag</span><span class="p">)</span>
+
+    <span class="c1"># Load the necessary counts information</span>
+    <span class="n">band_dict</span> <span class="o">=</span> <span class="n">get_band_specific_values</span><span class="p">(</span><span class="n">band</span><span class="p">)</span>
+    <span class="n">star_counts</span> <span class="o">=</span> <span class="n">counts_from_star_per_sec</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">airmass</span><span class="p">)</span>
+    <span class="n">sky_counts</span> <span class="o">=</span> <span class="n">sky_count_per_sec_per_ap</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+
+    <span class="c1"># Do the computation</span>
+    <span class="n">fwhm</span> <span class="o">=</span> <span class="n">seeing</span> <span class="o">/</span> <span class="p">(</span><span class="n">SCALE</span> <span class="o">*</span> <span class="n">binning</span><span class="p">)</span>
+    <span class="n">sky_count_per_pixel_per_sec</span> <span class="o">=</span> <span class="n">sky_counts</span> <span class="o">/</span> <span class="n">number_pixels</span><span class="p">(</span><span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">peak</span> <span class="o">-</span> <span class="n">BIAS</span> <span class="o">*</span> <span class="n">GAIN</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">star_counts</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.13</span> <span class="o">*</span> <span class="n">fwhm</span> <span class="o">*</span> <span class="n">fwhm</span><span class="p">)</span> <span class="o">+</span> <span class="n">sky_count_per_pixel_per_sec</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="snr_given_exptime_mag"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.snr_given_exptime_mag">[docs]</a><span class="k">def</span> <span class="nf">snr_given_exptime_mag</span><span class="p">(</span>
+    <span class="n">exptime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">airmass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">band</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the SNR given exposure time and magnitude</span>
+
+<span class="sd">    Given a desired exposure time and stellar magnitude, compute the resulting</span>
+<span class="sd">    signal-to-noise ratio for a particular LMI Filter, moon phase, seeing and</span>
+<span class="sd">    CCD binning.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    exptime : :obj:`float`</span>
+<span class="sd">        User-defined exposure time (seconds)</span>
+<span class="sd">    mag : :obj:`float`</span>
+<span class="sd">        Magnitude in the band of the star desired</span>
+<span class="sd">    airmass : :obj:`float`</span>
+<span class="sd">        Airmass at which the observation will take place</span>
+<span class="sd">    band : :obj:`str`</span>
+<span class="sd">        The LMI filter for which to perform the calculation</span>
+<span class="sd">    phase : :obj:`float`</span>
+<span class="sd">        Moon phase (0-14)</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`, optional</span>
+<span class="sd">        Binning of the CCD  (Default: 2)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The desired signal-to-noise ratio</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check the inputs</span>
+    <span class="n">check_etc_inputs</span><span class="p">(</span><span class="n">airmass</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">,</span> <span class="n">mag</span><span class="o">=</span><span class="n">mag</span><span class="p">,</span> <span class="n">exptime</span><span class="o">=</span><span class="n">exptime</span><span class="p">)</span>
+
+    <span class="c1"># Load the necessary counts information</span>
+    <span class="n">band_dict</span> <span class="o">=</span> <span class="n">get_band_specific_values</span><span class="p">(</span><span class="n">band</span><span class="p">)</span>
+    <span class="n">star_counts</span> <span class="o">=</span> <span class="n">counts_from_star_per_sec</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">airmass</span><span class="p">)</span>
+    <span class="n">sky_counts</span> <span class="o">=</span> <span class="n">sky_count_per_sec_per_ap</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+    <span class="n">read_counts</span> <span class="o">=</span> <span class="n">read_noise_contribution</span><span class="p">(</span><span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+
+    <span class="c1"># Do the computation</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">star_counts</span> <span class="o">*</span> <span class="n">exptime</span>
+    <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="n">star_counts</span> <span class="o">*</span> <span class="n">exptime</span> <span class="o">+</span> <span class="n">sky_counts</span> <span class="o">*</span> <span class="n">exptime</span> <span class="o">+</span> <span class="n">read_counts</span> <span class="o">*</span> <span class="n">read_counts</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">signal</span> <span class="o">/</span> <span class="n">noise</span></div>
+
+
+<div class="viewcode-block" id="mag_given_snr_exptime"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.mag_given_snr_exptime">[docs]</a><span class="k">def</span> <span class="nf">mag_given_snr_exptime</span><span class="p">(</span>
+    <span class="n">snr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">exptime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">airmass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">band</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the magnitude given SNR and exposure time</span>
+
+<span class="sd">    Given a desired signal-to-noise ratio and exposure time, compute the</span>
+<span class="sd">    limiting magnitude for a particular LMI Filter, moon phase, seeing and</span>
+<span class="sd">    CCD binning.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    snr : :obj:`float`</span>
+<span class="sd">        Desired signal-to-noise ratio</span>
+<span class="sd">    exptime : :obj:`float`</span>
+<span class="sd">        User-defined exposure time (seconds)</span>
+<span class="sd">    airmass : :obj:`float`</span>
+<span class="sd">        Airmass at which the observation will take place</span>
+<span class="sd">    band : :obj:`str`</span>
+<span class="sd">        The LMI filter for which to perform the calculation</span>
+<span class="sd">    phase : :obj:`float`</span>
+<span class="sd">        Moon phase (0-14)</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`, optional</span>
+<span class="sd">        Binning of the CCD  (Default: 2)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The limiting stellar magnitude</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check the inputs</span>
+    <span class="n">check_etc_inputs</span><span class="p">(</span><span class="n">airmass</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">,</span> <span class="n">exptime</span><span class="o">=</span><span class="n">exptime</span><span class="p">,</span> <span class="n">snr</span><span class="o">=</span><span class="n">snr</span><span class="p">)</span>
+
+    <span class="c1"># Load the necessary counts information</span>
+    <span class="n">band_dict</span> <span class="o">=</span> <span class="n">get_band_specific_values</span><span class="p">(</span><span class="n">band</span><span class="p">)</span>
+    <span class="n">sky_counts</span> <span class="o">=</span> <span class="n">sky_count_per_sec_per_ap</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+    <span class="n">read_counts</span> <span class="o">=</span> <span class="n">read_noise_contribution</span><span class="p">(</span><span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+
+    <span class="c1"># Do the computation</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">exptime</span> <span class="o">*</span> <span class="n">exptime</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="o">-</span><span class="n">snr</span> <span class="o">*</span> <span class="n">snr</span> <span class="o">*</span> <span class="n">exptime</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="o">-</span><span class="n">snr</span> <span class="o">*</span> <span class="n">snr</span> <span class="o">*</span> <span class="p">(</span><span class="n">sky_counts</span> <span class="o">*</span> <span class="n">exptime</span> <span class="o">+</span> <span class="n">read_counts</span> <span class="o">*</span> <span class="n">read_counts</span><span class="p">)</span>
+    <span class="n">cts_from_star_per_sec</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">B</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">B</span> <span class="o">-</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="n">C</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">A</span><span class="p">)</span>
+    <span class="n">mag_raw</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">cts_from_star_per_sec</span> <span class="o">/</span> <span class="n">band_dict</span><span class="p">[</span><span class="s2">&quot;Star20&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="mf">20.0</span>
+    <span class="k">return</span> <span class="n">mag_raw</span> <span class="o">-</span> <span class="n">band_dict</span><span class="p">[</span><span class="s2">&quot;extinction&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">airmass</span></div>
+
+
+<div class="viewcode-block" id="peak_counts"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.peak_counts">[docs]</a><span class="k">def</span> <span class="nf">peak_counts</span><span class="p">(</span>
+    <span class="n">exptime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">airmass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">band</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the peak counts on the CCD for an exptime and mag</span>
+
+<span class="sd">    Given a desired exposure time and stellar magnitude, compute the resulting</span>
+<span class="sd">    counts on the CCD for a particular LMI Filter, moon phase, seeing and</span>
+<span class="sd">    CCD binning.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    exptime : :obj:`float`</span>
+<span class="sd">        User-defined exposure time (seconds)</span>
+<span class="sd">    mag : :obj:`float`</span>
+<span class="sd">        Magnitude in the band of the star desired</span>
+<span class="sd">    airmass : :obj:`float`</span>
+<span class="sd">        Airmass at which the observation will take place</span>
+<span class="sd">    band : :obj:`str`</span>
+<span class="sd">        The LMI filter for which to perform the calculation</span>
+<span class="sd">    phase : :obj:`float`</span>
+<span class="sd">        Moon phase (0-14)</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`, optional</span>
+<span class="sd">        Binning of the CCD  (Default: 2)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The desired counts on the CCD (e-)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load the necessary counts information</span>
+    <span class="n">band_dict</span> <span class="o">=</span> <span class="n">get_band_specific_values</span><span class="p">(</span><span class="n">band</span><span class="p">)</span>
+    <span class="n">star_counts</span> <span class="o">=</span> <span class="n">counts_from_star_per_sec</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">airmass</span><span class="p">)</span>
+    <span class="n">sky_counts</span> <span class="o">=</span> <span class="n">sky_count_per_sec_per_ap</span><span class="p">(</span><span class="n">band_dict</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+
+    <span class="c1"># Do the computation</span>
+    <span class="n">fwhm</span> <span class="o">=</span> <span class="n">seeing</span> <span class="o">/</span> <span class="p">(</span><span class="n">SCALE</span> <span class="o">*</span> <span class="n">binning</span><span class="p">)</span>
+    <span class="n">sky_count_per_pixel_per_sec</span> <span class="o">=</span> <span class="n">sky_counts</span> <span class="o">/</span> <span class="n">number_pixels</span><span class="p">(</span><span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">star_counts</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.13</span> <span class="o">*</span> <span class="n">fwhm</span> <span class="o">*</span> <span class="n">fwhm</span><span class="p">)</span> <span class="o">+</span> <span class="n">sky_count_per_pixel_per_sec</span>
+    <span class="p">)</span> <span class="o">*</span> <span class="n">exptime</span> <span class="o">+</span> <span class="n">BIAS</span> <span class="o">*</span> <span class="n">GAIN</span></div>
+
+
+<span class="c1"># Helper Routines (Alphabetical) =============================================#</span>
+<div class="viewcode-block" id="check_etc_inputs"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.check_etc_inputs">[docs]</a><span class="k">def</span> <span class="nf">check_etc_inputs</span><span class="p">(</span>
+    <span class="n">airmass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">exptime</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">mag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">snr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the ETC inputs for valid values</span>
+
+<span class="sd">    Does a cursory check on the ETC inputs for proper range, etc.  These are</span>
+<span class="sd">    not exhaustive checks (i.e. checking for proper type on all values), but</span>
+<span class="sd">    a good starting point nonetheless.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    airmass : :obj:`float`</span>
+<span class="sd">        Airmass at which the observation will take place</span>
+<span class="sd">    phase : :obj:`float`</span>
+<span class="sd">        Moon phase (0-14)</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`, optional</span>
+<span class="sd">        Binning of the CCD</span>
+<span class="sd">    exptime : :obj:`float`, optional</span>
+<span class="sd">        User-defined exposure time (seconds)  (Default: None)</span>
+<span class="sd">    mag : :obj:`float`, optional</span>
+<span class="sd">        Magnitude in the band of the star desired  (Default: None)</span>
+<span class="sd">    snr : :obj:`float`, optional</span>
+<span class="sd">        Desired signal-to-noise ratio [Default: None]</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    :obj:`ValueError`</span>
+<span class="sd">        If any of the inputs are deemed to be out of range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">airmass</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">airmass</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid airmass specified: </span><span class="si">{</span><span class="n">airmass</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">phase</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">phase</span> <span class="o">&gt;</span> <span class="mi">14</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid moon phase specified: </span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">seeing</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="ow">or</span> <span class="n">seeing</span> <span class="o">&gt;</span> <span class="mf">3.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid seeing specified: </span><span class="si">{</span><span class="n">seeing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">binning</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">binning</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">binning</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid binning specified: </span><span class="si">{</span><span class="n">binning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exptime</span> <span class="ow">and</span> <span class="p">(</span><span class="n">exptime</span> <span class="o">&lt;</span> <span class="mf">0.001</span> <span class="ow">or</span> <span class="n">exptime</span> <span class="o">&gt;</span> <span class="mi">1200</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid exposure time specified: </span><span class="si">{</span><span class="n">exptime</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mag</span> <span class="ow">and</span> <span class="p">(</span><span class="n">mag</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">mag</span> <span class="o">&gt;</span> <span class="mi">28</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid stellar magnitude specified: </span><span class="si">{</span><span class="n">mag</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">snr</span> <span class="ow">and</span> <span class="n">snr</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid signal-to-noise specified: </span><span class="si">{</span><span class="n">snr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="counts_from_star_per_sec"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.counts_from_star_per_sec">[docs]</a><span class="k">def</span> <span class="nf">counts_from_star_per_sec</span><span class="p">(</span><span class="n">band_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">airmass</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the counts per second from a star</span>
+
+<span class="sd">    Compute the counts per second from a star given a band, magnitude, and</span>
+<span class="sd">    airmass.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    band_dict : :obj:`dict`</span>
+<span class="sd">        The dictionary from get_band_specific_values() containing star20 and sky</span>
+<span class="sd">    mag : :obj:`float`</span>
+<span class="sd">        Magnitude in the band of the star desired</span>
+<span class="sd">    airmass : :obj:`float`</span>
+<span class="sd">        Airmass at which the observation will take place</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        Number of counts per second for the described star</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mag_corrected</span> <span class="o">=</span> <span class="n">mag</span> <span class="o">+</span> <span class="n">band_dict</span><span class="p">[</span><span class="s2">&quot;extinction&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">airmass</span>
+    <span class="k">return</span> <span class="n">band_dict</span><span class="p">[</span><span class="s2">&quot;Star20&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="p">((</span><span class="n">mag_corrected</span> <span class="o">-</span> <span class="mi">20</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.5</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_band_specific_values"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.get_band_specific_values">[docs]</a><span class="k">def</span> <span class="nf">get_band_specific_values</span><span class="p">(</span><span class="n">band</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the band-specific star and sky values</span>
+
+<span class="sd">    Pull the correct row from ``etc_filter_info.ecsv`` containing the star count</span>
+<span class="sd">    and sky parameters (brightness and extinction).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    band : :obj:`str`</span>
+<span class="sd">        The LMI filter to use</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`dict`</span>
+<span class="sd">        The dictionary representation of the table row.  If the band is</span>
+<span class="sd">        improperly specified (i.e. is not in the table), return an empty</span>
+<span class="sd">        dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Read in the table, and index the filter column</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">astropy</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">DATA</span> <span class="o">/</span> <span class="s2">&quot;etc_filter_info.ecsv&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_index</span><span class="p">(</span><span class="s2">&quot;Filter&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Extract the row, and return it as a dictionary</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">band</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">colnames</span><span class="p">,</span> <span class="n">row</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="c1"># Return an empty dictionary</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="number_pixels"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.number_pixels">[docs]</a><span class="k">def</span> <span class="nf">number_pixels</span><span class="p">(</span><span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Number of pixels in the measuring aperture</span>
+
+<span class="sd">    Counts the number of pixels in the measuring aperture, based on the seeing</span>
+<span class="sd">    and CCD binning scheme.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        The minimum value of the return value ``N_pix`` is 9, which corresponds</span>
+<span class="sd">        to a FWHM of 2.54 pixels.  For 2x2 binning, this occurs at a seeing of</span>
+<span class="sd">        0.61&quot; (3x3 binning = 0.91&quot;, 4x4 binning = 1.22&quot;).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`, optional</span>
+<span class="sd">        Binning of the CCD</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        Equivalent number of pixels within the measuring aperture</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fwhm</span> <span class="o">=</span> <span class="n">seeing</span> <span class="o">/</span> <span class="p">(</span><span class="n">SCALE</span> <span class="o">*</span> <span class="n">binning</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="mf">1.4</span> <span class="o">*</span> <span class="n">fwhm</span> <span class="o">*</span> <span class="n">fwhm</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="read_noise_contribution"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.read_noise_contribution">[docs]</a><span class="k">def</span> <span class="nf">read_noise_contribution</span><span class="p">(</span><span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate read-noise contribution</span>
+
+<span class="sd">    Compute the read-noise contribution to the measuring aperture by</span>
+<span class="sd">    multiplying the read noise per pixel by the square root of the number</span>
+<span class="sd">    of pixels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`</span>
+<span class="sd">        Binning of the CCD</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The read-noise contribution to the photometry aperture</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">READ_NOISE</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">number_pixels</span><span class="p">(</span><span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="sky_count_per_sec_per_ap"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.sky_count_per_sec_per_ap">[docs]</a><span class="k">def</span> <span class="nf">sky_count_per_sec_per_ap</span><span class="p">(</span>
+    <span class="n">band_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seeing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">binning</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine sky counts per aperture per second</span>
+
+<span class="sd">    [extended_summary]</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    band_dict : :obj:`dict`</span>
+<span class="sd">        The dictionary from get_band_specific_values() containing star20 and sky</span>
+<span class="sd">    phase : :obj:`float`</span>
+<span class="sd">        Moon phase (0-14)</span>
+<span class="sd">    seeing : :obj:`float`</span>
+<span class="sd">        Size of the seeing disk (arcsec)</span>
+<span class="sd">    binning : :obj:`int`</span>
+<span class="sd">        Binning of the CCD</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        Sky counts per second in the aperture</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sky_brightness_per_arcsec2</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">band_dict</span><span class="p">[</span><span class="s2">&quot;sky0&quot;</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">band_dict</span><span class="p">[</span><span class="s2">&quot;sky1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">phase</span>
+        <span class="o">+</span> <span class="n">band_dict</span><span class="p">[</span><span class="s2">&quot;sky2&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">phase</span> <span class="o">*</span> <span class="n">phase</span>
+    <span class="p">)</span>
+    <span class="n">sky_count_per_arcsec2_per_sec</span> <span class="o">=</span> <span class="n">band_dict</span><span class="p">[</span><span class="s2">&quot;Star20&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span>
+        <span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="p">((</span><span class="n">sky_brightness_per_arcsec2</span> <span class="o">-</span> <span class="mi">20</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.5</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">rscale</span> <span class="o">=</span> <span class="n">SCALE</span> <span class="o">*</span> <span class="n">binning</span>
+    <span class="n">sky_count_per_pixel_per_sec</span> <span class="o">=</span> <span class="n">sky_count_per_arcsec2_per_sec</span> <span class="o">*</span> <span class="n">rscale</span> <span class="o">*</span> <span class="n">rscale</span>
+    <span class="k">return</span> <span class="n">number_pixels</span><span class="p">(</span><span class="n">seeing</span><span class="p">,</span> <span class="n">binning</span><span class="p">)</span> <span class="o">*</span> <span class="n">sky_count_per_pixel_per_sec</span></div>
+
+
+<span class="c1"># Command Line Script Infrastructure (borrowed from PypeIt) ==================#</span>
+<div class="viewcode-block" id="LmiEtc"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.LmiEtc">[docs]</a><span class="k">class</span> <span class="nc">LmiEtc</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">ScriptBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Script class for ``lmi_etc`` tool</span>
+
+<span class="sd">    Script structure borrowed from :class:`pypeit.scripts.scriptbase.ScriptBase`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LmiEtc.get_parser"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.LmiEtc.get_parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the command-line argument parser.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        description : :obj:`str`, optional</span>
+<span class="sd">            A short description of the purpose of the script.</span>
+<span class="sd">        width : :obj:`int`, optional</span>
+<span class="sd">            Restrict the width of the formatted help output to be no longer</span>
+<span class="sd">            than this number of characters, if possible given the help</span>
+<span class="sd">            formatter.  If None, the width is the same as the terminal</span>
+<span class="sd">            width.</span>
+<span class="sd">        formatter : :obj:`~argparse.HelpFormatter`</span>
+<span class="sd">            Class used to format the help output.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`~argparse.ArgumentParser`</span>
+<span class="sd">            Command-line interpreter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;LMI Exposure Time Calculator&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="LmiEtc.main"><a class="viewcode-back" href="../../api/obstools.lmi_etc.html#obstools.lmi_etc.LmiEtc.main">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Main Driver</span>
+
+<span class="sd">        Simple function that calls the main driver function.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
+        <span class="c1"># Giddy up!</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

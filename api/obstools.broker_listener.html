@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.broker_listener module &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="obstools.celestial_time module" href="obstools.celestial_time.html" />
+    <link rel="prev" title="obstools package" href="obstools.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">LDTObserverTools API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="obstools.html">obstools package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="obstools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">obstools.broker_listener module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.celestial_time.html">obstools.celestial_time module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_collfocus.html">obstools.deveny_collfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_grangle.html">obstools.deveny_grangle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.dfocus.html">obstools.dfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.fix_ldt_header.html">obstools.fix_ldt_header module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.lmi_etc.html">obstools.lmi_etc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.neocp_ephem.html">obstools.neocp_ephem module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.scrub_deveny_pickup.html">obstools.scrub_deveny_pickup module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.utils.html">obstools.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.html#module-obstools">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">obstools</a></li>
+          <li class="breadcrumb-item"><a href="obstools.html">obstools package</a></li>
+      <li class="breadcrumb-item active">obstools.broker_listener module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/obstools.broker_listener.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-obstools.broker_listener">
+<span id="obstools-broker-listener-module"></span><h1>obstools.broker_listener module<a class="headerlink" href="#module-obstools.broker_listener" title="Permalink to this heading"></a></h1>
+<p>Apache ActiveMQ Broker Listener Module</p>
+<p>LDTObserverTools contains python ports of various LDT Observer Tools</p>
+<p>Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)
+<a class="reference external" href="https://lowell.edu">https://lowell.edu</a></p>
+<p>This file contains the <code class="docutils literal notranslate"><span class="pre">ActiveMQ_Listener</span></code> class used by the
+<code class="docutils literal notranslate"><span class="pre">deveny_collfocus</span></code> routine for retrieving current values from the LDT’s
+ActiveMQ broker.  This is kept separate so that an <code class="docutils literal notranslate"><span class="pre">ImportError</span></code> on <code class="docutils literal notranslate"><span class="pre">stomp</span></code>
+simply causes this module to not import and the calling module can go about its
+business.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="obstools.broker_listener.ActiveMQ_Listener">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">obstools.broker_listener.</span></span><span class="sig-name descname"><span class="pre">ActiveMQ_Listener</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/broker_listener.html#ActiveMQ_Listener"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.broker_listener.ActiveMQ_Listener" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Broadcast (status) message listening class</p>
+<p>This class listens to the ActiveMQ broker and places a parsed version of
+the desired broker messages into attributes accessible by the calling
+function.  This class is adapted from similar ones used with the LORAX
+project, being developed at Lowell Observatory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pathlib.Path</span></code></a>) – The location of the configuration file to read</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="obstools.broker_listener.ActiveMQ_Listener.MyListener">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MyListener</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/broker_listener.html#ActiveMQ_Listener.MyListener"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.broker_listener.ActiveMQ_Listener.MyListener" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://jasonrbriggs.github.io/stomp.py/stomp.html#stomp.listener.ConnectionListener" title="(in Stomp v8.0.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConnectionListener</span></code></a></p>
+<p>Class for listening to the STOMPing</p>
+<p>This listener runs asynchronously from the main body of the program
+through stomp’s threading functionality.  When a broker message is
+received, it is parsed and placed into the <code class="docutils literal notranslate"><span class="pre">parent</span></code> attribute(s)
+to be accessed whenever the main code needs it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent</strong> (<a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#class" title="(in Sphinx v8.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">class</span></code></a>) – The parent class into whose attributes values from the broker
+message are placed.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.broker_listener.ActiveMQ_Listener.MyListener.on_error">
+<span class="sig-name descname"><span class="pre">on_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/broker_listener.html#ActiveMQ_Listener.MyListener.on_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.broker_listener.ActiveMQ_Listener.MyListener.on_error" title="Permalink to this definition"></a></dt>
+<dd><p>Called by the STOMP connection when an ERROR frame is received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame</strong> (<em>Frame</em>) – the stomp frame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.broker_listener.ActiveMQ_Listener.MyListener.on_message">
+<span class="sig-name descname"><span class="pre">on_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/broker_listener.html#ActiveMQ_Listener.MyListener.on_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.broker_listener.ActiveMQ_Listener.MyListener.on_message" title="Permalink to this definition"></a></dt>
+<dd><p>Called by the STOMP connection when a MESSAGE frame is received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame</strong> (<em>Frame</em>) – the stomp frame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.broker_listener.ActiveMQ_Listener.parse_deveny">
+<span class="sig-name descname"><span class="pre">parse_deveny</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/broker_listener.html#ActiveMQ_Listener.parse_deveny"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.broker_listener.ActiveMQ_Listener.parse_deveny" title="Permalink to this definition"></a></dt>
+<dd><p>Parse an XMLTODICT status message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a>) – Translated XML status message</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> – The parsed status dictionary for this particular use case.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

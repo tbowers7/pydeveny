@@ -1,0 +1,6 @@
+================================  =========================================================================================================================================================================================
+Python Version                    ``>=3.10,<3.13``                                                                                                                                                                         
+Required for users                ``PySimpleGUI-4-foss``, ``astropy>=5.1``, ``ccdproc``, ``darkdetect``, ``matplotlib``, ``numpy>=1.23,<2.0.0``, ``requests``, ``scipy>=1.9``, ``setuptools``, ``setuptools_scm``, ``tqdm``
+Optional ``pypeit`` requirements  ``pypeit[specutils]>=1.14.0``                                                                                                                                                            
+Required for developers           ``black``, ``pylint``, ``pypeit[specutils]>=1.14.0``, ``pyyaml``, ``sphinx``, ``sphinx-automodapi``, ``sphinx-subfigure``, ``sphinx_rtd_theme==1.2.2``, ``stomp.py``, ``xmltodict``      
+================================  =========================================================================================================================================================================================

@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.dfocus &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../obstools.html">obstools</a></li>
+      <li class="breadcrumb-item active">obstools.dfocus</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for obstools.dfocus</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1">#  This file is part of LDTObserverTools.</span>
+<span class="c1">#</span>
+<span class="c1">#   This Source Code Form is subject to the terms of the Mozilla Public</span>
+<span class="c1">#   License, v. 2.0. If a copy of the MPL was not distributed with this</span>
+<span class="c1">#   file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
+<span class="c1">#</span>
+<span class="c1">#  Created on 01-Feb-2021</span>
+<span class="c1">#</span>
+<span class="c1">#  @author: tbowers</span>
+
+<span class="sd">&quot;&quot;&quot;DeVeny Collimator Focus Calculator Module</span>
+
+<span class="sd">LDTObserverTools contains python ports of various LDT Observer Tools</span>
+
+<span class="sd">Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)</span>
+<span class="sd">https://lowell.edu</span>
+
+<span class="sd">This file contains the dfocus routine for computing the required collimator</span>
+<span class="sd">focus for the DeVeny Spectrograph based on a focus sequence completed by the</span>
+<span class="sd">DeVeny LOUI.</span>
+
+<span class="sd">.. include:: ../include/links.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Built-In Libraries</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># 3rd-Party Libraries</span>
+<span class="kn">import</span> <span class="nn">astropy.io.fits</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_pdf</span> <span class="kn">import</span> <span class="n">PdfPages</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="c1"># Local Libraries</span>
+<span class="kn">from</span> <span class="nn">obstools</span> <span class="kn">import</span> <span class="n">deveny_grangle</span>
+<span class="kn">from</span> <span class="nn">obstools</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="c1"># User-facing Function =======================================================#</span>
+<div class="viewcode-block" id="dfocus"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.dfocus">[docs]</a><span class="k">def</span> <span class="nf">dfocus</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">flog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;last&quot;</span><span class="p">,</span>
+    <span class="n">thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">launch_preview</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">docfig</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the optimal DeVeny collimator focus value</span>
+
+<span class="sd">    This is the user-facing ``dfocus`` function that calls all of the various</span>
+<span class="sd">    following subroutines.  This function operates identically to the original</span>
+<span class="sd">    IDL routine ``dfocus.pro``, but with the additional options of debugging and</span>
+<span class="sd">    whether to launch Preview.app to show the PDF plots generated.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : :obj:`~pathlib.Path`</span>
+<span class="sd">        The path in which to find the ``deveny_focus.*`` files.</span>
+<span class="sd">    flog : :obj:`str`, optional</span>
+<span class="sd">        Focus log to process.  If unspecified, process the last sequence in</span>
+<span class="sd">        the directory.  (Default: &#39;last&#39;)</span>
+<span class="sd">        flog musy be of form: ``deveny_focus.YYYYMMDD.HHMMSS``</span>
+<span class="sd">    thresh : :obj:`float`, optional</span>
+<span class="sd">        Line intensity threshold above background for detection (Default: 100.0)</span>
+<span class="sd">    debug : :obj:`bool`, optional</span>
+<span class="sd">        Print debug statements  (Default: False)</span>
+<span class="sd">    launch_preview : :obj:`bool`, optional</span>
+<span class="sd">        Display the plots by launching Preview  (Default: True)</span>
+<span class="sd">    docfig : :obj:`bool`, optional</span>
+<span class="sd">        Make example figures for online documentation?  (Default: False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make a pretty title for the output of the routine</span>
+    <span class="n">n_cols</span> <span class="o">=</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_terminal_size</span><span class="p">())</span><span class="o">.</span><span class="n">columns</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="n">n_cols</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  DeVeny Collimator Focus Calculator&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Initialize a dictionary to hold lots of variables</span>
+    <span class="n">focus</span> <span class="o">=</span> <span class="n">initialize_focus_values</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">flog</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">** No successful focus run completed in this directory. **</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Process the middle image to get line centers, arrays, trace</span>
+    <span class="n">centers</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">mid_collfoc</span><span class="p">,</span> <span class="n">mspectra</span> <span class="o">=</span> <span class="n">process_middle_image</span><span class="p">(</span>
+        <span class="n">focus</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Run through files, showing a progress bar</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Processing arc images...&quot;</span><span class="p">)</span>
+    <span class="n">prog_bar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">focus</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="n">unit_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+
+    <span class="n">line_width_array</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">foc_file</span> <span class="ow">in</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">]:</span>
+        <span class="c1"># Trim and extract the spectrum</span>
+        <span class="n">spectrum</span><span class="p">,</span> <span class="n">collfoc</span> <span class="o">=</span> <span class="n">trim_deveny_image</span><span class="p">(</span><span class="n">foc_file</span><span class="p">)</span>
+        <span class="n">spectra</span> <span class="o">=</span> <span class="n">extract_spectrum</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">win</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+
+        <span class="c1"># Find FWHM of lines:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">these_centers</span><span class="p">,</span> <span class="n">fwhm</span> <span class="o">=</span> <span class="n">find_lines</span><span class="p">(</span><span class="n">spectra</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="n">thresh</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Empirical shifts in line location due to off-axis paraboloid</span>
+        <span class="c1">#  collimator mirror</span>
+        <span class="n">line_dx</span> <span class="o">=</span> <span class="o">-</span><span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">collfoc</span> <span class="o">-</span> <span class="n">mid_collfoc</span><span class="p">)</span>
+
+        <span class="c1"># Keep only the lines from `these_centers` that match the</span>
+        <span class="c1">#  reference image</span>
+        <span class="n">line_widths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cen</span> <span class="ow">in</span> <span class="n">centers</span><span class="p">:</span>
+            <span class="c1"># Find line within 3 pix of the (adjusted) reference line</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">((</span><span class="n">cen</span> <span class="o">+</span> <span class="n">line_dx</span><span class="p">)</span> <span class="o">-</span> <span class="n">these_centers</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">3.0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If there&#39;s something there wider than 2 piux, use it... else NaN</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">fwhm</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">line_widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">width</span> <span class="k">if</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="c1"># Append these linewidths to the larger array for processing</span>
+        <span class="n">line_width_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line_widths</span><span class="p">))</span>
+        <span class="n">prog_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Close the progress bar, end of loop</span>
+    <span class="n">prog_bar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">line_width_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line_width_array</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Median value of all linewidths: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">line_width_array</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pix&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Fit the focus curve:</span>
+    <span class="n">min_focus_index</span><span class="p">,</span> <span class="n">optimal_focus_index</span><span class="p">,</span> <span class="n">min_linewidths</span><span class="p">,</span> <span class="n">fit_pars</span> <span class="o">=</span> <span class="n">fit_focus_curves</span><span class="p">(</span>
+        <span class="n">line_width_array</span><span class="p">,</span> <span class="n">fnom</span><span class="o">=</span><span class="n">focus</span><span class="p">[</span><span class="s2">&quot;nominal&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Convert the returned indices into actual COLLFOC values, find medians</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="n">n_cols</span><span class="p">)</span>
+    <span class="n">min_focus_values</span> <span class="o">=</span> <span class="n">min_focus_index</span> <span class="o">*</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span>
+    <span class="n">optimal_focus_values</span> <span class="o">=</span> <span class="n">optimal_focus_index</span> <span class="o">*</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span>
+    <span class="c1"># med_min_focus = np.real(np.nanmedian(min_focus_values))</span>
+    <span class="n">med_opt_focus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">optimal_focus_values</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;binning&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;1x1&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*** CCD is operating in binning </span><span class="si">{</span><span class="n">focus</span><span class="p">[</span><span class="s1">&#39;binning&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (col x row)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*** Recommended (Median) Optimal Focus Position: </span><span class="si">{</span><span class="n">med_opt_focus</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mm&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*** Note: Current Mount Temperature is: </span><span class="si">{</span><span class="n">focus</span><span class="p">[</span><span class="s1">&#39;mnttemp&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">ºC&quot;</span><span class="p">)</span>
+
+    <span class="c1"># =========================================================================#</span>
+    <span class="c1"># Make the multipage PDF plot</span>
+    <span class="k">with</span> <span class="n">PdfPages</span><span class="p">(</span><span class="n">pdf_fn</span> <span class="o">:=</span> <span class="n">path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pyfocus.</span><span class="si">{</span><span class="n">focus</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.pdf&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pdf</span><span class="p">:</span>
+        <span class="c1">#  The plot shown in the IDL0 window: Plot of the found lines</span>
+        <span class="n">find_lines</span><span class="p">(</span>
+            <span class="n">mspectra</span><span class="p">,</span>
+            <span class="n">thresh</span><span class="o">=</span><span class="n">thresh</span><span class="p">,</span>
+            <span class="n">do_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">focus_dict</span><span class="o">=</span><span class="n">focus</span><span class="p">,</span>
+            <span class="n">pdf</span><span class="o">=</span><span class="n">pdf</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">docfig</span><span class="o">=</span><span class="n">docfig</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># The plot shown in the IDL2 window: Plot of best-fit fwid vs centers</span>
+        <span class="n">plot_optimal_focus</span><span class="p">(</span>
+            <span class="n">focus</span><span class="p">,</span>
+            <span class="n">centers</span><span class="p">,</span>
+            <span class="n">optimal_focus_values</span><span class="p">,</span>
+            <span class="n">med_opt_focus</span><span class="p">,</span>
+            <span class="n">pdf</span><span class="o">=</span><span class="n">pdf</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">docfig</span><span class="o">=</span><span class="n">docfig</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># The plot shown in the IDL1 window: Focus curves for each identified line</span>
+        <span class="n">plot_focus_curves</span><span class="p">(</span>
+            <span class="n">centers</span><span class="p">,</span>
+            <span class="n">line_width_array</span><span class="p">,</span>
+            <span class="n">min_focus_values</span><span class="p">,</span>
+            <span class="n">optimal_focus_values</span><span class="p">,</span>
+            <span class="n">min_linewidths</span><span class="p">,</span>
+            <span class="n">fit_pars</span><span class="p">,</span>
+            <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">],</span>
+            <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span>
+            <span class="n">fnom</span><span class="o">=</span><span class="n">focus</span><span class="p">[</span><span class="s2">&quot;nominal&quot;</span><span class="p">],</span>
+            <span class="n">pdf</span><span class="o">=</span><span class="n">pdf</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">docfig</span><span class="o">=</span><span class="n">docfig</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Print the location of the plots</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Plots have been saved to: </span><span class="si">{</span><span class="n">pdf_fn</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Try to open with Apple&#39;s Preview App... if can&#39;t, oh well.</span>
+    <span class="k">if</span> <span class="n">launch_preview</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/usr/bin/open -a Preview </span><span class="si">{</span><span class="n">pdf_fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot open Preview.app</span><span class="se">\n</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># Helper Functions (Chronological) ===========================================#</span>
+<div class="viewcode-block" id="initialize_focus_values"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.initialize_focus_values">[docs]</a><span class="k">def</span> <span class="nf">initialize_focus_values</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">flog</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize a dictionary of focus values</span>
+
+<span class="sd">    Create a dictionary of values (mainly from the header) that can be used by</span>
+<span class="sd">    subsequent routines.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : :obj:`~pathlib.Path`</span>
+<span class="sd">        The path to the current working directory</span>
+<span class="sd">    flog : :obj:`str`</span>
+<span class="sd">        Identifier for the focus log to be processed</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`dict`</span>
+<span class="sd">        Dictionary of the various needed quantities</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parse the log file to obtain file list</span>
+    <span class="n">n_files</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span> <span class="n">focus_id</span> <span class="o">=</span> <span class="n">parse_focus_log</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">flog</span><span class="p">)</span>
+
+    <span class="c1"># Escape hatch if no files found (e.g., run in the wrong directory)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">n_files</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+    <span class="c1"># Pull the spectrograph setup from the first focus file:</span>
+    <span class="n">hdr0</span> <span class="o">=</span> <span class="n">astropy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">getheader</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">slitasec</span> <span class="o">=</span> <span class="n">hdr0</span><span class="p">[</span><span class="s2">&quot;SLITASEC&quot;</span><span class="p">]</span>
+    <span class="n">grating</span> <span class="o">=</span> <span class="n">hdr0</span><span class="p">[</span><span class="s2">&quot;GRATING&quot;</span><span class="p">]</span>
+    <span class="n">grangle</span> <span class="o">=</span> <span class="n">hdr0</span><span class="p">[</span><span class="s2">&quot;GRANGLE&quot;</span><span class="p">]</span>
+    <span class="n">lampcal</span> <span class="o">=</span> <span class="n">hdr0</span><span class="p">[</span><span class="s2">&quot;LAMPCAL&quot;</span><span class="p">]</span>
+    <span class="n">mnttemp</span> <span class="o">=</span> <span class="n">hdr0</span><span class="p">[</span><span class="s2">&quot;MNTTEMP&quot;</span><span class="p">]</span>
+    <span class="n">binning</span> <span class="o">=</span> <span class="n">hdr0</span><span class="p">[</span><span class="s2">&quot;CCDSUM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Compute the nominal line width</span>
+    <span class="n">nominal_focus</span> <span class="o">=</span> <span class="mf">2.94</span> <span class="o">*</span> <span class="n">slitasec</span> <span class="o">*</span> <span class="n">deveny_grangle</span><span class="o">.</span><span class="n">deveny_amag</span><span class="p">(</span><span class="n">grangle</span><span class="p">)</span>
+
+    <span class="c1"># Pull the collimator focus values from the first and last files</span>
+    <span class="n">focus_0</span> <span class="o">=</span> <span class="n">hdr0</span><span class="p">[</span><span class="s2">&quot;COLLFOC&quot;</span><span class="p">]</span>
+    <span class="n">focus_1</span> <span class="o">=</span> <span class="p">(</span><span class="n">astropy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">getheader</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))[</span><span class="s2">&quot;COLLFOC&quot;</span><span class="p">]</span>
+    <span class="c1"># Find the delta between focus values</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">delta_focus</span> <span class="o">=</span> <span class="p">(</span><span class="n">focus_1</span> <span class="o">-</span> <span class="n">focus_0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_files</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+        <span class="n">delta_focus</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Examine the middle image</span>
+    <span class="n">mid_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">n_files</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">dfl_title</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mid_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">   Grating: </span><span class="si">{</span><span class="n">grating</span><span class="si">}</span><span class="s2">   GRANGLE: &quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">grangle</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">   Lamps: </span><span class="si">{</span><span class="n">lampcal</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">opt_title</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Grating: </span><span class="si">{</span><span class="n">grating</span><span class="si">}</span><span class="s2">    Slit width: </span><span class="si">{</span><span class="n">slitasec</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> arcsec&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;    Binning: </span><span class="si">{</span><span class="n">binning</span><span class="si">}</span><span class="s2">    Nominal line width: &quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nominal_focus</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="n">n_files</span><span class="p">,</span>
+        <span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="n">files</span><span class="p">,</span>
+        <span class="s2">&quot;mid_file&quot;</span><span class="p">:</span> <span class="n">mid_file</span><span class="p">,</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">focus_id</span><span class="p">,</span>
+        <span class="s2">&quot;nominal&quot;</span><span class="p">:</span> <span class="n">nominal_focus</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">focus_0</span><span class="p">,</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">focus_1</span><span class="p">,</span>
+        <span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta_focus</span><span class="p">,</span>
+        <span class="s2">&quot;plot_title&quot;</span><span class="p">:</span> <span class="n">dfl_title</span><span class="p">,</span>
+        <span class="s2">&quot;opt_title&quot;</span><span class="p">:</span> <span class="n">opt_title</span><span class="p">,</span>
+        <span class="s2">&quot;mnttemp&quot;</span><span class="p">:</span> <span class="n">mnttemp</span><span class="p">,</span>
+        <span class="s2">&quot;binning&quot;</span><span class="p">:</span> <span class="n">binning</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="parse_focus_log"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.parse_focus_log">[docs]</a><span class="k">def</span> <span class="nf">parse_focus_log</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">flog</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the focus log file produced by the DeVeny LOUI</span>
+
+<span class="sd">    The DeVeny focus log file consists of filename, collimator focus, and other</span>
+<span class="sd">    relevant information::</span>
+
+<span class="sd">        :  Image File Name  ColFoc    Grating  GrTilt  SltWth     Filter    LampCal  MntTmp</span>
+<span class="sd">        20230613.0026.fits    7.50   600/4900   27.04    1.20  Clear (C)   Cd,Ar,Hg    9.10</span>
+<span class="sd">        20230613.0027.fits    8.00   600/4900   27.04    1.20  Clear (C)   Cd,Ar,Hg    9.10</span>
+<span class="sd">        20230613.0028.fits    8.50   600/4900   27.04    1.20  Clear (C)   Cd,Ar,Hg    9.10</span>
+<span class="sd">        20230613.0029.fits    9.00   600/4900   27.04    1.20  Clear (C)   Cd,Ar,Hg    9.10</span>
+<span class="sd">        20230613.0030.fits    9.50   600/4900   27.04    1.20  Clear (C)   Cd,Ar,Hg    9.10</span>
+<span class="sd">        20230613.0031.fits   10.00   600/4900   27.04    1.20  Clear (C)   Cd,Ar,Hg    9.10</span>
+<span class="sd">        20230613.0032.fits   10.50   600/4900   27.04    1.20  Clear (C)   Cd,Ar,Hg    9.10</span>
+
+<span class="sd">    This function parses out the filenames of the focus images for this run,</span>
+<span class="sd">    largely discarding the remaining information in the focus log file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : :obj:`~pathlib.Path`</span>
+<span class="sd">        The path to the current working directory</span>
+<span class="sd">    flog : :obj:`str`</span>
+<span class="sd">        Identifier for the focus log to be processed</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    n_files : :obj:`int`</span>
+<span class="sd">        Number of files for this focus run</span>
+<span class="sd">    files: :obj:`list`</span>
+<span class="sd">        List of :obj:`~pathlib.Path` files associated with this focus run</span>
+<span class="sd">    focus_id: :obj:`str`</span>
+<span class="sd">        The focus ID</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Just to be sure...</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="c1"># Get the correct flog</span>
+    <span class="k">if</span> <span class="n">flog</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;last&quot;</span><span class="p">:</span>
+        <span class="n">focfiles</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;deveny_focus*&quot;</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">flog</span> <span class="o">=</span> <span class="n">focfiles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="c1"># In the event of no files, return empty things</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flog</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="n">flog</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">flog</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_object</span><span class="p">:</span>
+        <span class="c1"># Discard file header</span>
+        <span class="n">file_object</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="c1"># Read in the remainder of the file, grabbing just the filenames</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_object</span><span class="p">:</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Return the list of files, and the FocusID</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">files</span><span class="p">,</span> <span class="n">flog</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">15</span><span class="p">:]</span></div>
+
+
+<div class="viewcode-block" id="process_middle_image"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.process_middle_image">[docs]</a><span class="k">def</span> <span class="nf">process_middle_image</span><span class="p">(</span><span class="n">focus</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process the middle focus image</span>
+
+<span class="sd">    This finds the lines to be measured -- presumably the middle is closest to focus</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    focus : :obj:`dict`, optional</span>
+<span class="sd">        Dictionary containing needed variables for plot</span>
+<span class="sd">    thresh : :obj:`float`</span>
+<span class="sd">        Line intensity threshold above background for detection</span>
+<span class="sd">    debug : :obj:`bool`, optional</span>
+<span class="sd">        Print debug statements  (Default: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    centers, :obj:`~numpy.ndarray`</span>
+<span class="sd">        Centers</span>
+<span class="sd">    trace, :obj:`~numpy.ndarray`</span>
+<span class="sd">        Trace</span>
+<span class="sd">    mid_collfoc, :obj:`float`</span>
+<span class="sd">        Collimator focus of the middle frame</span>
+<span class="sd">    mspectra, :obj:`~numpy.ndarray`</span>
+<span class="sd">        The spectrum from the middle frame (for later plotting)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Processing center focus image </span><span class="si">{</span><span class="n">focus</span><span class="p">[</span><span class="s1">&#39;mid_file&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+    <span class="n">spectrum</span><span class="p">,</span> <span class="n">mid_collfoc</span> <span class="o">=</span> <span class="n">trim_deveny_image</span><span class="p">(</span><span class="n">focus</span><span class="p">[</span><span class="s2">&quot;mid_file&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Build the trace for spectrum extraction</span>
+    <span class="n">n_y</span><span class="p">,</span> <span class="n">n_x</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_y</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_x</span><span class="p">))</span>
+    <span class="n">mspectra</span> <span class="o">=</span> <span class="n">extract_spectrum</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">win</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Traces: </span><span class="si">{</span><span class="n">trace</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Middle Spectrum: </span><span class="si">{</span><span class="n">mspectra</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Find the lines in the extracted spectrum</span>
+    <span class="n">n_c</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_lines</span><span class="p">(</span><span class="n">mspectra</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Back in the main program, number of lines: </span><span class="si">{</span><span class="n">n_c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Line Centers: </span><span class="si">{</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cent</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">cent</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">centers</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">centers</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">mid_collfoc</span><span class="p">,</span> <span class="n">mspectra</span></div>
+
+
+<div class="viewcode-block" id="trim_deveny_image"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.trim_deveny_image">[docs]</a><span class="k">def</span> <span class="nf">trim_deveny_image</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trim a DeVeny Image</span>
+
+<span class="sd">    The IDL code from which this was ported contains a large amount of</span>
+<span class="sd">    vistigial code from previous versions of the DeVeny camera, including</span>
+<span class="sd">    instances where the CCD was read out using 2 amplifiers and required</span>
+<span class="sd">    special treatment in order to balance the two sides of the output image.</span>
+
+<span class="sd">    The code below consists of the lines of code that were actually running</span>
+<span class="sd">    using the keywords passed from current version of ``dfocus.pro``, and the</span>
+<span class="sd">    pieces of that code that are actually used.</span>
+
+<span class="sd">    Specifically, this routine trims off the 50 prescan and 50 postscan pixels,</span>
+<span class="sd">    as well as several rows off the top and bottom.  (Extracts rows ``[12:512]``)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : :obj:`~pathlib.Path`</span>
+<span class="sd">        Filename of the spectrum to get and trim</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`~numpy.ndarray`</span>
+<span class="sd">        The trimmed CCD image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Parameters for DeVeny (2015 Deep-Depletion Device):</span>
+    <span class="n">nxpix</span><span class="p">,</span> <span class="n">prepix</span> <span class="o">=</span> <span class="mi">2048</span><span class="p">,</span> <span class="mi">50</span>
+
+    <span class="c1"># Read in the file</span>
+    <span class="k">with</span> <span class="n">astropy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdul</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">hdul</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">collfoc</span> <span class="o">=</span> <span class="n">hdul</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;COLLFOC&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Trim the image (remove top and bottom rows) -- why this particular range?</span>
+    <span class="c1"># Trim off the 50 prepixels and the 50 postpixels; RETURN</span>
+    <span class="k">return</span> <span class="n">image</span><span class="p">[</span><span class="mi">12</span><span class="p">:</span><span class="mi">512</span><span class="p">,</span> <span class="n">prepix</span> <span class="p">:</span> <span class="n">prepix</span> <span class="o">+</span> <span class="n">nxpix</span><span class="p">],</span> <span class="n">collfoc</span></div>
+
+
+<div class="viewcode-block" id="extract_spectrum"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.extract_spectrum">[docs]</a><span class="k">def</span> <span class="nf">extract_spectrum</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">traces</span><span class="p">,</span> <span class="n">win</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Object spectral extraction routine</span>
+
+<span class="sd">    Extract spectra by averaging over the specified window</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : :obj:`~numpy.ndarray`</span>
+<span class="sd">        The trimmed spectral image</span>
+<span class="sd">    traces : :obj:`~numpy.ndarray`</span>
+<span class="sd">        The trace(s) along which to extract spectra</span>
+<span class="sd">    win : :obj:`int`</span>
+<span class="sd">        Window over which to average the spectrum</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`~numpy.ndarray`</span>
+<span class="sd">        2D or 3D array of spectra of individual orders</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Spec out the shape, and create an empty array to hold the output spectra</span>
+    <span class="n">norders</span><span class="p">,</span> <span class="n">n_x</span> <span class="o">=</span> <span class="n">traces</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">spectra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">norders</span><span class="p">,</span> <span class="n">n_x</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">speca</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="c1"># Set extraction window size</span>
+    <span class="n">half_window</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">win</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+
+    <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">norders</span><span class="p">):</span>
+        <span class="c1"># Because of python indexing, we need to &quot;+1&quot; the upper limit in order</span>
+        <span class="c1">#   to get the full wsize elements for the average</span>
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">traces</span><span class="p">[</span><span class="n">order</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
+            <span class="n">speca</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span>
+                <span class="n">spectrum</span><span class="p">[</span><span class="n">trace</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">half_window</span> <span class="p">:</span> <span class="n">trace</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">half_window</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="n">spectra</span><span class="p">[</span><span class="n">order</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">speca</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_x</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">spectra</span></div>
+
+
+<div class="viewcode-block" id="find_lines"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.find_lines">[docs]</a><span class="k">def</span> <span class="nf">find_lines</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span>
+    <span class="n">thresh</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">minsep</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">do_plot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">focus_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pdf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">docfig</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Automatically find and centroid lines in a 1-row image</span>
+
+<span class="sd">    Uses :func:`scipy.signal.find_peaks` for this task</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Extracted spectrum</span>
+<span class="sd">    thresh : :obj:`float`, optional</span>
+<span class="sd">        Threshold above which to indentify lines [Default: 20 DN above bkgd]</span>
+<span class="sd">    minsep : :obj:`int`, optional</span>
+<span class="sd">        Minimum line separation for identification [Default: 11 pixels]</span>
+<span class="sd">    verbose : :obj:`bool`, optional</span>
+<span class="sd">        Produce verbose output?  [Default: False]</span>
+<span class="sd">    do_plot : :obj:`bool`, optional</span>
+<span class="sd">        Create a plot on the provided axes?  [Default: False]</span>
+<span class="sd">    focus_dict : :obj:`dict`, optional</span>
+<span class="sd">        Dictionary containing needed variables for plot  [Default: None]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    n_c : :obj:`int`</span>
+<span class="sd">        Number of lines found and returned</span>
+<span class="sd">    centers : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Line centers (pixel #)</span>
+<span class="sd">    fwhm : :obj:`~numpy.ndarray`</span>
+<span class="sd">        The computed FWHM for each peak</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get size and flatten to 1D</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">n_x</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="c1"># Find background from median value of the image:</span>
+    <span class="n">bkgd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;  Background level: </span><span class="si">{</span><span class="n">bkgd</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;   Detection threshold level: </span><span class="si">{</span><span class="n">bkgd</span><span class="o">+</span><span class="n">thresh</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Use scipy to find peaks &amp; widths -- no more janky IDL-based junk</span>
+    <span class="n">centers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">find_peaks</span><span class="p">(</span>
+        <span class="n">newspec</span> <span class="o">:=</span> <span class="n">spec</span> <span class="o">-</span> <span class="n">bkgd</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">thresh</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">minsep</span>
+    <span class="p">)</span>
+    <span class="n">fwhm</span> <span class="o">=</span> <span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">peak_widths</span><span class="p">(</span><span class="n">newspec</span><span class="p">,</span> <span class="n">centers</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Number of lines found: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Produce a plot for posterity, if directed</span>
+    <span class="k">if</span> <span class="n">do_plot</span><span class="p">:</span>
+        <span class="c1"># Set up the plot environment</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="n">tsz</span> <span class="o">=</span> <span class="mi">8</span>
+
+        <span class="c1"># Plot the spectrum, mark the peaks, and label them</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="p">)),</span> <span class="n">newspec</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">yrange</span> <span class="o">:=</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">newspec</span><span class="p">)))</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">newspec</span><span class="p">[</span><span class="n">centers</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)]</span> <span class="o">+</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="n">yrange</span><span class="p">,</span> <span class="s2">&quot;k*&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">cen</span> <span class="ow">in</span> <span class="n">centers</span><span class="p">:</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="n">cen</span><span class="p">,</span>
+                <span class="n">newspec</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">cen</span><span class="p">))]</span> <span class="o">+</span> <span class="mf">0.03</span> <span class="o">*</span> <span class="n">yrange</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cen</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Make pretty &amp; Save</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">focus_dict</span><span class="p">[</span><span class="s2">&quot;plot_title&quot;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;CCD Column&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;I (DN)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_x</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">docfig</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;svg&quot;</span><span class="p">]:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pyfocus.page1_example.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">),</span> <span class="n">centers</span><span class="p">,</span> <span class="n">fwhm</span></div>
+
+
+<div class="viewcode-block" id="fit_focus_curves"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.fit_focus_curves">[docs]</a><span class="k">def</span> <span class="nf">fit_focus_curves</span><span class="p">(</span><span class="n">fwhm</span><span class="p">,</span> <span class="n">fnom</span><span class="o">=</span><span class="mf">2.7</span><span class="p">,</span> <span class="n">norder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit line / star focus curves</span>
+
+<span class="sd">    [extended_summary]</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fwhm : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Array of FWHM for all lines as a function of COLLFOC</span>
+<span class="sd">    fnom : :obj:`float`, optional</span>
+<span class="sd">        Nominal FHWM of an in-focus line. (Default: 2.7)</span>
+<span class="sd">    norder : :obj:`int`, optional</span>
+<span class="sd">        Polynomial order of the focus fit (Default: 2 = Quadratic)</span>
+<span class="sd">    debug : :obj:`bool`, optional</span>
+<span class="sd">        Print debug statements  (Default: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    min_cf_idx_value : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Best fit focus values</span>
+<span class="sd">    optimal_cf_idx_value : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Best fit linewidths</span>
+<span class="sd">    min_linewidth : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Minimum linewidths</span>
+<span class="sd">    foc_fits : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Fit parameters (for plotting)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Warning Filter -- Polyfit RankWarning, don&#39;t wanna hear about it</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">RankWarning</span><span class="p">)</span>
+
+    <span class="c1"># Create the various arrays / lists needed</span>
+    <span class="n">n_focus</span><span class="p">,</span> <span class="n">n_centers</span> <span class="o">=</span> <span class="n">fwhm</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">min_linewidth</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">min_cf_idx_value</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">optimal_cf_idx_value</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">foc_fits</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Fitting arrays (these are indices for collimator focus)</span>
+    <span class="n">cf_idx_coarse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_focus</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">cf_idx_fine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_focus</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="c1"># Loop through lines to find the best focus for each one</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_centers</span><span class="p">):</span>
+        <span class="c1"># Data are the FWHM for this line at different COLLFOC</span>
+        <span class="n">fwhms_of_this_line</span> <span class="o">=</span> <span class="n">fwhm</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+
+        <span class="c1"># Find unphysically large or small FWHM (or NaN) -- set to np.nan</span>
+        <span class="n">bad_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">fwhms_of_this_line</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">fwhms_of_this_line</span> <span class="o">&gt;</span> <span class="mf">15.0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">fwhms_of_this_line</span><span class="p">[</span><span class="n">bad_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">fwhms_of_this_line</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">fwhms_of_this_line</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># If more than 3 of the FHWM are bad for this line, skip and go on</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># Add values to the lists for proper indexing</span>
+            <span class="k">for</span> <span class="n">flst</span> <span class="ow">in</span> <span class="p">[</span><span class="n">min_linewidth</span><span class="p">,</span> <span class="n">min_cf_idx_value</span><span class="p">,</span> <span class="n">optimal_cf_idx_value</span><span class="p">]:</span>
+                <span class="n">flst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Do a polynomial fit (norder) to the FWHM vs COLLFOC index</span>
+        <span class="c1"># fit = np.polyfit(cf_idx_coarse, fwhms_of_this_line, norder)</span>
+        <span class="n">fit</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">good_poly</span><span class="p">(</span><span class="n">cf_idx_coarse</span><span class="p">,</span> <span class="n">fwhms_of_this_line</span><span class="p">,</span> <span class="n">norder</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="n">foc_fits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;In fit_focus_curves(): fit = </span><span class="si">{</span><span class="n">fit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If good_poly() returns zeros, deal with it accordingly</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fit</span><span class="p">):</span>
+            <span class="n">min_cf_idx_value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">min_linewidth</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">optimal_cf_idx_value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Use the fine grid to evaluate the curve miniumum</span>
+        <span class="n">focus_curve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">cf_idx_fine</span><span class="p">)</span>  <span class="c1"># fitfine</span>
+        <span class="n">min_cf_idx_value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cf_idx_fine</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">focus_curve</span><span class="p">)])</span>  <span class="c1"># focus</span>
+        <span class="n">min_linewidth</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">focus_curve</span><span class="p">))</span>  <span class="c1"># minfoc</span>
+
+        <span class="c1"># Compute the nominal focus position as the larger of the two points</span>
+        <span class="c1">#  where the polymonial function crosses fnom</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="n">fit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fit</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">fnom</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Roots: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">roots</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">optimal_cf_idx_value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">roots</span><span class="p">(</span><span class="n">coeffs</span><span class="p">))))</span>
+
+    <span class="c1"># After looping, return the items as numpy arrays</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">min_cf_idx_value</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">optimal_cf_idx_value</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">min_linewidth</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">foc_fits</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+<span class="c1"># Plotting Routines ==========================================================#</span>
+<div class="viewcode-block" id="plot_optimal_focus"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.plot_optimal_focus">[docs]</a><span class="k">def</span> <span class="nf">plot_optimal_focus</span><span class="p">(</span>
+    <span class="n">focus</span><span class="p">,</span>
+    <span class="n">centers</span><span class="p">,</span>
+    <span class="n">optimal_focus_values</span><span class="p">,</span>
+    <span class="n">med_opt_focus</span><span class="p">,</span>
+    <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">pdf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">docfig</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make the Optimal Focus Plot (IDL2 Window)</span>
+
+<span class="sd">    [extended_summary]</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    focus : :obj:`dict`</span>
+<span class="sd">        Dictionary of the various focus-related quantities</span>
+<span class="sd">    centers : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Array of the centers of each line</span>
+<span class="sd">    optimal_focus_values : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Array of the optimal focus values for each line</span>
+<span class="sd">    med_opt_focus : :obj:`float`</span>
+<span class="sd">        Median optimal focus value</span>
+<span class="sd">    debug : :obj:`bool`, optional</span>
+<span class="sd">        Print debug statements  (Default: False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">centers</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">optimal_focus_values</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">med_opt_focus</span><span class="p">))</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">tsz</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">optimal_focus_values</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2050</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">focus</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">],</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">focus</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">])</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+        <span class="s2">&quot;Optimal focus position vs. line position, median =  &quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">med_opt_focus</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mm  &quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;(Mount Temp: </span><span class="si">{</span><span class="n">focus</span><span class="p">[</span><span class="s1">&#39;mnttemp&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">$^</span><span class="se">\\</span><span class="s2">circ$C)&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+        <span class="n">med_opt_focus</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">axis</span><span class="o">.</span><span class="n">get_yaxis_transform</span><span class="p">(),</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span>
+        <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CCD Column</span><span class="se">\n</span><span class="si">{</span><span class="n">focus</span><span class="p">[</span><span class="s1">&#39;opt_title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Optimal Focus (mm)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#c0c0c0&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="n">axis</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">docfig</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;svg&quot;</span><span class="p">]:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pyfocus.page2_example.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_focus_curves"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.plot_focus_curves">[docs]</a><span class="k">def</span> <span class="nf">plot_focus_curves</span><span class="p">(</span>
+    <span class="n">centers</span><span class="p">,</span>
+    <span class="n">line_width_array</span><span class="p">,</span>
+    <span class="n">min_focus_values</span><span class="p">,</span>
+    <span class="n">optimal_focus_values</span><span class="p">,</span>
+    <span class="n">min_linewidths</span><span class="p">,</span>
+    <span class="n">fit_pars</span><span class="p">,</span>
+    <span class="n">delta_focus</span><span class="p">,</span>
+    <span class="n">focus_0</span><span class="p">,</span>
+    <span class="n">fnom</span><span class="o">=</span><span class="mf">2.7</span><span class="p">,</span>
+    <span class="n">pdf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">docfig</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make the big plot of all the focus curves (IDL1 Window)</span>
+
+<span class="sd">    [extended_summary]</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    centers : :obj:`~numpy.ndarray`</span>
+<span class="sd">        List of line centers from find_lines()</span>
+<span class="sd">    line_width_array : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Array of line widths from each COLLFOC setting for each line</span>
+<span class="sd">    min_focus_values : :obj:`~numpy.ndarray`</span>
+<span class="sd">        List of the minimum focus values found from the polynomial fit</span>
+<span class="sd">    optimal_focus_values : :obj:`~numpy.ndarray`</span>
+<span class="sd">        List of the optimal focus values found from the polynomial fit</span>
+<span class="sd">    min_linewidths : :obj:`~numpy.ndarray`</span>
+<span class="sd">        List of the minumum linewidths found from the fitting</span>
+<span class="sd">    fit_pars : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Array of the polynomial fit parameters for each line</span>
+<span class="sd">    df : :obj:`float`</span>
+<span class="sd">        Spacing between COLLFOC settings</span>
+<span class="sd">    focus_0 : :obj:`float`</span>
+<span class="sd">        Lower end of the COLLFOC range</span>
+<span class="sd">    fnom : :obj:`float`, optional</span>
+<span class="sd">        Nominal (optimal) linewidth  (Default: 2.7)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Warning Filter -- Matplotlib doesn&#39;t like going from masked --&gt; NaN</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+
+    <span class="c1"># Set up variables</span>
+    <span class="n">n_foc</span><span class="p">,</span> <span class="n">n_c</span> <span class="o">=</span> <span class="n">line_width_array</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">focus_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_foc</span><span class="p">)</span>
+    <span class="n">focus_x</span> <span class="o">=</span> <span class="n">focus_idx</span> <span class="o">*</span> <span class="n">delta_focus</span> <span class="o">+</span> <span class="n">focus_0</span>
+
+    <span class="c1"># Set the plotting array</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="n">n_c</span> <span class="o">//</span> <span class="n">ncols</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">8.5</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+    <span class="n">tsz</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># type size</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n_c</span><span class="p">:</span>
+            <span class="c1"># Plot the points and the polynomial fit</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">focus_x</span><span class="p">,</span> <span class="n">line_width_array</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="s2">&quot;kD&quot;</span><span class="p">,</span> <span class="n">fillstyle</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">focus_x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">fit_pars</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="n">focus_idx</span><span class="p">),</span> <span class="s2">&quot;g-&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Plot vertical lines to indicate minimum and optimal focus</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">min_focus_values</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_linewidths</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">optimal_focus_values</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fnom</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Plot parameters to make pretty</span>
+            <span class="c1"># ax.set_ylim(0, np.nanmax(line_width_array[:,i]))</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">7.9</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">focus_x</span><span class="p">)</span> <span class="o">-</span> <span class="n">delta_focus</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">focus_x</span><span class="p">)</span> <span class="o">+</span> <span class="n">delta_focus</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Collimator Position (mm)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;FWHM (pix)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;LC: </span><span class="si">{</span><span class="n">centers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">  Fnom: </span><span class="si">{</span><span class="n">fnom</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tsz</span>
+            <span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+                <span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#c0c0c0&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Clear any extra positions if there aren&#39;t enough lines</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">delaxes</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">docfig</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;svg&quot;</span><span class="p">]:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pyfocus.page3_example.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1"># Extra Routines =============================================================#</span>
+<div class="viewcode-block" id="find_lines_in_spectrum"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.find_lines_in_spectrum">[docs]</a><span class="k">def</span> <span class="nf">find_lines_in_spectrum</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">100.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the line centers in a spectrum</span>
+
+<span class="sd">    This function is not directly utilized in ``dfocus``, but rather is included</span>
+<span class="sd">    as a wrapper for several functions that can be used by other programs.</span>
+
+<span class="sd">    Given the filename of an arc-lamp spectrum, this function returns a list</span>
+<span class="sd">    of the line centers found in the image.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : :obj:`str`</span>
+<span class="sd">        Filename of the arc frame to find lines in</span>
+<span class="sd">    thresh : :obj:`float`, optional</span>
+<span class="sd">        Line intensity threshold above background for detection [Default: 100]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`~numpy.ndarray`</span>
+<span class="sd">        List of line centers found in the image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the trimmed image</span>
+    <span class="n">spectrum</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">trim_deveny_image</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="c1"># Build the trace for spectrum extraction</span>
+    <span class="n">n_y</span><span class="p">,</span> <span class="n">n_x</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">traces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_y</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_x</span><span class="p">))</span>
+    <span class="n">spectra</span> <span class="o">=</span> <span class="n">extract_spectrum</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">traces</span><span class="p">,</span> <span class="n">win</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+
+    <span class="c1"># Find the lines!</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_lines</span><span class="p">(</span><span class="n">spectra</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">centers</span></div>
+
+
+<span class="c1"># Command Line Script Infrastructure (borrowed from PypeIt) ==================#</span>
+<div class="viewcode-block" id="DFocus"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.DFocus">[docs]</a><span class="k">class</span> <span class="nc">DFocus</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">ScriptBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Script class for ``dfocus`` tool</span>
+
+<span class="sd">    Script structure borrowed from :class:`pypeit.scripts.scriptbase.ScriptBase`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DFocus.get_parser"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.DFocus.get_parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the command-line argument parser.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        description : :obj:`str`, optional</span>
+<span class="sd">            A short description of the purpose of the script.</span>
+<span class="sd">        width : :obj:`int`, optional</span>
+<span class="sd">            Restrict the width of the formatted help output to be no longer</span>
+<span class="sd">            than this number of characters, if possible given the help</span>
+<span class="sd">            formatter.  If None, the width is the same as the terminal</span>
+<span class="sd">            width.</span>
+<span class="sd">        formatter : :obj:`~argparse.HelpFormatter`</span>
+<span class="sd">            Class used to format the help output.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`~argparse.ArgumentParser`</span>
+<span class="sd">            Command-line interpreter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;DeVeny Collimator Focus Calculator&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--flog&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;focus log to use&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--thresh&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;threshold for line detection&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--nodisplay&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;DO NOT launch Preview.app to display plots&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Produce multiple graphics outputs for the documentation -- HIDDEN</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-g&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="DFocus.main"><a class="viewcode-back" href="../../api/obstools.dfocus.html#obstools.dfocus.DFocus.main">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Main Driver</span>
+
+<span class="sd">        Simple function that calls the primary function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Giddy Up!</span>
+        <span class="n">dfocus</span><span class="p">(</span>
+            <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+            <span class="n">flog</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">flog</span><span class="p">,</span>
+            <span class="n">thresh</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">thresh</span><span class="p">,</span>
+            <span class="n">launch_preview</span><span class="o">=</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">nodisplay</span><span class="p">,</span>
+            <span class="n">docfig</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

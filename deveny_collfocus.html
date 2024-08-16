@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeVeny Collimator Focus Estimator &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DeVeny Collimator Focus Calculator" href="dfocus.html" />
+    <link rel="prev" title="DeVeny Grating Angle Calculator" href="deveny_grangle.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Collimator Focus Sequence Estimator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DeVeny Collimator Focus Estimator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/deveny_collfocus.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="deveny-collimator-focus-estimator">
+<span id="deveny-collfocus"></span><h1>DeVeny Collimator Focus Estimator<a class="headerlink" href="#deveny-collimator-focus-estimator" title="Permalink to this heading"></a></h1>
+<p>Status: Completed 2023-07-31</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>The internal optics of the DeVeny Spectrograph are focused by pistoning the
+collimator mirror (a separate task from focusing the telescope onto the
+spectrograph).  The DeVeny LOUI includes a tab for performing a focus sequence
+(images of arc lines interleaved with collimator focus moves).  The purpose
+of this GUI tool is for estimating the values you should input into the LOUI.</p>
+<p>For a discussion of the physics behind the collimator focus procedure
+(including the origin of the equation below), see the DeVeny User Manual.  An
+empirical analysis of collimator focus values from data taken in 2017-2020
+yield the approximate relationship:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{collimator~focus}~\approx&amp;~11.0 - 0.08~T_{\rm m} \mathrm{(^{\circ} C)} - 0.14~(\mathrm{tilt} - 25^{\circ}) + 0.7~\delta_{\rm filter}~~~\mathrm{mm} \\
+\delta_{\rm filter} &amp;=  \begin{cases} \mbox{0,} &amp; \mbox{if no order-blocking filter (REARFILT = Clear (C))}  \\ \mbox{1,} &amp; \mbox{if using an order-blocking filter (e.g., GG420)} \end{cases}
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(T_{\rm m}\)</span> is the mount temperature and tilt is the grating tilt
+angle.  The RMS of the fit is <span class="math notranslate nohighlight">\(\sim 0.6\)</span> mm.  This equation is coded into
+the GUI tool.</p>
+<p>Unlike other focus procedures at LDT, the DeVeny LOUI focus sequence script
+does not take the <em>expected</em> focus value, but rather one end of the range,
+along with the step size and number of steps.  This tool is designed to assist
+you in constructing a range that centers on the value computed from the
+equation above to most efficiently complete the focus procedure.</p>
+<p>After the images have been taken, use the <a class="reference internal" href="dfocus.html"><span class="doc">DeVeny Collimator Focus Calculator</span></a> program to analyze the
+images and compute the appropriate focus position.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
+<p>The script usage can be displayed by calling the script with the
+<code class="docutils literal notranslate"><span class="pre">-h</span></code> option:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>deveny_collfocus<span class="w"> </span>-h
+<span class="go">usage: deveny_collfocus [-h]</span>
+
+<span class="go">DeVeny Collimator Focus Sequence Estimator</span>
+
+<span class="go">options:</span>
+<span class="go">  -h, --help  show this help message and exit</span>
+</pre></div>
+</div>
+<p>When the application launches, a GUI window will appear as in
+<a class="reference internal" href="#collfocus-startup"><span class="std std-numref">Fig. 3</span></a>.</p>
+<figure class="align-default" id="id1">
+<span id="collfocus-startup"></span><img alt="GUI at startup" class="with-shadow" src="_images/deveny_collfocus_startup.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">– The <code class="docutils literal notranslate"><span class="pre">deveny_collfocus</span></code> GUI at startup.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>If the application is launched from one of the observer computers at LDT
+(<code class="docutils literal notranslate"><span class="pre">dct-obs1</span></code> or <code class="docutils literal notranslate"><span class="pre">dct-obs2</span></code>), it will have the option to pull the current
+values for the mount temperature and grating tilt angle from the broker.  The
+current grating angle should always available on the broker, but the TO needs
+to have the their control software running before the mount temperature will be
+available (and it may still take up to a minute or so for the appropriate
+broker topic to update).  Load the current values from the broker by pressing
+the “Get Values from Broker” button.</p>
+<p>Whether you load the value from the broker or use this tool at home, you may
+still manually enter the mount temperature and grating tilt angle in the GUI
+windows.  You will always need to select the rear filter setting you are using.</p>
+<p>When you click “Compute”, the bottom half of the GUI is populated with the
+estimated focus value from the equation above and values to enter into the
+DeVeny LOUI focus sequence tab.  See <a class="reference internal" href="#collfocus-values"><span class="std std-numref">Fig. 4</span></a>.</p>
+<figure class="align-default" id="id2">
+<span id="collfocus-values"></span><img alt="GUI after clicking &quot;Compute&quot;" class="with-shadow" src="_images/deveny_collfocus_values.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 4 </span><span class="caption-text">– The <code class="docutils literal notranslate"><span class="pre">deveny_collfocus</span></code> GUI after clicking “Compute”.  The estimated
+focus value (with uncertainty) is printed, along with suggested values for
+use with the LOUI Focus Sequence tab.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Observers should note that the lower limit on the collimator focus motorized
+stage is 7.75 mm.  In warm weather and/or for large grating tilt angles, the
+optimal focus may lie beyond this limit.  Set the collimator focus value at
+the lower limit and press on.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

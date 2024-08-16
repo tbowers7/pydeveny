@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.deveny_grangle &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../obstools.html">obstools</a></li>
+      <li class="breadcrumb-item active">obstools.deveny_grangle</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for obstools.deveny_grangle</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1">#  This file is part of LDTObserverTools.</span>
+<span class="c1">#</span>
+<span class="c1">#   This Source Code Form is subject to the terms of the Mozilla Public</span>
+<span class="c1">#   License, v. 2.0. If a copy of the MPL was not distributed with this</span>
+<span class="c1">#   file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
+<span class="c1">#</span>
+<span class="c1">#  Created on 25-Jan-2021</span>
+<span class="c1">#</span>
+<span class="c1">#  @author: tbowers</span>
+
+<span class="sd">&quot;&quot;&quot;DeVeny Grating Angle Calculator Module</span>
+
+<span class="sd">LDTObserverTools contains python ports of various LDT Observer Tools</span>
+
+<span class="sd">Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)</span>
+<span class="sd">https://lowell.edu</span>
+
+<span class="sd">This file contains the ``deveny_grangle`` routine for computing the needed grating</span>
+<span class="sd">tilt angle to be set in order to center the desired wavelength on the CCD.</span>
+<span class="sd">Both a CLI (direct copy of the IDL version) and GUI version are included here.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Built-In Libraries</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># 3rd-Party Libraries</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+<span class="kn">import</span> <span class="nn">PySimpleGUI</span> <span class="k">as</span> <span class="nn">sg</span>
+
+<span class="c1"># Local Libraries</span>
+<span class="kn">from</span> <span class="nn">obstools</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="c1"># CONSTANTS</span>
+<span class="n">PIXSCALE</span> <span class="o">=</span> <span class="mf">2.94</span>  <span class="c1"># Base pixels per arcsec: 1 / (0.34 arcsec / pixel)</span>
+<span class="n">CAMCOL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">55.00</span><span class="p">)</span>  <span class="c1"># DeVeny Optical Angle -- Camera-to-Collimator</span>
+<span class="n">COLL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">10.00</span><span class="p">)</span>  <span class="c1"># DeVeny Optical Angle -- Collimator-to-Grating</span>
+<span class="n">TGOFFSET</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># Mechanical Offset in the grating angle</span>
+
+
+<div class="viewcode-block" id="deveny_grangle_cli"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.deveny_grangle_cli">[docs]</a><span class="k">def</span> <span class="nf">deveny_grangle_cli</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the desired grating angle given grating and central wavelength</span>
+
+<span class="sd">    Command line version of ``deveny_grangle``, direct port of the IDL version.</span>
+<span class="sd">    Takes no arguments, returns nothing, and prints output to screen.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get input from user</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Enter grating resolution (g/mm):&quot;</span><span class="p">)</span>
+    <span class="n">gpmm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Enter central wavelength (A):&quot;</span><span class="p">)</span>
+    <span class="n">wavelen</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>
+
+    <span class="c1"># Compute the grating angle and anamorphic demagnification</span>
+    <span class="n">grangle</span><span class="p">,</span> <span class="n">amag</span> <span class="o">=</span> <span class="n">compute_grangle</span><span class="p">(</span><span class="n">gpmm</span><span class="p">,</span> <span class="n">wavelen</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Grating: </span><span class="si">{</span><span class="n">gpmm</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> g/mm&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Central Wavelength: </span><span class="si">{</span><span class="n">wavelen</span><span class="si">}</span><span class="s2"> A&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; DeVeny grating tilt = </span><span class="si">{</span><span class="n">grangle</span><span class="o">+</span><span class="n">TGOFFSET</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> deg&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot; Slit demagnification (pixels/arcsec, 0.34 arcsec/pixel): &quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PIXSCALE</span><span class="o">*</span><span class="n">amag</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="deveny_grangle_gui"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.deveny_grangle_gui">[docs]</a><span class="k">def</span> <span class="nf">deveny_grangle_gui</span><span class="p">(</span><span class="n">max_gui</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Main Driver for the DeVeny Grangle GUI</span>
+
+<span class="sd">    Compute the desired grating angle given grating and central wavelength</span>
+
+<span class="sd">    GUI version of ``deveny_grangle`` built using ``PySimpleGUI``.  The GUI</span>
+<span class="sd">    includes a drop-down menu for available gratings, and checks for a requested</span>
+<span class="sd">    wavelength between 3000A and 11,000A.  This interface uses the same</span>
+<span class="sd">    subroutines as the CLI version and produces the same results.</span>
+
+<span class="sd">    This version optionally allows for the calcuation of the central wavelength</span>
+<span class="sd">    given a grating angle</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    max_gui : :obj:`bool`, optional</span>
+<span class="sd">        Display the MAX GUI (forward and backward calculations)  (Default: False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define the gratings for the drop-down menu</span>
+    <span class="n">gratings</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;DV1 - 150 g/mm, 5000 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV2 - 300 g/mm, 4000 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV3 - 300 g/mm, 6750 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV4 - 400 g/mm, 8500 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV5 - 500 g/mm, 5500 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV6 - 600 g/mm, 4900 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV7 - 600 g/mm, 6750 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV8 - 831 g/mm, 8000 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV9 - 1200 g/mm, 5000 Å&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DV10 - 2160 g/mm, 5000 Å&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Define the color scheme for the GUI</span>
+    <span class="n">sg</span><span class="o">.</span><span class="n">theme</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">SG_THEME</span><span class="p">)</span>
+
+    <span class="c1"># Define the window layout</span>
+    <span class="n">row1</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Select Grating:&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Drop</span><span class="p">(</span>
+            <span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="n">gratings</span><span class="p">),</span>
+            <span class="n">auto_size_text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">default_value</span><span class="o">=</span><span class="n">gratings</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;Grat&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">row2</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Enter Central Wavelength:&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;-WAVEIN-&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Å&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">max_gui</span><span class="p">:</span>
+        <span class="n">row8</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Enter Grating Tilt:&quot;</span><span class="p">),</span>
+            <span class="n">sg</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+            <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;º&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">row3</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">sg</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Compute Tilt&quot;</span><span class="p">),</span>
+            <span class="n">sg</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Compute Wavelength&quot;</span><span class="p">),</span>
+            <span class="n">sg</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">row3</span> <span class="o">=</span> <span class="p">[</span><span class="n">sg</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Compute&quot;</span><span class="p">),</span> <span class="n">sg</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)]</span>
+    <span class="n">row4</span> <span class="o">=</span> <span class="p">[</span><span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;             Grating: &quot;</span><span class="p">),</span> <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-GRATOUT-&quot;</span><span class="p">)]</span>
+    <span class="n">row5</span> <span class="o">=</span> <span class="p">[</span><span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;  Central Wavelength: &quot;</span><span class="p">),</span> <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-WAVEOUT-&quot;</span><span class="p">)]</span>
+    <span class="n">row6</span> <span class="o">=</span> <span class="p">[</span><span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;DeVeny Grating Tilt = &quot;</span><span class="p">),</span> <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-TILTOUT-&quot;</span><span class="p">)]</span>
+    <span class="n">row7</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Slit demagnification (0.34&quot;/pixel): &#39;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-DEMAGOUT-&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Define the rows based on which GUI we&#39;re making</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">,</span> <span class="n">row8</span><span class="p">,</span> <span class="n">row3</span><span class="p">,</span> <span class="n">row4</span><span class="p">,</span> <span class="n">row5</span><span class="p">,</span> <span class="n">row6</span><span class="p">,</span> <span class="n">row7</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">max_gui</span>
+        <span class="k">else</span> <span class="p">[</span><span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">,</span> <span class="n">row3</span><span class="p">,</span> <span class="n">row4</span><span class="p">,</span> <span class="n">row5</span><span class="p">,</span> <span class="n">row6</span><span class="p">,</span> <span class="n">row7</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Make the pysimplegui &quot;Error performing wm_overrideredirect&quot; go away</span>
+    <span class="n">old_stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_null</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">f_null</span>
+
+        <span class="c1"># Create the Window</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Window</span><span class="p">(</span>
+            <span class="s2">&quot;DeVeny Grating Angle Calculator&quot;</span><span class="p">,</span>
+            <span class="n">rows</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+            <span class="n">finalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">element_justification</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">font</span><span class="o">=</span><span class="s2">&quot;Helvetica 18&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Return the STDOUT to the command line</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">old_stdout</span>
+
+    <span class="c1"># Wait for events</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">event</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">in</span> <span class="p">[</span><span class="n">sg</span><span class="o">.</span><span class="n">WIN_CLOSED</span><span class="p">,</span> <span class="s2">&quot;Done&quot;</span><span class="p">]:</span>
+            <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Compute&quot;</span><span class="p">,</span> <span class="s2">&quot;Compute Tilt&quot;</span><span class="p">]:</span>
+            <span class="c1"># Check for non-numeric entries for Central Wavelength</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;-WAVEIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">():</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-GRATOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Please Enter a Number&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-DEMAGOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">max_gui</span><span class="p">:</span>
+                    <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="c1"># Wait for next event</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Convert wavelen to float, and check for valid range</span>
+            <span class="n">wavelen</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;-WAVEIN-&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">wavelen</span> <span class="o">&lt;</span> <span class="mi">3000</span> <span class="ow">or</span> <span class="n">wavelen</span> <span class="o">&gt;</span> <span class="mi">11000</span><span class="p">:</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-GRATOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Wavelength out of range&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-DEMAGOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">max_gui</span><span class="p">:</span>
+                    <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="c1"># Wait for next event</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Compute the grating angle and anamorphic demagnification</span>
+            <span class="n">gpmm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;Grat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; g/mm&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">grangle</span><span class="p">,</span> <span class="n">amag</span> <span class="o">=</span> <span class="n">compute_grangle</span><span class="p">(</span><span class="n">gpmm</span><span class="p">,</span> <span class="n">wavelen</span><span class="p">)</span>
+
+            <span class="c1"># Update the window with the calculated values</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-GRATOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;Grat&quot;</span><span class="p">])</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;-WAVEIN-&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> Å&quot;</span><span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">grangle</span><span class="o">+</span><span class="n">TGOFFSET</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">º&quot;</span><span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-DEMAGOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PIXSCALE</span><span class="o">*</span><span class="n">amag</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels/arcsec&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">max_gui</span><span class="p">:</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">grangle</span><span class="o">+</span><span class="n">TGOFFSET</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;Compute Wavelength&quot;</span><span class="p">:</span>
+            <span class="c1"># Check for non-numeric entries for Grating Tilt</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_float</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">]):</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-GRATOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Please Enter a Number&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-DEMAGOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="c1"># Wait for next event</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Convert wavelen to float, and check for valid range</span>
+            <span class="n">tilt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">tilt</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">tilt</span> <span class="o">&gt;</span> <span class="mi">48</span><span class="p">:</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-GRATOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Tilt angle out of range&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-DEMAGOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="c1"># Wait for next event</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Compute the grating angle and anamorphic demagnification</span>
+            <span class="n">gpmm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;Grat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; g/mm&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">wavelen</span> <span class="o">=</span> <span class="n">lambda_at_angle</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span> <span class="n">gpmm</span><span class="p">)</span>
+            <span class="n">amag</span> <span class="o">=</span> <span class="n">deveny_amag</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span>
+
+            <span class="c1"># Update the window with the calculated values</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-GRATOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;Grat&quot;</span><span class="p">])</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">wavelen</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> Å&quot;</span><span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tilt</span><span class="o">+</span><span class="n">TGOFFSET</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">º&quot;</span><span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-DEMAGOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PIXSCALE</span><span class="o">*</span><span class="n">amag</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels/arcsec&quot;</span><span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-WAVEIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">wavelen</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Something funny happened... should never print.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># All done, close window</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1"># Computation Utility Functions ==============================================#</span>
+<div class="viewcode-block" id="compute_grangle"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.compute_grangle">[docs]</a><span class="k">def</span> <span class="nf">compute_grangle</span><span class="p">(</span><span class="n">lpmm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">wavelen</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the needed grating angle</span>
+
+<span class="sd">    Given the grating&#39;s line density and the desired central wavelength,</span>
+<span class="sd">    compute the required grating angle.  Uses :func:`scipy.optimize.newton` as</span>
+<span class="sd">    the root-solver.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lpmm : :obj:`float`</span>
+<span class="sd">        The line density of the grating in g/mm</span>
+<span class="sd">    wavelen : :obj:`float`</span>
+<span class="sd">        The central wavelength in angstroms for which to compute the tilt</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grangle : :obj:`float`</span>
+<span class="sd">        The desired grating angle</span>
+<span class="sd">    amag : :obj:`float`</span>
+<span class="sd">        The anamorphic demagnification of the spectrograph at this grangle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initial guess: 20º</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">20.0</span><span class="p">)</span>
+
+    <span class="c1"># Call the newton method from scipy.optimize to solve the grating equation</span>
+    <span class="n">grangle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span>
+        <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">newton</span><span class="p">(</span><span class="n">grangle_eqn</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">theta</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">lpmm</span><span class="p">,</span> <span class="n">wavelen</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">amag</span> <span class="o">=</span> <span class="n">deveny_amag</span><span class="p">(</span><span class="n">grangle</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">grangle</span><span class="p">,</span> <span class="n">amag</span></div>
+
+
+<div class="viewcode-block" id="grangle_eqn"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.grangle_eqn">[docs]</a><span class="k">def</span> <span class="nf">grangle_eqn</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lpmm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">wavelen</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The grating equation used to find the angle</span>
+
+<span class="sd">    This is the equation for which :func:`scipy.optimize.newton` is finding</span>
+<span class="sd">    the root.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    theta : :obj:`float`</span>
+<span class="sd">        The grating angle being tested for (in radians)</span>
+<span class="sd">    lpmm : :obj:`float`</span>
+<span class="sd">        The line density of the grating in g/mm</span>
+<span class="sd">    wavelen : :obj:`float`</span>
+<span class="sd">        The central wavelength in angstroms for which to compute the tilt</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The portion of the grating equation to be set to zero.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">lambda_at_angle</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">lpmm</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span> <span class="n">wavelen</span></div>
+
+
+<div class="viewcode-block" id="lambda_at_angle"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.lambda_at_angle">[docs]</a><span class="k">def</span> <span class="nf">lambda_at_angle</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lpmm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radians</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the central wavelength given theta</span>
+
+<span class="sd">    Use the grating equation to compute the central wavelength given theta</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    theta : :obj:`float`</span>
+<span class="sd">        Grating Angle</span>
+<span class="sd">    lpmm : :obj:`float`</span>
+<span class="sd">        The line density of the grating in g/mm</span>
+<span class="sd">    radians : :obj:`bool`, optional</span>
+<span class="sd">        The input angle is in radians (Default: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The computed central wavelength</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Condition the inputs</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lpmm</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">lpmm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lpmm</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">radians</span><span class="p">:</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">COLL</span> <span class="o">+</span> <span class="n">theta</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">COLL</span> <span class="o">+</span> <span class="n">theta</span> <span class="o">-</span> <span class="n">CAMCOL</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1.0e7</span> <span class="o">/</span> <span class="n">lpmm</span></div>
+
+
+<div class="viewcode-block" id="deveny_amag"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.deveny_amag">[docs]</a><span class="k">def</span> <span class="nf">deveny_amag</span><span class="p">(</span><span class="n">grangle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the anamorphic demagnification of the slit</span>
+
+<span class="sd">    The rays hitting the grating in the plane of α and β diffract to the camera</span>
+<span class="sd">    in such a way that the beam width changes as a function of α and β, whereas</span>
+<span class="sd">    rays incident on the grating in the perpendicular plane have the same beam</span>
+<span class="sd">    width upon incidence and reflection. Because there is a difference between</span>
+<span class="sd">    the beam widths for the two planes, there will be different magnification</span>
+<span class="sd">    levels (Schweizer, 1979). Whenever perpendicular planes have different</span>
+<span class="sd">    magnifications, this is called &quot;anamorphic&quot; (de)magnification. Schweizer</span>
+<span class="sd">    (1979), however, thinks the term &quot;anamorphic magnification&quot; is somewhat</span>
+<span class="sd">    inaccurate, and prefers &quot;grating magnification&quot;. Historically, the DeVeny</span>
+<span class="sd">    manuals and associated code (`e.g.`, ``deveny_grangle``) use &quot;anamorphic&quot;,</span>
+<span class="sd">    so we continue that there. The resulting magnification in the direction of</span>
+<span class="sd">    dispersion due to the grating, `r`, arising from differentiation of the</span>
+<span class="sd">    grating equation, is:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        r \equiv \frac{dβ}{dα} = \frac{cos α}{cosβ}</span>
+
+<span class="sd">    (Schweizer, 1979). Practical spectrograph design aligns the slit</span>
+<span class="sd">    perpendicular to the dispersion direction, and so the change in</span>
+<span class="sd">    magnification is in the direction of the slit width, hence our quoted</span>
+<span class="sd">    &quot;anamorphic demagnification of slit width&quot;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grangle : :obj:`float`</span>
+<span class="sd">        The desired grating angle (in degrees)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The anamorphic demagnification factor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">grangle</span><span class="p">)</span> <span class="o">+</span> <span class="n">COLL</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">CAMCOL</span> <span class="o">-</span> <span class="n">alpha</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span></div>
+
+
+<span class="c1"># Command Line Script Infrastructure (borrowed from PypeIt) ==================#</span>
+<div class="viewcode-block" id="DevenyGrangle"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.DevenyGrangle">[docs]</a><span class="k">class</span> <span class="nc">DevenyGrangle</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">ScriptBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Script class for ``deveny_grangle`` tool</span>
+
+<span class="sd">    Script structure borrowed from :class:`pypeit.scripts.scriptbase.ScriptBase`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DevenyGrangle.get_parser"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.DevenyGrangle.get_parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the command-line argument parser.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        description : :obj:`str`, optional</span>
+<span class="sd">            A short description of the purpose of the script.</span>
+<span class="sd">        width : :obj:`int`, optional</span>
+<span class="sd">            Restrict the width of the formatted help output to be no longer</span>
+<span class="sd">            than this number of characters, if possible given the help</span>
+<span class="sd">            formatter.  If None, the width is the same as the terminal</span>
+<span class="sd">            width.</span>
+<span class="sd">        formatter : :obj:`~argparse.HelpFormatter`</span>
+<span class="sd">            Class used to format the help output.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`~argparse.ArgumentParser`</span>
+<span class="sd">            Command-line interpreter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;DeVeny Grating Angle Calculator&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--cli&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use the command-line version of this tool&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--max&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use the MAX version of the GUI (compute wavelength from angle)&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="DevenyGrangle.main"><a class="viewcode-back" href="../../api/obstools.deveny_grangle.html#obstools.deveny_grangle.DevenyGrangle.main">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Main Driver</span>
+
+<span class="sd">        Simple function that calls the appropriate driver function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Giddy up!</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cli</span><span class="p">:</span>
+            <span class="n">deveny_grangle_cli</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deveny_grangle_gui</span><span class="p">(</span><span class="n">max_gui</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">max</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

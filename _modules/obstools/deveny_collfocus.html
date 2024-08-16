@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.deveny_collfocus &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../obstools.html">obstools</a></li>
+      <li class="breadcrumb-item active">obstools.deveny_collfocus</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for obstools.deveny_collfocus</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1">#  This file is part of LDTObserverTools.</span>
+<span class="c1">#</span>
+<span class="c1">#   This Source Code Form is subject to the terms of the Mozilla Public</span>
+<span class="c1">#   License, v. 2.0. If a copy of the MPL was not distributed with this</span>
+<span class="c1">#   file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
+<span class="c1">#</span>
+<span class="c1">#  Created on 31-May-2023</span>
+<span class="c1">#</span>
+<span class="c1">#  @author: bshafransky, tbowers</span>
+
+<span class="sd">&quot;&quot;&quot;DeVeny Collimator Focus Range Estimator GUI Module</span>
+
+<span class="sd">LDTObserverTools contains python ports of various LDT Observer Tools</span>
+
+<span class="sd">Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)</span>
+<span class="sd">https://lowell.edu</span>
+
+<span class="sd">This file contains the ``deveny_collfocus`` routine for computing the estimated</span>
+<span class="sd">collimator focus value and range for the LOUI Focus Sequence tab.  The GUI can</span>
+<span class="sd">gather current information (mount temperature and grating angle) from the</span>
+<span class="sd">ActiveMQ broker, if available, but the user may also manually enter these</span>
+<span class="sd">values when the tool is used away from the telescope.</span>
+
+<span class="sd">This calculator was originally written by B. Shafransky (LDT TO), and has been</span>
+<span class="sd">incorporated into the LDTObserverTools package.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Built-In Libraries</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># 3rd-Party Libraries</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">PySimpleGUI</span> <span class="k">as</span> <span class="nn">sg</span>
+
+<span class="c1"># Local Libraries</span>
+<span class="kn">from</span> <span class="nn">obstools</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">obstools</span> <span class="kn">import</span> <span class="n">broker_listener</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
+<span class="c1"># CONSTANTS</span>
+<span class="n">MIN_COLLFOC</span> <span class="o">=</span> <span class="mf">7.5</span>  <span class="c1"># Smallest collimator focus value (in mm)</span>
+<span class="n">STEPSIZE</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># Default step size (in mm)</span>
+
+
+<div class="viewcode-block" id="deveny_collfocus"><a class="viewcode-back" href="../../api/obstools.deveny_collfocus.html#obstools.deveny_collfocus.deveny_collfocus">[docs]</a><span class="k">def</span> <span class="nf">deveny_collfocus</span><span class="p">(</span><span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main Driver for the DeVeny Collimator Focus Sequence Estimator GUI</span>
+
+<span class="sd">    Compute the estimated focus and LOUI Focus Sequence range given the mount</span>
+<span class="sd">    temperature, grating tilt angle, and presence of an order-blocking filter.</span>
+<span class="sd">    Optionally, read in the current mount temperature and grating tilt angle</span>
+<span class="sd">    from the ActiveMQ broker, if running at the site.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    debug : :obj:`bool`, optional</span>
+<span class="sd">        Print debug statements?  (Default: False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check that stomp was imported (in broker_listener) and that the config file exists</span>
+    <span class="n">use_stomp</span> <span class="o">=</span> <span class="s2">&quot;stomp&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span> <span class="ow">and</span> <span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">CONFIG</span> <span class="o">/</span> <span class="s2">&quot;activemq_joe.yaml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+    <span class="c1"># Fire up the broker Listener</span>
+    <span class="k">if</span> <span class="n">use_stomp</span><span class="p">:</span>
+        <span class="n">am_radio</span> <span class="o">=</span> <span class="n">broker_listener</span><span class="o">.</span><span class="n">ActiveMQ_Listener</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">CONFIG</span> <span class="o">/</span> <span class="s2">&quot;activemq_joe.yaml&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The parts of use_stomp = </span><span class="si">{</span><span class="n">use_stomp</span><span class="si">}</span><span class="s2">:  sys.modules = </span><span class="si">{</span><span class="s1">&#39;stomp&#39;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="si">}</span><span class="s2">  &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;config exists = </span><span class="si">{</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">CONFIG</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;activemq_joe.yaml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Define the color scheme for the GUI</span>
+    <span class="n">sg</span><span class="o">.</span><span class="n">theme</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">SG_THEME</span><span class="p">)</span>
+
+    <span class="c1"># Define the window layout</span>
+    <span class="n">row1</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Enter Mount Temperature:&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier 18&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;-TEMPIN-&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;ºC&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">row2</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;     Enter Grating Tilt:&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier 18&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;º&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">row3</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;     Select Rear Filter:&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier 18&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Drop</span><span class="p">(</span>
+            <span class="n">values</span><span class="o">=</span><span class="p">([</span><span class="s2">&quot;CLEAR&quot;</span><span class="p">,</span> <span class="s2">&quot;GG420&quot;</span><span class="p">,</span> <span class="s2">&quot;GG495&quot;</span><span class="p">,</span> <span class="s2">&quot;OG570&quot;</span><span class="p">]),</span>
+            <span class="n">auto_size_text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;CLEAR&quot;</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-FILTER-&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">row4</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Compute&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Get Values from Broker&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_stomp</span> <span class="k">else</span> <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">row5</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;     Estimated Focus Value:&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-FOCUSOUT-&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">row6</span> <span class="o">=</span> <span class="p">[</span><span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Suggested Focus Sequence: &quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;Helvetica 18 underline&quot;</span><span class="p">)]</span>
+    <span class="n">row7</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;  Initial Position (mm):&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier 18&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-STARTPOS-&quot;</span><span class="p">,</span>
+            <span class="n">text_color</span><span class="o">=</span><span class="n">sg</span><span class="o">.</span><span class="n">theme_input_text_color</span><span class="p">(),</span>
+            <span class="n">background_color</span><span class="o">=</span><span class="n">sg</span><span class="o">.</span><span class="n">theme_input_background_color</span><span class="p">(),</span>
+        <span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Step Size (mm):&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier 18&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-STEPSIZE-&quot;</span><span class="p">,</span>
+            <span class="n">text_color</span><span class="o">=</span><span class="n">sg</span><span class="o">.</span><span class="n">theme_input_text_color</span><span class="p">(),</span>
+            <span class="n">background_color</span><span class="o">=</span><span class="n">sg</span><span class="o">.</span><span class="n">theme_input_background_color</span><span class="p">(),</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">row8</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;        Number of Steps:&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s2">&quot;courier 18&quot;</span><span class="p">),</span>
+        <span class="n">sg</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;-NSTEPS-&quot;</span><span class="p">,</span>
+            <span class="n">text_color</span><span class="o">=</span><span class="n">sg</span><span class="o">.</span><span class="n">theme_input_text_color</span><span class="p">(),</span>
+            <span class="n">background_color</span><span class="o">=</span><span class="n">sg</span><span class="o">.</span><span class="n">theme_input_background_color</span><span class="p">(),</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Define the rows based on which GUI we&#39;re making</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">row1</span><span class="p">,</span> <span class="n">row2</span><span class="p">,</span> <span class="n">row3</span><span class="p">,</span> <span class="n">row4</span><span class="p">,</span> <span class="n">row5</span><span class="p">,</span> <span class="n">row6</span><span class="p">,</span> <span class="n">row7</span><span class="p">,</span> <span class="n">row8</span><span class="p">]</span>
+
+    <span class="c1"># Make the pysimplegui &quot;Error performing wm_overrideredirect&quot; go away</span>
+    <span class="n">old_stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_null</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">f_null</span>
+
+        <span class="c1"># Create the Window</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Window</span><span class="p">(</span>
+            <span class="s2">&quot;DeVeny Collimator Focus Sequence Estimator&quot;</span><span class="p">,</span>
+            <span class="n">rows</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+            <span class="n">finalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">element_justification</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">font</span><span class="o">=</span><span class="s2">&quot;Helvetica 18&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Return the STDOUT to the command line</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">old_stdout</span>
+
+    <span class="c1"># Wait for events</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">event</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">in</span> <span class="p">[</span><span class="n">sg</span><span class="o">.</span><span class="n">WIN_CLOSED</span><span class="p">,</span> <span class="s2">&quot;Done&quot;</span><span class="p">]:</span>
+            <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;Compute&quot;</span><span class="p">:</span>
+            <span class="c1"># Check for non-numeric values in entries</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tempin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;-TEMPIN-&quot;</span><span class="p">])</span>
+                <span class="n">tiltin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-FOCUSOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Please Enter a Number&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-STARTPOS-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-STEPSIZE-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-NSTEPS-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TEMPIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="c1"># Wait for next event</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Compute the estimated focus and focus sequence range</span>
+            <span class="n">est_focus</span> <span class="o">=</span> <span class="n">calculate_collimator_focus</span><span class="p">(</span>
+                <span class="n">tempin</span><span class="p">,</span> <span class="n">tiltin</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;-FILTER-&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;CLEAR&quot;</span>
+            <span class="p">)</span>
+            <span class="n">focseq_range</span> <span class="o">=</span> <span class="n">calculate_focus_sequence</span><span class="p">(</span><span class="n">est_focus</span><span class="p">)</span>
+
+            <span class="c1"># Update the window with the calculated values</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-FOCUSOUT-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">est_focus</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2"> ± 0.6 mm&quot;</span><span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-STARTPOS-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">focseq_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-STEPSIZE-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">focseq_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-NSTEPS-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">focseq_range</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;Get Values from Broker&quot;</span><span class="p">:</span>
+            <span class="c1"># Retrieve the current values from the broker</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TEMPIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">extract_broker_values</span><span class="p">(</span><span class="n">am_radio</span><span class="o">.</span><span class="n">mounttemp_from_broker</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">window</span><span class="p">[</span><span class="s2">&quot;-TILTIN-&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">extract_broker_values</span><span class="p">(</span><span class="n">am_radio</span><span class="o">.</span><span class="n">grangle_from_broker</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># All done, close window</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1"># Computation Utility Functions ==============================================#</span>
+<div class="viewcode-block" id="calculate_collimator_focus"><a class="viewcode-back" href="../../api/obstools.deveny_collfocus.html#obstools.deveny_collfocus.calculate_collimator_focus">[docs]</a><span class="k">def</span> <span class="nf">calculate_collimator_focus</span><span class="p">(</span>
+    <span class="n">mount_temp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">grating_tilt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">order_blocker</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate Collimator Focus Value</span>
+
+<span class="sd">    Using the formula presented in the DeVeny manual (built from collimator</span>
+<span class="sd">    focus values from 2017-2020), compute the approximate focus value given</span>
+<span class="sd">    the current conditions.</span>
+
+<span class="sd">    The smallest value returned is 7.75mm -- a physical limit due to the limit</span>
+<span class="sd">    switch on the collimator focus stage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mount_temp : :obj:`float`</span>
+<span class="sd">        The current mount temperature in degrees Celsius</span>
+<span class="sd">    grating_tilt : :obj:`float`</span>
+<span class="sd">        The current grating tilt angle in degrees</span>
+<span class="sd">    order_blocker : :obj:`bool`</span>
+<span class="sd">        Whether an order-blocking filter (`e.g.`, OG570) is in place</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The estimated collimator focus value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="mf">11.0</span>
+        <span class="o">-</span> <span class="mf">0.08</span> <span class="o">*</span> <span class="n">mount_temp</span>
+        <span class="o">-</span> <span class="mf">0.14</span> <span class="o">*</span> <span class="p">(</span><span class="n">grating_tilt</span> <span class="o">-</span> <span class="mf">25.0</span><span class="p">)</span>
+        <span class="o">+</span> <span class="mf">0.7</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">order_blocker</span><span class="p">),</span>
+        <span class="mf">7.75</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="calculate_focus_sequence"><a class="viewcode-back" href="../../api/obstools.deveny_collfocus.html#obstools.deveny_collfocus.calculate_focus_sequence">[docs]</a><span class="k">def</span> <span class="nf">calculate_focus_sequence</span><span class="p">(</span><span class="n">estimated_focus</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate Estimated Focus Sequence</span>
+
+<span class="sd">    The DeVeny LOUI Focus Sequence tab requests three pieces of information in</span>
+<span class="sd">    order to execute a focus run: starting position, step size, and number of</span>
+<span class="sd">    steps.  This function computes these three values based on the estimated</span>
+<span class="sd">    focus value (from temperature and tilt) and some prior information about</span>
+<span class="sd">    the behavior of the collimator.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    estimated_focus : :obj:`float`</span>
+<span class="sd">        The estimated focus value from the equation</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    startpos : :obj:`float`</span>
+<span class="sd">        The initial position of the Focus Sequence</span>
+<span class="sd">    stepsize : :obj:`float`</span>
+<span class="sd">        The stepsize to be used</span>
+<span class="sd">    n_steps : :obj:`int`</span>
+<span class="sd">        The number of steps for the Focus Sequence</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Compute the range from `estimated_focus` to the minumum (no negatives!)</span>
+    <span class="n">dist_above_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">estimated_focus</span> <span class="o">-</span> <span class="n">MIN_COLLFOC</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">base_steps</span> <span class="o">=</span> <span class="p">(</span><span class="n">dist_above_min</span> <span class="o">/</span> <span class="n">STEPSIZE</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="c1"># Make n_steps ODD, with a minumum of 5 steps, and a maximum of 9</span>
+    <span class="n">n_steps</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">base_steps</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
+    <span class="c1"># Determine initial position (est focus minus 1/2 the range, with limit)</span>
+    <span class="n">startpos</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">estimated_focus</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">n_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STEPSIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">7.5</span>
+    <span class="p">)</span>
+    <span class="c1"># Return</span>
+    <span class="k">return</span> <span class="n">startpos</span><span class="p">,</span> <span class="n">STEPSIZE</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_broker_values"><a class="viewcode-back" href="../../api/obstools.deveny_collfocus.html#obstools.deveny_collfocus.extract_broker_values">[docs]</a><span class="k">def</span> <span class="nf">extract_broker_values</span><span class="p">(</span><span class="n">status_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Current Values from the Broker</span>
+
+<span class="sd">    When running at LDT, we can use the ActiveMQ broker to get the current</span>
+<span class="sd">    mount temperature and grating tilt.  This is a fancy little trick that</span>
+<span class="sd">    will make the software developer very happy.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    status_dict : :obj:`dict`</span>
+<span class="sd">        The status dictionary from the broker listener</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`str`</span>
+<span class="sd">        The string value (or ``&quot;~ Not Found ~&quot;``) corresponding to this</span>
+<span class="sd">        dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Grating Tilt Angle</span>
+    <span class="k">if</span> <span class="s2">&quot;GratingTilt&quot;</span> <span class="ow">in</span> <span class="n">status_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status_dict</span><span class="p">[</span><span class="s1">&#39;GratingTilt&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># Mount Temperature</span>
+    <span class="k">if</span> <span class="s2">&quot;MountTemperature&quot;</span> <span class="ow">in</span> <span class="n">status_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status_dict</span><span class="p">[</span><span class="s1">&#39;MountTemperature&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># Else, nothing found</span>
+    <span class="k">return</span> <span class="s2">&quot;~ Not Found ~&quot;</span></div>
+
+
+<span class="c1"># Command Line Script Infrastructure (borrowed from PypeIt) ==================#</span>
+<div class="viewcode-block" id="DevenyCollfocus"><a class="viewcode-back" href="../../api/obstools.deveny_collfocus.html#obstools.deveny_collfocus.DevenyCollfocus">[docs]</a><span class="k">class</span> <span class="nc">DevenyCollfocus</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">ScriptBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Script class for ``deveny_collfocus`` tool</span>
+
+<span class="sd">    Script structure borrowed from :class:`pypeit.scripts.scriptbase.ScriptBase`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DevenyCollfocus.get_parser"><a class="viewcode-back" href="../../api/obstools.deveny_collfocus.html#obstools.deveny_collfocus.DevenyCollfocus.get_parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the command-line argument parser.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        description : :obj:`str`, optional</span>
+<span class="sd">            A short description of the purpose of the script.</span>
+<span class="sd">        width : :obj:`int`, optional</span>
+<span class="sd">            Restrict the width of the formatted help output to be no longer</span>
+<span class="sd">            than this number of characters, if possible given the help</span>
+<span class="sd">            formatter.  If None, the width is the same as the terminal</span>
+<span class="sd">            width.</span>
+<span class="sd">        formatter : :obj:`~argparse.HelpFormatter`</span>
+<span class="sd">            Class used to format the help output.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :obj:`~argparse.ArgumentParser`</span>
+<span class="sd">            Command-line interpreter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_parser</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;DeVeny Collimator Focus Sequence Estimator&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--debug&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+<div class="viewcode-block" id="DevenyCollfocus.main"><a class="viewcode-back" href="../../api/obstools.deveny_collfocus.html#obstools.deveny_collfocus.DevenyCollfocus.main">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Main Driver</span>
+
+<span class="sd">        Simple function that calls the main driver function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Giddy up!</span>
+        <span class="n">deveny_collfocus</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

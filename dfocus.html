@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeVeny Collimator Focus Calculator &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DeVeny Pickup Noise Scrubber" href="scrub_deveny_pickup.html" />
+    <link rel="prev" title="DeVeny Collimator Focus Estimator" href="deveny_collfocus.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Collimator Focus Calculator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DeVeny Collimator Focus Calculator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/dfocus.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="deveny-collimator-focus-calculator">
+<span id="dfocus"></span><h1>DeVeny Collimator Focus Calculator<a class="headerlink" href="#deveny-collimator-focus-calculator" title="Permalink to this heading"></a></h1>
+<p>Status: Completed 2021-11-19</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>The internal optics of the DeVeny Spectrograph are focused by pistoning the
+collimator mirror (a separate task from focusing the telescope onto the
+spectrograph).  The DeVeny LOUI includes a tab for performing a focus sequence
+(images of arc lines interleaved with collimator focus moves).  The
+<a class="reference internal" href="deveny_collfocus.html#deveny-collfocus"><span class="std std-ref">DeVeny Collimator Focus Estimator</span></a> tool is used to estimate the focus value and sequence
+range needed.</p>
+<p>Once the sequence of focus images has been collected, this tool will analyze
+the arc lines in each frame to calculate the optimal position at which you
+should set the collimator.  See <a class="reference internal" href="#dfocus-usage"><span class="std std-ref">Usage</span></a> for details of the
+command-line options for use with the tool.  When run, the following processing
+steps are applied to the focus frames:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>All frames are read in, and the middle frame is inspected to find
+appropriate spectral lines for analysis.  (This frame is what is shown
+in <a class="reference internal" href="#pyfocus-p1"><span class="std std-numref">Fig. 5</span></a>, theoretically the frame closest to focus,
+especially if <code class="docutils literal notranslate"><span class="pre">deveny_collfocus</span></code> was used to generate the sequence
+range.)</p></li>
+<li><p>The marked lines are then identified in all the other frames, and the
+FWHM for each is computed using <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/signal.html#module-scipy.signal" title="(in SciPy v1.14.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.signal</span></code></a> processing routines.</p></li>
+<li><p>The FWHM as a function of collimator position is computed for each line
+identified, and a parabola is fit to the plot (see
+<a class="reference internal" href="#pyfocus-p3"><span class="std std-numref">Fig. 7</span></a>).</p></li>
+<li><p>For arc each line, the minimum (red lines in <a class="reference internal" href="#pyfocus-p3"><span class="std std-numref">Fig. 7</span></a>) and
+optimal (blue lines) focus values are computed.  See the DeVeny manual
+for a discussion of astigmatism and why the two values are not the same.</p></li>
+<li><p>Finally, the optimal focus value is plotted as a function of CCD column
+position (<a class="reference internal" href="#pyfocus-p2"><span class="std std-numref">Fig. 6</span></a>) to find the overall optimal collimator
+focus value to use.</p></li>
+</ol>
+</div></blockquote>
+<p>An example terminal output corresponding to the figures is shown below:</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">================================================================================</span>
+<span class="go">  DeVeny Collimator Focus Calculator</span>
+
+<span class="go"> Processing center focus image /deveny/20210520a/20210520.0177.fits...</span>
+<span class="go">  Background level: 2351.1   Detection threshold level: 2451.1</span>
+<span class="go"> Number of lines found: 39</span>
+
+<span class="go"> Processing arc images...</span>
+<span class="go">100%|████████████████████████████████████████| 10/10 [00:00&lt;00:00, 40.87frame/s]</span>
+
+<span class="go">  Median value of all linewidths: 3.03 pix</span>
+<span class="go">================================================================================</span>
+<span class="go">*** Recommended (Median) Optimal Focus Position: 10.49 mm</span>
+<span class="go">*** Note: Current Mount Temperature is: 18.0ºC</span>
+
+<span class="go">  Plots have been saved to: pyfocus.20210520.040659.pdf</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>In both the terminal output and the plots, the current mount temperature is
+noted so that the observer can judge if the collimator focus needs to be
+revisited during the night based on temperature changes.  The collimator focus
+temperature term is approximately <span class="math notranslate nohighlight">\(-0.08~{\rm mm/C^{\circ}}\)</span>, meaning that
+a temperature <em>decrease</em> of <span class="math notranslate nohighlight">\(5 {\rm~C^{\circ}}\)</span> will cause a
+<span class="math notranslate nohighlight">\(0.4~{\rm mm}\)</span> <em>increase</em> in the optimal collimator focus position.</p>
+<figure class="align-default" id="id1">
+<span id="pyfocus-p1"></span><img alt="Arc line plot" class="with-shadow" src="_images/pyfocus.page1_example.svg" /><figcaption>
+<p><span class="caption-number">Fig. 5 </span><span class="caption-text">– Example of page 1 of the output PDF, arc line identification plot.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<span id="pyfocus-p2"></span><img alt="Optimal focus versus line position" class="with-shadow" src="_images/pyfocus.page2_example.svg" /><figcaption>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">– Example of page 2 of the output PDF, optimal focus versus line position plot.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<span id="pyfocus-p3"></span><img alt="Individual line focus curves" class="with-shadow" src="_images/pyfocus.page3_example.svg" /><figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">– Example of page 3 of the output PDF, individual line focus curves.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="usage">
+<span id="dfocus-usage"></span><h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
+<p>The script usage can be displayed by calling the script with the
+<code class="docutils literal notranslate"><span class="pre">-h</span></code> option:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dfocus<span class="w"> </span>-h
+<span class="go">usage: dfocus [-h] [--flog FLOG] [--thresh THRESH] [--nodisplay]</span>
+
+<span class="go">DeVeny Collimator Focus Calculator</span>
+
+<span class="go">options:</span>
+<span class="go">  -h, --help       show this help message and exit</span>
+<span class="go">  --flog FLOG      focus log to use (default: last)</span>
+<span class="go">  --thresh THRESH  threshold for line detection (default: 100.0)</span>
+<span class="go">  --nodisplay      DO NOT launch Preview.app to display plots (default: False)</span>
+</pre></div>
+</div>
+<p>This command-line tool must be invoked from the <code class="docutils literal notranslate"><span class="pre">/deveny/&lt;UTDATE&gt;/focus</span></code>
+directory on the observer machine (<code class="docutils literal notranslate"><span class="pre">dct-obs1</span></code> / <code class="docutils literal notranslate"><span class="pre">dct-obs2</span></code>) so that it can
+find the focus index files created by the DeVeny LOUI.  To run the tool on the
+most recent focus sequence taken, simply run the routine with no options.</p>
+<p>If more than one focus sequence was taken, the tool can analyze a particular
+sequence by using the <code class="docutils literal notranslate"><span class="pre">--flog</span></code> optional input, where the file log has the
+form <code class="docutils literal notranslate"><span class="pre">deveny_focus.&lt;UTDATE&gt;.&lt;UTTIME&gt;</span></code>.  For instance, to produce the plots in
+<a class="reference internal" href="#pyfocus-p1"><span class="std std-numref">Fig. 5</span></a> - <a class="reference internal" href="#pyfocus-p3"><span class="std std-numref">Fig. 7</span></a>, you would:</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/deveny/20210520/focus
+<span class="gp">$ </span>dfocus<span class="w"> </span>--flog<span class="w"> </span>deveny_focus.20210520.040659
+</pre></div>
+</div>
+</div></blockquote>
+<p>If you want to increase the threshold for detected lines above the default
+100 DN over background (to decrease the number of lines detected), use
+the <code class="docutils literal notranslate"><span class="pre">--thresh</span></code> optional input.</p>
+<p>By default, the tool tries to launch Apple’s Preview App (the observer machines
+at LDT are iMacs) to display the plots shown in <a class="reference internal" href="#pyfocus-p1"><span class="std std-numref">Fig. 5</span></a> -
+<a class="reference internal" href="#pyfocus-p3"><span class="std std-numref">Fig. 7</span></a>.  If running on macOS, and you desire to <strong>not</strong> display
+the plots, use the <code class="docutils literal notranslate"><span class="pre">--nodisplay</span></code> option.  If this tool is being run on a
+different operating system, it will simply bypass this step.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

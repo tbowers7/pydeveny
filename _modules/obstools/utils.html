@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.utils &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">LDTObserverTools API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../obstools.html">obstools</a></li>
+      <li class="breadcrumb-item active">obstools.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for obstools.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1">#  This file is part of LDTObserverTools.</span>
+<span class="c1">#</span>
+<span class="c1">#   This Source Code Form is subject to the terms of the Mozilla Public</span>
+<span class="c1">#   License, v. 2.0. If a copy of the MPL was not distributed with this</span>
+<span class="c1">#   file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
+<span class="c1">#</span>
+<span class="c1">#  Created on 01-Feb-2021</span>
+<span class="c1">#</span>
+<span class="c1">#  @author: tbowers</span>
+
+<span class="sd">&quot;&quot;&quot;Utility Module</span>
+
+<span class="sd">LDTObserverTools contains python ports of the various DeVeny IDL routines</span>
+
+<span class="sd">Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)</span>
+<span class="sd">https://lowell.edu</span>
+
+<span class="sd">This file contains various utility functions needed by other routines in this</span>
+<span class="sd">package.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Built-In Libraries</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># 3rd-Party Libraries</span>
+<span class="kn">import</span> <span class="nn">darkdetect</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+
+<span class="c1"># Local Libraries</span>
+<span class="kn">from</span> <span class="nn">obstools.version</span> <span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">__version__</span>
+
+<span class="c1"># CONSTANTS</span>
+<span class="n">CONFIG</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;obstools&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;config&quot;</span>
+<span class="n">DATA</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;obstools&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
+<span class="c1"># Modify SG theme based on system Light/Dark theme</span>
+<span class="n">SG_THEME</span> <span class="o">=</span> <span class="s2">&quot;dark gray 14&quot;</span> <span class="k">if</span> <span class="n">darkdetect</span><span class="o">.</span><span class="n">isDark</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;light grey 1&quot;</span>
+
+
+<div class="viewcode-block" id="all_subclasses"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.all_subclasses">[docs]</a><span class="k">def</span> <span class="nf">all_subclasses</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collect all the subclasses of the provided class.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        This function borrowed from PypeIt</span>
+
+<span class="sd">    The search follows the inheritance to the highest-level class.  Intermediate</span>
+<span class="sd">    base classes are included in the returned set, but not the base class itself.</span>
+
+<span class="sd">    Thanks to:</span>
+<span class="sd">    https://stackoverflow.com/questions/3862310/how-to-find-all-the-subclasses-of-a-class-given-its-name</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cls (object):</span>
+<span class="sd">            The base class</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :obj:`set`: The unique set of derived classes, including any</span>
+<span class="sd">        intermediate base classes in the inheritance thread.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">())</span><span class="o">.</span><span class="n">union</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">all_subclasses</span><span class="p">(</span><span class="n">c</span><span class="p">)]</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_float"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.check_float">[docs]</a><span class="k">def</span> <span class="nf">check_float</span><span class="p">(</span><span class="n">potential_float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple funtion to check whether something is a float</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    potential_float : :obj:`~typing.Any`</span>
+<span class="sd">        Value to check for float</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`bool`</span>
+<span class="sd">        Whether it am or it ain&#39;t a :obj:`float`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">potential_float</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="first_moment_1d"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.first_moment_1d">[docs]</a><span class="k">def</span> <span class="nf">first_moment_1d</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the 1st moment of line</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    line : :obj:`~numpy.ndarray`</span>
+<span class="sd">        1-dimensional array to find the 1st moment of</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`float`</span>
+<span class="sd">        The first moment of the input array relative to element #</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Only use positive values -- set negative values to zero</span>
+    <span class="n">line</span><span class="p">[</span><span class="n">line</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Make the counting array</span>
+    <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+
+    <span class="c1"># Return the first moment</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">yy</span> <span class="o">*</span> <span class="n">line</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="flatten_comprehension"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.flatten_comprehension">[docs]</a><span class="k">def</span> <span class="nf">flatten_comprehension</span><span class="p">(</span><span class="n">nested_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flatten a single-depth nested list via list comprehension</span>
+
+<span class="sd">    https://realpython.com/python-flatten-list/</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nested_list : :obj:`list`</span>
+<span class="sd">        The single-depth nested list to flatten</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`list`</span>
+<span class="sd">        The flattened list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">nested_list</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="gaussfit"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.gaussfit">[docs]</a><span class="k">def</span> <span class="nf">gaussfit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nterms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">estimates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function similar to IDL&#39;s GAUSSFIT</span>
+
+<span class="sd">    Big caveat: as implemented, can only estimate the initial parameters for</span>
+<span class="sd">    POSITIVE gaussians (emission), and cannot correctly estimate parameters</span>
+<span class="sd">    for negative (absorption) gaussians.  The function will still happily fit</span>
+<span class="sd">    a negative gaussian if given the proper estimates.</span>
+
+<span class="sd">    Utilizes :func:`scipy.optimize.curve_fit` and the helper function</span>
+<span class="sd">    :func:`gaussian_function` below.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Input abscissa values for the fitting</span>
+<span class="sd">    y : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Input ordinate values for the fitting</span>
+<span class="sd">    nterms : :obj:`int`, optional</span>
+<span class="sd">        Number of terms to use in the Gaussian fit (Default: 3)</span>
+<span class="sd">    estimates : :obj:`~numpy.ndarray`, optional</span>
+<span class="sd">        Estimated values for the ``nterms`` parameters</span>
+<span class="sd">        (see :func:`~scipy.optimize.curve_fit`; Default: None)</span>
+<span class="sd">    bounds : :obj:`~numpy.ndarray`, optional</span>
+<span class="sd">        Bounds on the ``nterms`` parameters</span>
+<span class="sd">        (see :func:`~scipy.optimize.curve_fit`; Default: None)</span>
+<span class="sd">    debug : :obj:`bool`, optional</span>
+<span class="sd">        Print debugging statements.  (Defualt: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    popt : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Optimal values for the parameters (see :func:`~scipy.optimize.curve_fit`)</span>
+
+<span class="sd">    pcov : :obj:`~numpy.ndarray`</span>
+<span class="sd">        The estimated covariance of ``popt`` (see :func:`~scipy.optimize.curve_fit`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">nterms</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">nterms</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nterms</span><span class="si">}</span><span class="s2"> is an invalid number of terms.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="n">nterms</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bounds array must contain NTERMS elements.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># This block is for estimating the parameters if none given.</span>
+    <span class="k">if</span> <span class="n">estimates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Subtract a linear term if nterm == 5 or 6 or constant for nterm == 4</span>
+        <span class="k">if</span> <span class="n">nterms</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">Polynomial</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">nterms</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">y_modified</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">poly</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># Do nothing if nterm == 3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_modified</span> <span class="o">=</span> <span class="n">y</span>
+
+        <span class="c1"># Find the estimates of a0, a1, a2:</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">a0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y_modified</span><span class="p">)</span>
+        <span class="n">a1</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">first_moment_1d</span><span class="p">(</span><span class="n">y_modified</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
+        <span class="c1"># Use points where value &gt; (1/e)*max to estimate width</span>
+        <span class="n">s_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y_modified</span> <span class="o">&gt;</span> <span class="n">a0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">s_idx</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">s_idx</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estimated values: a0=</span><span class="si">{</span><span class="n">a0</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">  a1=</span><span class="si">{</span><span class="n">a1</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">  a2=</span><span class="si">{</span><span class="n">a2</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Construct the estimates list</span>
+        <span class="n">estimates</span> <span class="o">=</span> <span class="p">[</span><span class="n">a0</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">]</span>
+
+        <span class="c1"># Check estimate against bounds</span>
+        <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">est</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">estimates</span><span class="p">):</span>
+                <span class="n">est</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">est</span> <span class="o">&lt;</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="n">est</span>
+                <span class="n">est</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">est</span> <span class="o">&gt;</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="n">est</span>
+                <span class="n">estimates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">est</span>
+
+        <span class="k">if</span> <span class="n">nterms</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">estimates</span> <span class="o">=</span> <span class="n">estimates</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">coef</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nterms</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="n">estimates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="c1"># Else, make sure the number of estimate values equals nterms</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">estimates</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nterms</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Estimate array must contain NTERMS elements.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">nterms</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">nterms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span>
+        <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+
+    <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">curve_fit</span><span class="p">(</span>
+        <span class="n">gaussian_function</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">estimates</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">1e-6</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estimated/Fit Width: </span><span class="si">{</span><span class="n">a2</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">popt</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span></div>
+
+
+<div class="viewcode-block" id="gaussian_function"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.gaussian_function">[docs]</a><span class="k">def</span> <span class="nf">gaussian_function</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">a0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">a1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">a2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">a3</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">a4</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">a5</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gaussian Function</span>
+
+<span class="sd">    Construct a basic Gaussian using at least 3, but up to 6 parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : :obj:`~numpy.ndarray`</span>
+<span class="sd">        X values over which to compute the gaussian</span>
+<span class="sd">    a0 : :obj:`float`</span>
+<span class="sd">        Gaussian amplitude</span>
+<span class="sd">    a1 : :obj:`float`</span>
+<span class="sd">        Gaussian mean (mu)</span>
+<span class="sd">    a2 : :obj:`float`</span>
+<span class="sd">        Gaussian width (sigma)</span>
+<span class="sd">    a3 : :obj:`float`, optional</span>
+<span class="sd">        Baseline atop which the Gaussian sits.  (Default: 0)</span>
+<span class="sd">    a4 : :obj:`float`, optional</span>
+<span class="sd">        Slope of the baseline atop which the Gaussian sits.  (Default: 0)</span>
+<span class="sd">    a5 : :obj:`float`, optional</span>
+<span class="sd">        Quadratic term of the baseline atop which the Gaussian sits.</span>
+<span class="sd">        (Default: 0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`~numpy.ndarray`</span>
+<span class="sd">        The Y values of the Gaussian corresponding to X</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Silence RuntimeWarning for overflow, this function only</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">a1</span><span class="p">)</span> <span class="o">/</span> <span class="n">a2</span>
+
+    <span class="k">return</span> <span class="n">a0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">+</span> <span class="n">a3</span> <span class="o">+</span> <span class="n">a4</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a5</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="good_poly"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.good_poly">[docs]</a><span class="k">def</span> <span class="nf">good_poly</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">return_full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Robust fitting of a polynomial to data</span>
+
+<span class="sd">    This is a python port of an IDL routine written years ago by M. Buie.</span>
+
+<span class="sd">    This is a multi-pass fitting routine that fits a fixed order polynomial</span>
+<span class="sd">    to the input data.  After each pass, the scatter of the fit relative</span>
+<span class="sd">    to the fitted line is computed.  Each point is examined to see if it</span>
+<span class="sd">    falls beyond THRESH sigma from the line.  If is does, it is removed</span>
+<span class="sd">    from the data and the fit is tried again.  This will make up to two</span>
+<span class="sd">    attempts to remove bad data.</span>
+
+<span class="sd">    Written in IDL 1991-1998, Marc W. Buie, Lowell Observatory</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Input dataset, independant values.</span>
+<span class="sd">    y : :obj:`~numpy.ndarray`</span>
+<span class="sd">        Input dataset, dependant values.</span>
+<span class="sd">    order : :obj:`int`</span>
+<span class="sd">        Order of the polynomial fit (linear = 1).</span>
+<span class="sd">    thresh : :obj:`float`</span>
+<span class="sd">        Sigma threshold for removing outliers.</span>
+<span class="sd">    return_full : :obj:`bool`, optional</span>
+<span class="sd">        If True, also return:</span>
+<span class="sd">            yfit : Fitted values for y that match the input vector.</span>
+<span class="sd">            newx : X values from input that were considered good.</span>
+<span class="sd">            newy : Y values from input that were considered good.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`~numpy.ndarray`</span>
+<span class="sd">        Array of fit parameters, as in :func:`numpy.polyfit`.</span>
+<span class="sd">    Also, optionally, the ``return_full`` bits</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make copies to not mess up the inputs</span>
+    <span class="n">xx</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="n">yy</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="c1"># Filter out NaNs</span>
+    <span class="k">if</span> <span class="kc">False</span> <span class="ow">in</span> <span class="p">(</span><span class="n">good_idx</span> <span class="o">:=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">))):</span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">xx</span><span class="p">[</span><span class="n">good_idx</span><span class="p">]</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="n">yy</span><span class="p">[</span><span class="n">good_idx</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">array_length</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xx</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">warn_and_return_zeros</span><span class="p">(</span><span class="n">return_full</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+
+    <span class="c1"># Check for fewer data points than the requested polynomial order</span>
+    <span class="k">if</span> <span class="n">array_length</span> <span class="o">&lt;</span> <span class="n">order</span><span class="p">:</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">array_length</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span>
+            <span class="n">coeff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coeff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">yy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">yy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">sigma</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">sigma</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Not enough data to support even a non-robust polynomial fit.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_full</span><span class="p">:</span>
+            <span class="n">yfit</span> <span class="o">=</span> <span class="p">[</span><span class="n">coeff</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">yfit</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span>
+        <span class="k">return</span> <span class="n">coeff</span>
+
+    <span class="c1"># Initial fit with all the data.</span>
+    <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+    <span class="n">yfit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">coeff</span><span class="p">,</span> <span class="n">xx</span><span class="p">)</span>
+    <span class="n">flat</span> <span class="o">=</span> <span class="p">(</span><span class="n">yy</span> <span class="o">-</span> <span class="n">yfit</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">yfit</span><span class="p">)</span> <span class="o">/</span> <span class="n">array_length</span>
+    <span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">flat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">flat</span><span class="p">)</span>
+
+    <span class="c1"># Remove all points beyond threshold sigma</span>
+    <span class="n">good</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">flat</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">thresh</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="n">nbad</span> <span class="o">=</span> <span class="n">array_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">good</span><span class="p">)</span>
+    <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">xx</span><span class="p">[</span><span class="n">good</span><span class="p">],</span> <span class="n">yy</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">array_length</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xx</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">warn_and_return_zeros</span><span class="p">(</span><span class="n">return_full</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+
+    <span class="c1"># Do a second pass if there were any bad points removed</span>
+    <span class="k">if</span> <span class="n">nbad</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+        <span class="n">yfit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">coeff</span><span class="p">,</span> <span class="n">xx</span><span class="p">)</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="p">(</span><span class="n">yy</span> <span class="o">-</span> <span class="n">yfit</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">yfit</span><span class="p">)</span> <span class="o">/</span> <span class="n">array_length</span>
+        <span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">flat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">flat</span><span class="p">)</span>
+
+        <span class="c1"># Remove all points beyond threshold sigma</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">flat</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">thresh</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">)</span>
+        <span class="n">nbad</span> <span class="o">=</span> <span class="n">array_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">good</span><span class="p">)</span>
+        <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">xx</span><span class="p">[</span><span class="n">good</span><span class="p">],</span> <span class="n">yy</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">array_length</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xx</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">warn_and_return_zeros</span><span class="p">(</span><span class="n">return_full</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+
+    <span class="c1"># Do a third pass if there were any more bad points removed</span>
+    <span class="k">if</span> <span class="n">nbad</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+        <span class="n">yfit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">coeff</span><span class="p">,</span> <span class="n">xx</span><span class="p">)</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="p">(</span><span class="n">yy</span> <span class="o">-</span> <span class="n">yfit</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">yfit</span><span class="p">)</span> <span class="o">/</span> <span class="n">array_length</span>
+        <span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">flat</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">flat</span><span class="p">)</span>
+
+    <span class="c1"># Check that the fit coefficients are finite:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">coeff</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">warn_and_return_zeros</span><span class="p">(</span><span class="n">return_full</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_full</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">yfit</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span>
+    <span class="k">return</span> <span class="n">coeff</span></div>
+
+
+<div class="viewcode-block" id="nearest_odd"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.nearest_odd">[docs]</a><span class="k">def</span> <span class="nf">nearest_odd</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the nearest odd integer</span>
+
+<span class="sd">    https://www.mathworks.com/matlabcentral/answers/45932-round-to-nearest-odd-integer#accepted_answer_56149</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : :obj:`float`</span>
+<span class="sd">        Input number</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`int`</span>
+<span class="sd">        The nearest odd integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_std_tickparams"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.set_std_tickparams">[docs]</a><span class="k">def</span> <span class="nf">set_std_tickparams</span><span class="p">(</span><span class="n">axis</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="n">tsz</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set standard tick parameters for a plot</span>
+
+<span class="sd">    These are my own &quot;standards&quot;, based on plots I used to make in IDL.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    axis : :obj:`~matplotlib.pyplot.axis`</span>
+<span class="sd">        PyPlot axis for whom the tick parameters must be set</span>
+<span class="sd">    tsz : :obj:`int` or :obj:`float`</span>
+<span class="sd">        TypeSiZe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
+        <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">labelsize</span><span class="o">=</span><span class="n">tsz</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="sinusoid"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.sinusoid">[docs]</a><span class="k">def</span> <span class="nf">sinusoid</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lam</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">y0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">lin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">quad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">cube</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">quar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a basic sinusoid (for use with :func:`scipy.optimize.curve_fit`)</span>
+
+<span class="sd">    _extended_summary_</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : :obj:`~numpy.ndarray`</span>
+<span class="sd">        The abscissa values for which to return the ordinate</span>
+<span class="sd">    a : :obj:`float`</span>
+<span class="sd">        The amplitude of the sinusoid (in units of ordinate)</span>
+<span class="sd">    lam : :obj:`float`</span>
+<span class="sd">        The wavelength of the sinusoid (in units of abscissa), equivalent to</span>
+<span class="sd">        `2π/k` (where `k` is the wavenumber).</span>
+<span class="sd">    phi : :obj:`float`</span>
+<span class="sd">        The phase shift of the sinusoid (in units of phase, nominally 0-1)</span>
+<span class="sd">    y0 : :obj:`float`, optional</span>
+<span class="sd">        The vertical offset of the sinusoid from zero (in units of ordinate)</span>
+<span class="sd">        (Default: 0)</span>
+<span class="sd">    lin : :obj:`float`, optional</span>
+<span class="sd">        The linear term added to the fit (in units of ordinate/abscissa)</span>
+<span class="sd">        (Default: 0)</span>
+<span class="sd">    quad : :obj:`float`, optional</span>
+<span class="sd">        The quadratic term added to the fit (in units of ordinate/abscissa**2)</span>
+<span class="sd">        (Default: 0)</span>
+<span class="sd">    cube : :obj:`float`, optional</span>
+<span class="sd">        The cubic term added to the fit (in units of ordinate/abscissa**3)</span>
+<span class="sd">        (Default: 0)</span>
+<span class="sd">    quar : :obj:`float`, optional</span>
+<span class="sd">        The quartic term added to the fit (in units of ordinate/abscissa**4)</span>
+<span class="sd">        (Default: 0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`~numpy.ndarray`</span>
+<span class="sd">        The sinusoid ordinate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span> <span class="o">/</span> <span class="n">lam</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">phi</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">y0</span>
+        <span class="o">+</span> <span class="n">lin</span> <span class="o">*</span> <span class="n">x</span>
+        <span class="o">+</span> <span class="n">quad</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+        <span class="o">+</span> <span class="n">cube</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span>
+        <span class="o">+</span> <span class="n">quar</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="warn_and_return_zeros"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.warn_and_return_zeros">[docs]</a><span class="k">def</span> <span class="nf">warn_and_return_zeros</span><span class="p">(</span><span class="n">return_full</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">raise_warn</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set warning and return zeroes from :func:`good_poly`</span>
+
+<span class="sd">    This function is a DRY.  Since this block is used several times in</span>
+<span class="sd">    :func:`good_poly`, separate out as a function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    return_full : :obj:`bool`</span>
+<span class="sd">        Return a bunch of stuff</span>
+<span class="sd">    x :  :obj:`~numpy.ndarray`</span>
+<span class="sd">        [description]</span>
+<span class="sd">    xx :  :obj:`~numpy.ndarray`</span>
+<span class="sd">        [description]</span>
+<span class="sd">    yy :  :obj:`~numpy.ndarray`</span>
+<span class="sd">        [description]</span>
+<span class="sd">    order : :obj:`int`</span>
+<span class="sd">        The order of the polynomial fit</span>
+<span class="sd">    raise_warn : :obj:`bool`, optional</span>
+<span class="sd">        Actually raise the warning this function is meant to  [Default: False]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`~numpy.ndarray`</span>
+<span class="sd">        An array of zeros of the proper length</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">raise_warn</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No good values to fit, return zeros.&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_full</span><span class="p">:</span>
+        <span class="n">yfit</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">yfit</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ScriptBase"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.ScriptBase">[docs]</a><span class="k">class</span> <span class="nc">ScriptBase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides a base class for all scripts.</span>
+
+<span class="sd">    Implements base classes for use with ``PypeIt`` scripts.</span>
+
+<span class="sd">    .. include common links, assuming primary doc root is up one directory</span>
+<span class="sd">    .. include:: ../include/links.rst</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ScriptBase.entry_point"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.ScriptBase.entry_point">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">entry_point</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defines the main script entry point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  LDT Observer Tools (obstools) version </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">))</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Provide the name of the script.  By default, this is the name of the</span>
+<span class="sd">        module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="ScriptBase.parse_args"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.ScriptBase.parse_args">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the command-line arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_parser</span><span class="p">()</span>
+        <span class="n">ScriptBase</span><span class="o">.</span><span class="n">_fill_parser_cwd</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+        <span class="c1"># Add &quot;--version&quot; to bottom of all scripts</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print version and exit&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span> <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">options</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ScriptBase._fill_parser_cwd"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.ScriptBase._fill_parser_cwd">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_fill_parser_cwd</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the default of any action that is exactly ``&#39;current working</span>
+<span class="sd">        directory&#39;`` with the value of ``os.getcwd()``.</span>
+
+<span class="sd">        The ``parser`` is edited *in place*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parser (:obj:`~argparse.ArgumentParser`):</span>
+<span class="sd">                The argument parsing object to edit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">_actions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;current working directory&quot;</span><span class="p">:</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span></div>
+
+    <span class="c1"># Base classes should override this</span>
+<div class="viewcode-block" id="ScriptBase.main"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.ScriptBase.main">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the script.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="ScriptBase.get_parser"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.ScriptBase.get_parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">formatter</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct the command-line argument parser.</span>
+
+<span class="sd">        Derived classes should override this.  Ideally they should use this</span>
+<span class="sd">        base-class method to instantiate the ArgumentParser object and then fill</span>
+<span class="sd">        in the relevant parser arguments</span>
+
+<span class="sd">        .. warning::</span>
+
+<span class="sd">            *Any* argument that defaults to the</span>
+<span class="sd">            string ``&#39;current working directory&#39;`` will be replaced by the</span>
+<span class="sd">            result of ``os.getcwd()`` when the script is executed.  This means</span>
+<span class="sd">            help dialogs will include this replacement, and parsing of the</span>
+<span class="sd">            command line will use ``os.getcwd()`` as the default.  This</span>
+<span class="sd">            functionality is largely to allow for PypeIt&#39;s automated</span>
+<span class="sd">            documentation of script help dialogs without the &quot;current working&quot;</span>
+<span class="sd">            directory being that of the developer that most recently compiled</span>
+<span class="sd">            the docs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            description (:obj:`str`, optional):</span>
+<span class="sd">                A short description of the purpose of the script.</span>
+<span class="sd">            width (:obj:`int`, optional):</span>
+<span class="sd">                Restrict the width of the formatted help output to be no longer</span>
+<span class="sd">                than this number of characters, if possible given the help</span>
+<span class="sd">                formatter.  If None, the width is the same as the terminal</span>
+<span class="sd">                width.</span>
+<span class="sd">            formatter (:obj:`~argparse.HelpFormatter`):</span>
+<span class="sd">                Class used to format the help output.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :obj:`~argparse.ArgumentParser`: Command-line interpreter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">formatter_class</span><span class="o">=</span><span class="k">lambda</span> <span class="n">prog</span><span class="p">:</span> <span class="n">formatter</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">),</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SmartFormatter"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.SmartFormatter">[docs]</a><span class="k">class</span> <span class="nc">SmartFormatter</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">HelpFormatter</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable a combination of both fixed-format and wrappable lines to be</span>
+<span class="sd">    formatted for the help statements for command-line arguments used with</span>
+<span class="sd">    :class:`~argparse.ArgumentParser`.</span>
+
+<span class="sd">    Borrows from</span>
+<span class="sd">    https://stackoverflow.com/questions/3853722/python-argparse-how-to-insert-newline-in-the-help-text</span>
+
+<span class="sd">    Help strings that use this formatter *must* begin with &quot;R|&quot;.  If not, the</span>
+<span class="sd">    help string is parsed by the base class.</span>
+
+<span class="sd">    When parsed by this formatter, the leading &quot;R|&quot; characters are stripped and</span>
+<span class="sd">    the lines to be printed are parsed using :func:`~str.splitlines`.  Each resulting</span>
+<span class="sd">    line is wrapped using :func:`~textwrap.wrap`, unless it begins with the characters</span>
+<span class="sd">    &quot;F|&quot;, which forces the line to remain unaltered (except for stripping the</span>
+<span class="sd">    leading characters).</span>
+
+<span class="sd">    For example, if you add an argument like this:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        parser.add_argument(&#39;-t&#39;, &#39;--tell_file&#39;, type=str,</span>
+<span class="sd">                            help=&#39;R|Configuration file to change default telluric parameters.  &#39;</span>
+<span class="sd">                                 &#39;Note that the parameters in this file will be overwritten if &#39;</span>
+<span class="sd">                                 &#39;you set argument in your terminal.  The --tell_file option &#39;</span>
+<span class="sd">                                 &#39;requires a .tell file with the following format:\n&#39;</span>
+<span class="sd">                                 &#39;\n&#39;</span>
+<span class="sd">                                 &#39;F|    [tellfit]\n&#39;</span>
+<span class="sd">                                 &#39;F|         objmodel = qso\n&#39;</span>
+<span class="sd">                                 &#39;F|         redshift = 7.6\n&#39;</span>
+<span class="sd">                                 &#39;F|         bal_wv_min_max = 10825,12060\n&#39;</span>
+<span class="sd">                                 &#39;OR\n&#39;</span>
+<span class="sd">                                 &#39;F|    [tellfit]\n&#39;</span>
+<span class="sd">                                 &#39;F|         objmodel = star\n&#39;</span>
+<span class="sd">                                 &#39;F|         star_type = A0\n&#39;</span>
+<span class="sd">                                 &#39;F|         star_mag = 8.\n&#39;</span>
+<span class="sd">                                 &#39;OR\n&#39;</span>
+<span class="sd">                                 &#39;F|    [tellfit]\n&#39;</span>
+<span class="sd">                                 &#39;F|         objmodel = poly\n&#39;</span>
+<span class="sd">                                 &#39;F|         polyorder = 3\n&#39;</span>
+<span class="sd">                                 &#39;F|         fit_wv_min_max = 9000.,9500.\n&#39;</span>
+<span class="sd">                                 &#39;\n&#39;)</span>
+
+<span class="sd">    The result will be (depending on the width of your console):</span>
+
+<span class="sd">    .. code-block:: console</span>
+
+<span class="sd">        -t TELL_FILE, --tell_file TELL_FILE</span>
+<span class="sd">                          Configuration file to change default telluric</span>
+<span class="sd">                          parameters.  Note that the parameters in this file</span>
+<span class="sd">                          will be overwritten if you set argument in your</span>
+<span class="sd">                          terminal.  The --tell_file option requires a .tell</span>
+<span class="sd">                          file with the following format:</span>
+
+<span class="sd">                              [tellfit]</span>
+<span class="sd">                                   objmodel = qso</span>
+<span class="sd">                                   redshift = 7.6</span>
+<span class="sd">                                   bal_wv_min_max = 10825,12060</span>
+<span class="sd">                          OR</span>
+<span class="sd">                              [tellfit]</span>
+<span class="sd">                                   objmodel = star</span>
+<span class="sd">                                   star_type = A0</span>
+<span class="sd">                                   star_mag = 8.</span>
+<span class="sd">                          OR</span>
+<span class="sd">                              [tellfit]</span>
+<span class="sd">                                   objmodel = poly</span>
+<span class="sd">                                   polyorder = 3</span>
+<span class="sd">                                   fit_wv_min_max = 9000.,9500.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SmartFormatter._split_lines"><a class="viewcode-back" href="../../api/obstools.utils.html#obstools.utils.SmartFormatter._split_lines">[docs]</a>    <span class="k">def</span> <span class="nf">_split_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split the provided text into width constrained lines.</span>
+
+<span class="sd">        See the class description for formatting instructions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;R|&quot;</span><span class="p">):</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;F|&quot;</span><span class="p">):</span>
+                    <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">:]]</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="nb">list</span><span class="o">.</span><span class="fm">__add__</span><span class="p">,</span> <span class="n">lines</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_split_lines</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

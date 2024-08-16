@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obstools.neocp_ephem module &mdash; LDT Observer Tools 2023 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="obstools.scrub_deveny_pickup module" href="obstools.scrub_deveny_pickup.html" />
+    <link rel="prev" title="obstools.lmi_etc module" href="obstools.lmi_etc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/obstools_logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.6.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">LMI Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../lmi_etc.html">Exposure Time Calculator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DeVeny Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_grangle.html">Grating Angle Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deveny_collfocus.html">Collimator Focus Sequence Estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dfocus.html">Collimator Focus Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scrub_deveny_pickup.html">Pickup Noise Scrubber</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">General LDT Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../fix_ldt_header.html">Simple FITS Header Fixer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../neocp_ephem.html">NEO CP Ephemeris Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input_validator.html">Input List Validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../observer_target.html">Observer Target List Tool</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">For developers</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">LDTObserverTools API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="obstools.html">obstools package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="obstools.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="obstools.broker_listener.html">obstools.broker_listener module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.celestial_time.html">obstools.celestial_time module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_collfocus.html">obstools.deveny_collfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.deveny_grangle.html">obstools.deveny_grangle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.dfocus.html">obstools.dfocus module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.fix_ldt_header.html">obstools.fix_ldt_header module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.lmi_etc.html">obstools.lmi_etc module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">obstools.neocp_ephem module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.scrub_deveny_pickup.html">obstools.scrub_deveny_pickup module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obstools.utils.html">obstools.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="obstools.html#module-obstools">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LDT Observer Tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">obstools</a></li>
+          <li class="breadcrumb-item"><a href="obstools.html">obstools package</a></li>
+      <li class="breadcrumb-item active">obstools.neocp_ephem module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/obstools.neocp_ephem.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-obstools.neocp_ephem">
+<span id="obstools-neocp-ephem-module"></span><h1>obstools.neocp_ephem module<a class="headerlink" href="#module-obstools.neocp_ephem" title="Permalink to this heading"></a></h1>
+<p>NEO Confirmation Page Object Ephemeris Generator Module</p>
+<p>LDTObserverTools contains python ports of various LDT Observer Tools</p>
+<p>Lowell Discovery Telescope (Lowell Observatory: Flagstaff, AZ)
+<a class="reference external" href="https://lowell.edu">https://lowell.edu</a></p>
+<p>This file contains a tool for querying the JPL Scout database for short-shelf-
+life NEOs that have not yet been assigned a Horizons identifier and turning the
+returned ephemeris into a file that can be ingested into the LDT TCS for
+observations.</p>
+<dl class="simple">
+<dt>The NEOCP (NEO Confirmation Page at the Minor Planet Center):</dt><dd><p><a class="reference external" href="https://www.minorplanetcenter.net/iau/NEO/toconfirm_tabular.html">https://www.minorplanetcenter.net/iau/NEO/toconfirm_tabular.html</a></p>
+</dd>
+<dt>The JPL Scout API Definition:</dt><dd><p><a class="reference external" href="https://ssd-api.jpl.nasa.gov/doc/scout.html">https://ssd-api.jpl.nasa.gov/doc/scout.html</a></p>
+</dd>
+</dl>
+<p>The result from a query of JPL Scout is a dictionary with the following
+structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">count</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>         <span class="c1"># Number of ephemeris time points</span>
+<span class="nb">object</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">dict</span><span class="o">&gt;</span>       <span class="c1"># Various information about the object</span>
+<span class="n">signature</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">dict</span><span class="o">&gt;</span>    <span class="c1"># Signature of JPL Scout, including the version #</span>
+<span class="n">eph</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">list</span><span class="o">&gt;</span>          <span class="c1"># The list of ephemeris points</span>
+<span class="n">data</span><span class="o">-</span><span class="n">fields</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">list</span><span class="o">&gt;</span>  <span class="c1"># List of the data field names for each time point / orbit</span>
+<span class="n">orbit</span><span class="o">-</span><span class="n">count</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>   <span class="c1"># The number of Monte Carlo orbits used to compute medians</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">eph</span></code> member is a list of <code class="docutils literal notranslate"><span class="pre">count</span></code> ephermeris time points.  Each point
+is a dictionary with the following structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sigma</span><span class="o">-</span><span class="n">pos</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>     <span class="c1"># The 1-sigma plane-of-sky uncertainty (arcmin)</span>
+<span class="n">limits</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">dict</span><span class="o">&gt;</span>       <span class="c1"># Minimum / Maximum results from the Monte Carlo orbits</span>
+<span class="n">time</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>          <span class="c1"># Time for this ephemeris position</span>
+<span class="n">data</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">list</span><span class="o">&gt;</span>         <span class="c1"># List of the ``orbit-count`` individual Monte Carlo vals</span>
+<span class="n">sun</span><span class="o">-</span><span class="n">flag</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>      <span class="c1"># Flag of where the sun is (null, a, n, c, *)</span>
+<span class="n">median</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">dict</span><span class="o">&gt;</span>       <span class="c1"># Medial results from the Monte Carlo orbits</span>
+<span class="n">sigma</span><span class="o">-</span><span class="n">limits</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">dict</span><span class="o">&gt;</span> <span class="c1"># The 1-sigma minimum/maximum results</span>
+</pre></div>
+</div>
+<p>It is likely that the pieces of this that we really need are the median values
+for each timestamp to convert into something the LDT TCS can ingest.  The
+format of this dictionary is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ra</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>        <span class="c1"># J2000 RA (degrees)</span>
+<span class="n">dec</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>       <span class="c1"># J2000 Dec (degrees)</span>
+<span class="n">dra</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>       <span class="c1"># Change in RA (arcsec/min)  (accounts for cos(Dec) factor)</span>
+<span class="n">ddec</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>      <span class="c1"># Change in Dec (arcsec/min)</span>
+<span class="n">rate</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>      <span class="c1"># Plane of sky motion (arcsec/min)</span>
+<span class="n">pa</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>        <span class="c1"># Position angle of motion (computed from dra/ddec)</span>
+<span class="n">vmag</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>      <span class="c1"># Visual magnitude</span>
+<span class="n">elong</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>     <span class="c1"># Solar elongation (degrees)</span>
+<span class="n">moon</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>      <span class="c1"># Lunar separation (degrees)</span>
+<span class="n">el</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>        <span class="c1"># Elevation above the local horizon</span>
+</pre></div>
+</div>
+<p>Assuming:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;https://ssd-api.jpl.nasa.gov/scout.api&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>then the pieces we need to be concerned about are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;eph&#39;</span><span class="p">]:</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+    <span class="n">coord</span> <span class="o">=</span> <span class="n">astropy</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">SkyCoord</span><span class="p">(</span>
+        <span class="n">point</span><span class="p">[</span><span class="s1">&#39;median&#39;</span><span class="p">][</span><span class="s1">&#39;ra&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="n">point</span><span class="p">[</span><span class="s1">&#39;median&#39;</span><span class="p">][</span><span class="s1">&#39;dec&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;fk5&#39;</span>
+    <span class="p">)</span>
+
+    <span class="o">&lt;</span><span class="n">write</span> <span class="n">appropriate</span> <span class="n">versions</span> <span class="n">to</span> <span class="n">the</span> <span class="n">output</span> <span class="n">file</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The output format for LDT TCS is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>yyyy mm dd hh mm ss αh αm αs.sss ±δd δm δs.ss
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This module is not yet functional!</p>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="obstools.neocp_ephem.NeocpEphem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">obstools.neocp_ephem.</span></span><span class="sig-name descname"><span class="pre">NeocpEphem</span></span><a class="reference internal" href="../_modules/obstools/neocp_ephem.html#NeocpEphem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.neocp_ephem.NeocpEphem" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="obstools.utils.html#obstools.utils.ScriptBase" title="obstools.utils.ScriptBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScriptBase</span></code></a></p>
+<p>Script class for <code class="docutils literal notranslate"><span class="pre">neocp_ephem</span></code> tool</p>
+<p>Script structure borrowed from <a class="reference external" href="https://pypeit.readthedocs.io/en/release/api/pypeit.scripts.scriptbase.html#pypeit.scripts.scriptbase.ScriptBase" title="(in PypeIt v1.16.1.dev69+gdb63cc02)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypeit.scripts.scriptbase.ScriptBase</span></code></a>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.neocp_ephem.NeocpEphem.get_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/neocp_ephem.html#NeocpEphem.get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.neocp_ephem.NeocpEphem.get_parser" title="Permalink to this definition"></a></dt>
+<dd><p>Construct the command-line argument parser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – A short description of the purpose of the script.</p></li>
+<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>, optional) – Restrict the width of the formatted help output to be no longer
+than this number of characters, if possible given the help
+formatter.  If None, the width is the same as the terminal
+width.</p></li>
+<li><p><strong>formatter</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">HelpFormatter</span></code>) – Class used to format the help output.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArgumentParser</span></code></a> – Command-line interpreter.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="obstools.neocp_ephem.NeocpEphem.main">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/neocp_ephem.html#NeocpEphem.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.neocp_ephem.NeocpEphem.main" title="Permalink to this definition"></a></dt>
+<dd><p>Main Driver</p>
+<p>Simple function that calls the main driver function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="obstools.neocp_ephem.neocp_ephem">
+<span class="sig-prename descclassname"><span class="pre">obstools.neocp_ephem.</span></span><span class="sig-name descname"><span class="pre">neocp_ephem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neocp_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obstools/neocp_ephem.html#neocp_ephem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#obstools.neocp_ephem.neocp_ephem" title="Permalink to this definition"></a></dt>
+<dd><p>NEO Confirmation Page Ephemeris Generator</p>
+<p>_extended_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>neocp_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code></a>) – The NEOCP ID for the object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Lowell Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
