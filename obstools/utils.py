@@ -46,6 +46,10 @@ DATA = resources.files("obstools") / "data"
 SG_THEME = "dark gray 14" if darkdetect.isDark() else "light grey 1"
 
 
+class ObstoolsError(Exception):
+    """Base error class for this package"""
+
+
 def all_subclasses(cls):
     """
     Collect all the subclasses of the provided class.
