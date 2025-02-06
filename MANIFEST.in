@@ -1,0 +1,13 @@
+
+# Remove directories
+prune .github
+prune doc
+
+# Remove file types
+global-exclude *.pyc *.o *.so *.DS_Store *.ipynb
+
+# Remove testing data
+recursive-exclude obstools/tests/files *.fits *.json *.pdf *.tar.gz
+
+# Remove individual files
+exclude .gitignore
