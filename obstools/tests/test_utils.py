@@ -14,8 +14,6 @@
 """Utility TEST Module
 """
 
-import numpy as np
-
 from obstools import utils
 
 

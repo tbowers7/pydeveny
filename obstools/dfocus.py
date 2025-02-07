@@ -45,7 +45,6 @@ from tqdm import tqdm
 # Local Libraries
 from obstools import deveny_grangle
 from obstools import utils
-from obstools.utils import ObstoolsError
 
 
 # User-facing Function =======================================================#
@@ -84,11 +83,10 @@ def dfocus(
     print("  DeVeny Collimator Focus Calculator")
 
     try:
-        # Get the Image File Collection for this focus run
-        focus_icl = parse_focus_log(path, flog)
-        # Initialize a dictionary to hold information from the headers
-        focus_dict = parse_focus_headers(focus_icl)
-    except ObstoolsError as err:
+        # Get the Image File Collection for this focus run and initialize a
+        #    dictionary to hold information from the headers
+        focus_dict = parse_focus_headers(focus_icl := parse_focus_log(path, flog))
+    except utils.ObstoolsError as err:
         # If errors, print error message and exit
         print(f"\n** {err} **\n")
         sys.exit(1)
@@ -98,12 +96,12 @@ def dfocus(
     print(f"\n Processing center focus image {mid_fn}...")
     mid_ccd = astropy.nddata.CCDData.read(mid_fn)
     try:
-        mid_2dspec = trim_deveny_image(mid_ccd)
+        mid_2dspec = ccdproc.trim_image(mid_ccd, mid_ccd.header["TRIMSEC"]).data
         mid_trace = centered_trace(mid_2dspec.data)
         mid_1dspec = extract_spectrum(mid_2dspec, mid_trace, window=11, thresh=thresh)
         # Find the lines in the extracted spectrum
         centers, _ = find_lines(mid_1dspec, thresh=thresh)
-    except ObstoolsError as err:
+    except utils.ObstoolsError as err:
         # If errors, print error message and exit
         print(f"\n** {err} **\n")
         sys.exit(1)
@@ -118,7 +116,7 @@ def dfocus(
     # Loop over the CCDs
     for ccd in focus_icl.ccds():
         # Trim and extract the spectrum
-        spec2d = trim_deveny_image(ccd)
+        spec2d = ccdproc.trim_image(ccd, ccd.header["TRIMSEC"]).data
         spec1d = extract_spectrum(spec2d, mid_trace, window=11)
 
         # Find FWHM of lines:
@@ -261,14 +259,17 @@ def parse_focus_log(path: pathlib.Path, flog: str) -> ccdproc.ImageFileCollectio
     if flog.lower() == "last":
         focfiles = sorted(path.glob("deveny_focus*"))
         try:
-            flog = focfiles[-1]
+            flog = pathlib.Path(focfiles[-1])
         except IndexError as err:
             # In the event of no focus files, raise exception
-            raise ObstoolsError(
+            raise utils.ObstoolsError(
                 "No successful focus run completed in this directory"
             ) from err
     else:
         flog = path / flog
+
+    if not flog.is_file():
+        raise utils.ObstoolsError("Specified focus run not in this directory")
 
     files = []
     with open(flog, "r", encoding="utf8") as file_object:
@@ -314,10 +315,9 @@ def parse_focus_headers(focus_icl: ccdproc.ImageFileCollection) -> dict:
     focus_0 = row["collfoc"]
     focus_1 = focus_icl.summary["collfoc"][-1]
     # Find the delta between focus values
-    try:
-        delta_focus = (focus_1 - focus_0) / (len(focus_icl.files) - 1)
-    except ZeroDivisionError as err:
-        raise ObstoolsError("No change in focus over this set of images") from err
+    delta_focus = (focus_1 - focus_0) / (len(focus_icl.files) - 1)
+    if delta_focus == 0:
+        raise utils.ObstoolsError("No change in focus over this set of images")
 
     # Examine the middle image
     mid_file = focus_icl.files[len(focus_icl.files) // 2]
@@ -344,39 +344,6 @@ def parse_focus_headers(focus_icl: ccdproc.ImageFileCollection) -> dict:
         "mnttemp": mnttemp,
         "binning": binning,
     }
-
-
-def trim_deveny_image(ccd: astropy.nddata.CCDData) -> np.ndarray:
-    """Trim a DeVeny Image
-
-    The IDL code from which this was ported contains a large amount of
-    vestigial code from previous versions of the DeVeny camera, including
-    instances where the CCD was read out using 2 amplifiers and required
-    special treatment in order to balance the two sides of the output image.
-
-    The code below consists of the lines of code that were actually running
-    using the keywords passed from current version of ``dfocus.pro``, and the
-    pieces of that code that are actually used.
-
-    Specifically, this routine trims off the 50 prescan and 50 postscan pixels,
-    as well as several rows off the top and bottom.  (Extracts rows ``[12:512]``)
-
-    Parameters
-    ----------
-    ccd : :obj:`~astropy.nddata.CCDData`
-        CCDData object to trim
-
-    Returns
-    -------
-    :obj:`~numpy.ndarray`
-        The trimmed CCD image
-    """
-    # Parameters for DeVeny (2015 Deep-Depletion Device):
-    nxpix, prepix = 2048, 50
-
-    # Trim the image (remove top and bottom rows) -- why this particular range?
-    # Trim off the 50 prepixels and the 50 postpixels; RETURN
-    return ccd.data[12:512, prepix : prepix + nxpix]
 
 
 def centered_trace(spec2d: np.ndarray) -> np.ndarray:
@@ -432,7 +399,7 @@ def extract_spectrum(
     # Spec out the shape, and create an empty array to hold the output spectra
     norders, n_x = traces.shape
     if norders != 1:
-        raise ObstoolsError("Cannot deal with multiple traces")
+        raise utils.ObstoolsError("Cannot deal with multiple traces")
     extracted_spectrum = np.empty(n_x, dtype=float)
 
     # Set extraction window size
@@ -456,6 +423,9 @@ def extract_spectrum(
             f"  Background level: {bkgd:.1f}"
             + f"   Detection threshold level: {bkgd+thresh:.1f}"
         )
+
+    # ??? Where do we actually subtract the background?????????
+
     return extracted_spectrum
 
 
@@ -464,7 +434,7 @@ def find_lines(
     thresh: float = 20.0,
     minsep: int = 11,
     verbose: bool = True,
-):
+) -> tuple[np.ndarray, np.ndarray]:
     """Automatically find and centroid lines in a 1-row image
 
     Uses :func:`scipy.signal.find_peaks` for this task
@@ -861,7 +831,8 @@ def find_lines_in_spectrum(
         List of line centers found in the image
     """
     # Get the trimmed image
-    spectrum, _ = trim_deveny_image(filename)
+    ccd = astropy.nddata.CCDData.read(filename)
+    spectrum = ccdproc.trim_image(ccd, ccd.header["TRIMSEC"]).data
 
     # Build the trace for spectrum extraction
     n_y, n_x = spectrum.shape
