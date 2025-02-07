@@ -97,7 +97,7 @@ def check_float(potential_float) -> bool:
         return False
 
 
-def first_moment_1d(line):
+def first_moment_1d(line: np.ndarray) -> float:
     """Returns the 1st moment of line
 
     Parameters
@@ -138,7 +138,14 @@ def flatten_comprehension(nested_list: list) -> list:
     return [item for row in nested_list for item in row]
 
 
-def gaussfit(x, y, nterms: int = 3, estimates=None, bounds=None, debug: bool = False):
+def gaussfit(
+    x: np.ndarray,
+    y: np.ndarray,
+    nterms: int = 3,
+    estimates: np.ndarray = None,
+    bounds: np.ndarray = None,
+    debug: bool = False,
+):
     """Function similar to IDL's GAUSSFIT
 
     Big caveat: as implemented, can only estimate the initial parameters for
@@ -245,7 +252,7 @@ def gaussian_function(
     a3: float = 0.0,
     a4: float = 0.0,
     a5: float = 0.0,
-):
+) -> np.ndarray:
     """Gaussian Function
 
     Construct a basic Gaussian using at least 3, but up to 6 parameters.
@@ -280,7 +287,9 @@ def gaussian_function(
     return a0 * np.exp(-(z**2) / 2.0) + a3 + a4 * x + a5 * x**2
 
 
-def good_poly(x, y, order, thresh, return_full=False):
+def good_poly(
+    x: np.ndarray, y: np.ndarray, order: int, thresh: float, return_full: bool = False
+):
     """Robust fitting of a polynomial to data
 
     This is a python port of an IDL routine written years ago by M. Buie.
@@ -293,6 +302,20 @@ def good_poly(x, y, order, thresh, return_full=False):
     attempts to remove bad data.
 
     Written in IDL 1991-1998, Marc W. Buie, Lowell Observatory
+
+    Modified: 2024-Feb-07, T. Ellsworth-Bowers, Lowell Observatory
+
+    .. note::
+
+        As of 2025-Feb-07 (``obstools v0.7``), this function is based on the
+        :mod:`numpy.polynomial` package rather than the older
+        :class:`numpy.poly1d` class (including :func:`numpy.polyfit`).
+        Operationally, this means the coefficients returned by this function
+        are in *reverse order* from previously, meaning they are in
+        *descending* order of power rathar than ascending.  For instance, a
+        polynomial of form :math:`y = ax^2 + bx + c` would have coefficients
+        returned in order ``[c, b, a]`` rather than the older
+        ``[a, b, c] = [c_2, c_1, c_0]``.
 
     Parameters
     ----------
@@ -313,78 +336,61 @@ def good_poly(x, y, order, thresh, return_full=False):
     Returns
     -------
     :obj:`~numpy.ndarray`
-        Array of fit parameters, as in :func:`numpy.polyfit`.
+        Array of fit parameters from :mod:`numpy.polynomial`.
     Also, optionally, the ``return_full`` bits
     """
-    # Make copies to not mess up the inputs
-    xx = x
-    yy = y
-
     # Filter out NaNs
-    if False in (good_idx := np.logical_and(~np.isnan(x), ~np.isnan(y))):
-        xx = xx[good_idx]
-        yy = yy[good_idx]
+    good_idx = np.logical_and(np.isfinite(x), np.isfinite(y))
+    xx = x[good_idx]
+    yy = y[good_idx]
 
-    if (array_length := len(xx)) == 0:
+    if not xx.size:
         return warn_and_return_zeros(return_full, x, xx, yy, order)
 
     # Check for fewer data points than the requested polynomial order
-    if array_length < order:
+    if xx.size < order:
+        # Set coefficient array to zero
         coeff = np.zeros(order + 1)
-        if array_length != 1:
-            sigma = np.std(yy)
-            coeff[0] = np.mean(yy)
-        else:
-            coeff[0] = yy[0]
-            sigma = yy[0]
-            sigma = 1.0 if sigma == 0.0 else sigma
+        # Set the constant appropriately
+        coeff[0] = yy[0] if xx.size == 1 else np.mean(yy)
         print("Not enough data to support even a non-robust polynomial fit.")
         if return_full:
-            yfit = [coeff[0]] * len(x)
+            yfit = np.full_like(x, coeff[0])
             return coeff, yfit, xx, yy
         return coeff
 
-    # Initial fit with all the data.
-    coeff = np.polyfit(xx, yy, order)
-    yfit = np.polyval(coeff, xx)
-    flat = (yy - yfit) + np.sum(yfit) / array_length
-    mean, sigma = np.mean(flat), np.std(flat)
+    # Iterate!
+    for iteration in range(3):
 
-    # Remove all points beyond threshold sigma
-    good = np.where(np.abs(flat - mean) < thresh * sigma)
-    nbad = array_length - len(good)
-    xx, yy = xx[good], yy[good]
-    if (array_length := len(xx)) == 0:
-        return warn_and_return_zeros(return_full, x, xx, yy, order)
+        # Initial fit with all the data
+        poly = np.polynomial.Polynomial.fit(xx, yy, order)
+        yfit = poly(xx)
+        resid_like = (yy - yfit) + np.mean(yfit)
+        mean, sigma = np.mean(resid_like), np.std(resid_like)
 
-    # Do a second pass if there were any bad points removed
-    if nbad != 0:
-        coeff = np.polyfit(xx, yy, order)
-        yfit = np.polyval(coeff, xx)
-        flat = (yy - yfit) + np.sum(yfit) / array_length
-        mean, sigma = np.mean(flat), np.std(flat)
+        # End the cycle after the second iteration (i.e., don't check `nbad`)
+        if iteration == 2:
+            break
 
         # Remove all points beyond threshold sigma
-        good = np.where(np.abs(flat - mean) < thresh * sigma)
-        nbad = array_length - len(good)
+        good = np.abs(resid_like - mean) < (thresh * sigma)
+        nbad = xx.size - np.sum(good)
         xx, yy = xx[good], yy[good]
-        if (array_length := len(xx)) == 0:
+        if not xx.size:
             return warn_and_return_zeros(return_full, x, xx, yy, order)
 
-    # Do a third pass if there were any more bad points removed
-    if nbad != 0:
-        coeff = np.polyfit(xx, yy, order)
-        yfit = np.polyval(coeff, xx)
-        flat = (yy - yfit) + np.sum(yfit) / array_length
-        mean, sigma = np.mean(flat), np.std(flat)
+        # If everything is happy, move along
+        if nbad == 0:
+            break
+        iteration += 1
 
     # Check that the fit coefficients are finite:
-    if not np.all(np.isfinite(coeff)):
+    if not np.all(np.isfinite(poly.convert().coef)):
         return warn_and_return_zeros(return_full, x, xx, yy, order)
 
     if return_full:
-        return coeff, yfit, xx, yy
-    return coeff
+        return poly.convert().coef, yfit, xx, yy
+    return poly.convert().coef
 
 
 def nearest_odd(x: float) -> int:
@@ -484,7 +490,14 @@ def sinusoid(
     )
 
 
-def warn_and_return_zeros(return_full: bool, x, xx, yy, order, raise_warn=False):
+def warn_and_return_zeros(
+    return_full: bool,
+    x: np.ndarray,
+    xx: np.ndarray,
+    yy: np.ndarray,
+    order: int,
+    raise_warn: bool = False,
+) -> np.ndarray:
     """Set warning and return zeroes from :func:`good_poly`
 
     This function is a DRY.  Since this block is used several times in

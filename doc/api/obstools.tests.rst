@@ -12,6 +12,7 @@ Submodules
    obstools.tests.test_dfocus
    obstools.tests.test_lmi_etc
    obstools.tests.test_utils
+   obstools.tests.tstutlis
 
 Module contents
 ---------------
